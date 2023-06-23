@@ -1,0 +1,241 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+.sectionBtn .mantine-Button-inner {
+  justify-content: start !important;
+}
+/* width */
+.gjs-editor-cont ::-webkit-scrollbar,
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+/* Track */
+.gjs-editor-cont ::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+}
+
+/* Handle */
+.gjs-editor-cont ::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background: #888 !important;
+}
+
+/* Handle on hover */
+.gjs-editor-cont ::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Hide scrollbar corner */
+.gjs-editor-cont ::-webkit-scrollbar-corner, ::-webkit-scrollbar-corner {
+  background-color: transparent !important;
+}
+
+.menu-bar-button {
+  transition: background-color 0.3s;
+}
+.menu-bar-icon {
+  transition: stroke 0.3s;
+}
+.menu-bar-button:hover .menu-bar-icon {
+  stroke: #228be6;
+}
+
+/* Overriding the default toolbar styling */
+.gjs-toolbar {
+  background-color: white !important;
+  border-radius: 5px;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+}
+.gjs-toolbar-item {
+  color: #5c5f66;
+  margin: 4px;
+  transition: background-color 0.3s;
+  position: relative;
+}
+
+.gjs-toolbar-item:hover {
+  color: #228be6;
+  background-color: #e7f5ff;
+  border-radius: 5px;
+}
+
+.gjs-toolbar-item:hover:after {
+  position: absolute;
+  bottom: -30px;
+  background-color: #000;
+  left: 0;
+  padding: 3px 10px;
+  border-radius: 4px;
+  color: #fff;
+}
+.gjs-toolbar-item__section-layout-toggle:hover:after {
+  content: "Adjust Columns";
+}
+.gjs-toolbar-item__section-layout-toggle,
+.gjs-toolbar-item:nth-last-child(2) {
+  stroke: #5c5f66;
+}
+.gjs-toolbar-item__section-layout-toggle:hover,
+.gjs-toolbar-item:nth-last-child(2):hover {
+  stroke: #228be6;
+}
+.darkIcon {
+  color: #fff !important;
+}
+.gjs-toolbar-item__dish-alignment:hover:after {
+  content: "Align Dish";
+}
+.gjs-toolbar-item__section-menu-item-layout-toggle:hover:after {
+  content: "Align Price";
+}
+
+.gjs-toolbar-item__section-header-align:hover:after {
+  content: "Align Header";
+}
+
+.gjs-toolbar-item:last-child:hover:after {
+  content: "Delete";
+}
+.gjs-toolbar-item:last-child {
+  color: #fa5252;
+}
+.gjs-toolbar-item:last-child:hover {
+  background-color: #fa525229;
+}
+.gjs-toolbar-item:last-child svg {
+  margin-left: -2px;
+}
+.gjs-toolbar-item__backwardImg:hover:after {
+  content: "Backwards";
+}
+.gjs-toolbar-item__forwardImg:hover:after {
+  content: "Forwards";
+}
+.gjs-toolbar-item__uploadImg:hover:after {
+  content: "Replace";
+}
+.gjs-toolbar-item__description-placement:hover:after {
+  content: "Align Description";
+}
+.gjs-toolbar-item:nth-last-child(2):hover:after {
+  content: "Duplicate";
+}
+.gjs-toolbar-item:nth-last-child(3):hover:after {
+  content: "Move";
+}
+.gjs-toolbar-item__section-add-on-toggle:hover:after {
+  content: "Add-on";
+}
+.gjs-toolbar-item__justify-header-image:hover:after {
+  content: "Justify Image" !important;
+}
+.myMenu.active {
+  position: relative;
+}
+.myMenu.active::after {
+  content: "";
+  height: 2px;
+  width: 100%;
+  background-color: #4c6ef5;
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+}
+.templates.active {
+  position: relative;
+}
+.templates.active::after {
+  content: "";
+  height: 2px;
+  width: 100%;
+  background-color: #fab005;
+  position: absolute;
+  bottom: -22px;
+  left: 0;
+}
+.gjs-toolbar-item__uploadImg svg {
+  fill: none !important;
+}
+.mantine-Modal-root,
+.mantine-Header-root {
+  z-index: 201;
+}
+.mantine-Drawer-drawer:hover {
+  overflow-y: scroll;
+}
+.mantine-Drawer-header {
+  direction: ltr;
+}
+.mantine-Popover-dropdown {
+  overflow-y: scroll;
+  max-height: 600px;
+}
+html {
+  overflow-x: auto;
+}
+.gjs-one-bg {
+  background-color: #e7ebee !important;
+}
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+
+/* Override Canvas Styling */
+.gjs-cv-canvas__frames {
+  transform-origin: 0 0;
+}
+
+.gjs-pn-panel.gjs-pn-views {
+  top: 0;
+}
+
+.gjs-pn-panel.gjs-pn-views-container {
+  top: 0;
+}
+
+.scrollable-wrapper {
+  overflow: auto;
+  margin-left: calc(4vw + 66px);
+  height: 100%;
+  width: calc(100% - 4vw - 66px);
+}
+
+.scrollable-content {
+  display: flex;
+  max-width: 100%;
+  height: 100%;
+}
+
+.canvas-wrapper {
+  padding: 40px;
+  display: flex;
+  margin: auto;
+  position: relative;
+}

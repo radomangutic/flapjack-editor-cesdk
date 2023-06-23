@@ -1,0 +1,16 @@
+[
+  {
+    "email": "test@flapjack.com",
+    "password": "password",
+    "role": "flapjack"
+  },
+  {
+    "email": "paid@gmail.com",
+    "password": "password",
+    "subscriptionActive": true
+  },
+  {
+    "email": "user@gmail.com",
+    "password": "password"
+  }
+]

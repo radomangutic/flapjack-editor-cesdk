@@ -1,0 +1,129 @@
+[
+  {
+    "createdBy": null,
+    "titleFont": {
+      "name": "Montserrat-SemiBold.otf",
+      "url": "766688b9-5533-4fcb-8807-b02c7b76b6af-1674521412289-Montserrat-SemiBold",
+      "custom": true
+    },
+    "headerFont": {
+      "name": "Montserrat-ExtraBold.ttf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1679679968545-Montserrat-ExtraBold",
+      "custom": true
+    },
+    "bodyFont": {
+      "name": "MyriadPro-Light.otf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1678314726778-MyriadPro-Light",
+      "custom": true
+    },
+    "name": "Freek's Mill",
+    "headerFontSize": 35,
+    "titleFontSize": 25,
+    "bodyFontSize": 25,
+    "menuFontSize": 20,
+    "menuFont": {
+      "url": "766688b9-5533-4fcb-8807-b02c7b76b6af-1678985284439-OpenSans-ExtraBold_3",
+      "name": "OpenSans-ExtraBold_3.ttf",
+      "custom": true
+    },
+    "fontOrder": null,
+    "createdAt": "2023-01-04 00:53:19.35422+00",
+    "updatedAt": "2023-03-29 04:57:14.357+00",
+    "id": 64
+  },
+  {
+    "createdBy": null,
+    "titleFont": {
+      "name": "TitilliumWeb-SemiBold.ttf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1678317026787-TitilliumWeb-SemiBold",
+      "custom": true
+    },
+    "headerFont": {
+      "name": "TitilliumWeb-Black.ttf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1678317028069-TitilliumWeb-Black",
+      "custom": true
+    },
+    "bodyFont": {
+      "name": "TitilliumWeb-Light.ttf",
+      "url": "b9b19d76-4756-407a-b8e2-e91c4dd667f3-1671132234087-TitilliumWeb-Light",
+      "custom": true
+    },
+    "name": "Spirit of 77",
+    "headerFontSize": 25,
+    "titleFontSize": 17,
+    "bodyFontSize": 17,
+    "menuFontSize": 75,
+    "menuFont": {
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1679682756739-Pioneer ITC Regular",
+      "name": "Pioneer ITC Regular.ttf",
+      "custom": true
+    },
+    "fontOrder": null,
+    "createdAt": "2022-12-15 19:23:55.198793+00",
+    "updatedAt": "2023-03-24 18:33:11.632+00",
+    "id": 36
+  },
+  {
+    "createdBy": null,
+    "titleFont": {
+      "name": "SourceCodePro-Bold.ttf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1678306562255-SourceCodePro-Bold",
+      "custom": true
+    },
+    "headerFont": {
+      "name": "SourceCodePro-Black.ttf",
+      "url": "4c157293-e69a-44b0-9dd7-5b04fc2fb3be-1678306562847-SourceCodePro-Black",
+      "custom": true
+    },
+    "bodyFont": {
+      "name": "SourceCodePro-Regular.ttf",
+      "url": "766688b9-5533-4fcb-8807-b02c7b76b6af-1675275183810-SourceCodePro-Regular",
+      "custom": true
+    },
+    "name": "Rey's Place",
+    "headerFontSize": 22,
+    "titleFontSize": 16,
+    "bodyFontSize": 13,
+    "menuFontSize": 200,
+    "menuFont": {
+      "url": "766688b9-5533-4fcb-8807-b02c7b76b6af-1678126476606-TitilliumWeb-SemiBold",
+      "name": "TitilliumWeb-SemiBold.ttf",
+      "custom": true
+    },
+    "fontOrder": null,
+    "createdAt": "2022-12-29 00:23:12.532064+00",
+    "updatedAt": "2023-03-09 05:26:52.601+00",
+    "id": 44
+  },
+  {
+    "createdBy": null,
+    "titleFont": {
+      "name": "BebasNeue-Regular.ttf",
+      "url": "c266790e-e0cb-48d9-9b86-22c034dc6539-1671497395384-BebasNeue-Regular",
+      "custom": true
+    },
+    "headerFont": {
+      "name": "SourceSerifPro-Bold.ttf",
+      "url": "c266790e-e0cb-48d9-9b86-22c034dc6539-1671497395859-SourceSerifPro-Bold",
+      "custom": true
+    },
+    "bodyFont": {
+      "name": "SourceSerifPro-Regular.ttf",
+      "url": "c266790e-e0cb-48d9-9b86-22c034dc6539-1671497396439-SourceSerifPro-Regular",
+      "custom": true
+    },
+    "name": "Menu Lab",
+    "headerFontSize": 28,
+    "titleFontSize": 30,
+    "bodyFontSize": 25,
+    "menuFontSize": 16,
+    "menuFont": {
+      "url": "//fonts.gstatic.com/s/abel/v18/MwQ5bhbm2POE6VhLPJp6qGI.ttf",
+      "name": "Abel"
+    },
+    "fontOrder": null,
+    "createdAt": "2022-12-20 00:49:55.445096+00",
+    "updatedAt": "2023-03-10 13:10:00.925+00",
+    "id": 37
+  }
+]

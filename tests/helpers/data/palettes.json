@@ -1,0 +1,58 @@
+[
+  {
+    "createdBy": null,
+    "primaryColor": "#4e667B",
+    "secondaryColor": "#876969",
+    "tertiaryColor": "#a88888",
+    "textColor": "#6fb7d1",
+    "backgroundColor": "#FFFFFF",
+    "name": "De La Mar",
+    "paletteOrder": null,
+    "createdAt": "2023-03-27 16:36:22.065304+00",
+    "updatedAt": "2023-03-28 13:24:54.106+00",
+    "menuColor": "#7194bC",
+    "id": 254
+  },
+  {
+    "createdBy": null,
+    "primaryColor": "#8a0606",
+    "secondaryColor": "#6e6262",
+    "tertiaryColor": "#857f7f",
+    "textColor": "#024040",
+    "backgroundColor": "#f5f2f2",
+    "name": "deck",
+    "paletteOrder": null,
+    "createdAt": "2023-03-22 14:56:19.87765+00",
+    "updatedAt": "2023-03-22 14:56:19.87765+00",
+    "menuColor": "#03285c",
+    "id": 253
+  },
+  {
+    "createdBy": null,
+    "primaryColor": "#cd333c",
+    "secondaryColor": "#6e5d5d",
+    "tertiaryColor": "#8c7777",
+    "textColor": "#9c5c32",
+    "backgroundColor": "#fffaec",
+    "name": "Craftsica",
+    "paletteOrder": null,
+    "createdAt": "2023-03-13 15:55:42.19563+00",
+    "updatedAt": "2023-03-13 17:05:31.471+00",
+    "menuColor": "",
+    "id": 225
+  },
+  {
+    "createdBy": null,
+    "primaryColor": "#1D1D1B",
+    "secondaryColor": "#4a4343",
+    "tertiaryColor": "#665a5a",
+    "textColor": "#1D1D1B",
+    "backgroundColor": "#FFFFFF",
+    "name": "MAIN STREET",
+    "paletteOrder": null,
+    "createdAt": "2023-03-29 19:41:26.286761+00",
+    "updatedAt": "2023-03-29 19:41:26.286761+00",
+    "menuColor": "#1D1D1B",
+    "id": 256
+  }
+]
