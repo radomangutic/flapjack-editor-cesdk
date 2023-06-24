@@ -12,6 +12,15 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
       license: process.env.REACT_APP_LICENSE,
       ui: {
         elements: {
+          dock: {
+            groups: [
+              {
+                id: "ly.img.template",
+                entryIds: ["ly.img.template"],
+              },
+              { id: "ly.img.defaultGroup" },
+            ],
+          },
           panels: {
             settings: true,
           },
@@ -27,10 +36,12 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
           libraries: {
             insert: {
               entries: (defaultEntries: any) => {
-                return defaultEntries.filter(
-                  (item: any) =>
-                    item.id !== "ly.img.upload" && item.id !== "ly.img.sticker"
-                );
+                return [
+                  defaultEntries[0],
+                  defaultEntries[3],
+                  defaultEntries[2],
+                  defaultEntries[4],
+                ];
               },
             },
           },
