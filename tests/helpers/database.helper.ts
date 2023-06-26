@@ -9,9 +9,9 @@ const supabaseURL =
 // Use the service role key to bypass the policy to manipulate test data
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZHBteXZ4bnV3cXRkaXZ0amlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzM3NjkyMywiZXhwIjoyMDAyOTUyOTIzfQ.W5zlwODQFalsWuSAYPn0QwzHYqZ-X-O_N3pV_9vrpJE";
 
-const dbClient = createClient(supabaseURL, supabaseKey);
+export const dbClient = createClient(supabaseURL, supabaseKey);
 
 type Table = {
   name: string;
