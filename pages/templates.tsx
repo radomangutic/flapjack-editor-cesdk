@@ -6,8 +6,7 @@ import { Container, SimpleGrid, Text } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../interfaces/ITemplate";
 import { useUser, useTemplateActions } from "../hooks";
-import { useRouter } from 'next/router';
-
+import { useRouter } from "next/router";
 
 const Templates = ({
   data,
@@ -16,23 +15,42 @@ const Templates = ({
   data: ITemplateDetails[];
   thumbnails: string[];
 }) => {
-  const router = useRouter()
+  const router = useRouter();
   const [templates, setTemplates] = useState<ITemplateDetails[]>(data);
   const [navMenu, setNavMenu] = useState("templates");
   const user = useUser();
-  const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } = useTemplateActions(
-    templates,
-    setTemplates,
-    setNavMenu
-  );
+  console.log("user", user);
+
+  const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
+    useTemplateActions(templates, setTemplates, setNavMenu);
 
   // Fix `My Menu` button on the template page temporarily.
   // The better way is creating a separate `My Menu` page.
   useEffect(() => {
-    if (router.isReady && Object.hasOwn(router.query, 'myMenu')) {
-      setNavMenu('myMenu')
+    if (router.isReady && Object.hasOwn(router.query, "myMenu")) {
+      setNavMenu("myMenu");
     }
   }, [router]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/templates?userId=${user?.id}`);
+        if (!response.ok) {
+          throw new Error("Request failed");
+        }
+        const data = await response.json();
+        console.log("data===>", data);
+
+        setTemplates(data.templates);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (user?.id) {
+      fetchData();
+    }
+  }, [user?.id]);
+  console.log("templates==>", templates);
 
   return (
     <>
@@ -41,21 +59,18 @@ const Templates = ({
         <Text size={32} weight={200} sx={{ marginBottom: "1rem" }}>
           {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
         </Text>
-        <SimpleGrid cols={3}
+        <SimpleGrid
+          cols={3}
           breakpoints={[
-            { maxWidth: 1120, cols: 3, spacing: 'md' },
-            { maxWidth: 991, cols: 2, spacing: 'sm' },
-            { maxWidth: 600, cols: 1, spacing: 'sm' },
+            { maxWidth: 1120, cols: 3, spacing: "md" },
+            { maxWidth: 991, cols: 2, spacing: "sm" },
+            { maxWidth: 600, cols: 1, spacing: "sm" },
           ]}
         >
           {templates
             ?.filter((template) => {
               if (navMenu === "templates") {
-                if (template.isGlobal) {
-                  return true;
-                } else {
-                  return false;
-                }
+                return true;
               } else {
                 if (template.createdBy === user?.id && !template.isGlobal) {
                   return true;
@@ -84,9 +99,10 @@ const Templates = ({
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
-  const { data } = await supabase.from("templates")
+  const { data } = await supabase
+    .from("templates")
     .select("id, createdBy, name, description, tags, isGlobal, menuSize")
-    .order('templateOrder', { ascending: true });
+    .order("templateOrder", { ascending: true });
 
   let { data: folders } = await supabase.storage.from("renderings").list();
   let thumbnails: any = {};
@@ -95,7 +111,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       .from("renderings")
       .getPublicUrl(`${folder.name}/1.jpg`);
     thumbnails[folder.name] = images.publicUrl;
-  })
+  });
   return {
     props: { data, thumbnails }, // will be passed to the page component as props
   };

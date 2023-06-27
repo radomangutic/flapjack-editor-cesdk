@@ -1,11 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import CreativeEditorSDK from "@cesdk/cesdk-js";
-import { useUser } from "../../hooks/useUser";
+import { useUser, userProfile } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 
 const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
   const user = useUser();
+  const [userProfileData, setuserProfileData] = useState<any>(null);
+
+  console.log("userProfileData", userProfileData);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: userData, error: userError } = await dbClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .single();
+      setuserProfileData(userData);
+    };
+    fetchUserProfile();
+  }, [user?.id]);
 
   useEffect(() => {
     const config: object = {
@@ -59,10 +74,10 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
           }
           return Promise.resolve();
         },
-        onUpload: 'local',
+        onUpload: "local",
         onSave: (scene: any) => {
           // if (user && user.subscriptionActive) {
-            saveTemplate(scene);
+          saveTemplate(scene);
           // } else {
           //   openAuthDialog();
           // }
@@ -106,6 +121,8 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
     link.click();
   }
   const saveTemplate = async (string: string) => {
+    console.log("s");
+
     const file = new Blob([string], { type: "text/plain" });
 
     try {
@@ -116,7 +133,19 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
       if (error) {
         console.error("Error uploading file:", error.message);
       } else {
-        console.log("File uploaded successfully:", data.Key);
+        console.log("File uploaded successfully:", data);
+        const templateData = {
+          createdBy: user?.id,
+          name: user?.email,
+          description: user?.email,
+          content: data?.path,
+          tags: user?.email,
+          isGlobal: userProfileData?.role === "flapjack" ? true : false,
+          menuSize: "",
+          templateOrder: 2,
+          restaurant_id: userProfileData?.restaurant_id,
+        };
+        await dbClient.from("templates").insert(templateData);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
