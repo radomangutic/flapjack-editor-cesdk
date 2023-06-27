@@ -338,40 +338,6 @@ const TemplateHeader = ({
             </Text>
           </Flex>
         </Flex>
-        {!router.pathname.includes("templates") && (
-          <Flex align="center">
-            <Select
-              label="Size"
-              placeholder="Pick one"
-              defaultValue="Letter"
-              size="xs"
-              shadow="md"
-              value={sizeValue}
-              onChange={handleSizeChange}
-              styles={(theme) => ({
-                root: {
-                  display: "flex",
-                  alignItems: "center",
-                },
-                input: {
-                  width: "190px",
-                },
-                label: {
-                  marginRight: "10px",
-                },
-              })}
-              data={[
-                { value: "Letter", label: "Full Page (8.5 × 11 in)" },
-                { value: "Horizontal Letter", label: "Full Page Landscape (11 x 8.5 in)" },
-                { value: "Half Letter", label: "1/2 Page (4.5 × 11 in)" },
-                { value: "Quarter Letter", label: "1/4 Page (4.5 × 5.5 in)" },
-                { value: "Legal", label: "Legal (14 x 8.5 in)" },
-                { value: "Horizontal Legal", label: "Legal Landscape (14 x 8.5 in)" },
-                { value: "ARCH E", label: "Wall Poster (36 x 48 in)" },
-              ]}
-            />
-          </Flex>
-        )}
         <Flex align="center">
           {router.pathname.includes("templates") ? (
             user &&

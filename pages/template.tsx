@@ -28,8 +28,6 @@ const Template = ({ drawerOpened }: { drawerOpened: boolean }) => {
     }
   }, [selectedFont]);
 
-
-
   // attach hotjar to editor
 
   // get template from exit menu from database
@@ -44,39 +42,39 @@ const Template = ({ drawerOpened }: { drawerOpened: boolean }) => {
         // console.log("data[0]", data[0]);
 
         // if (editor) {
-          // const templateData = loadTemplateData(data[0].content);
-          // editor.loadProjectData(templateData);
-          // editor.setDevice(templateData.assets[0]);
-          // setTimeout(() => {
-          //   const canvasDocument = editor.Canvas.getDocument();
-          //   if (!canvasDocument) return;
+        // const templateData = loadTemplateData(data[0].content);
+        // editor.loadProjectData(templateData);
+        // editor.setDevice(templateData.assets[0]);
+        // setTimeout(() => {
+        //   const canvasDocument = editor.Canvas.getDocument();
+        //   if (!canvasDocument) return;
 
-          //   // Set vertical and horizontal padding to the toolbar
-          //   const menuBody = canvasDocument.querySelector(MENU_BODY_SELECTOR);
-          //   if (menuBody) {
-          //     const prevHorizontalPadding =
-          //       window.getComputedStyle(menuBody).paddingLeft;
-          //     setSelectedHorizontalPadding(parseFloat(prevHorizontalPadding));
-          //     const prevVerticalPadding =
-          //       window.getComputedStyle(menuBody).paddingTop;
-          //     setSelectedVerticalPadding(parseFloat(prevVerticalPadding));
-          //   }
+        //   // Set vertical and horizontal padding to the toolbar
+        //   const menuBody = canvasDocument.querySelector(MENU_BODY_SELECTOR);
+        //   if (menuBody) {
+        //     const prevHorizontalPadding =
+        //       window.getComputedStyle(menuBody).paddingLeft;
+        //     setSelectedHorizontalPadding(parseFloat(prevHorizontalPadding));
+        //     const prevVerticalPadding =
+        //       window.getComputedStyle(menuBody).paddingTop;
+        //     setSelectedVerticalPadding(parseFloat(prevVerticalPadding));
+        //   }
 
-          //   // Set columns padding to the toolbar
-          //   const sectionHeadingRow = canvasDocument.querySelector(
-          //     `.section ${SECTION_HEADING_ROW_SELECTOR}`
-          //   );
-          //   if (sectionHeadingRow) {
-          //     const prevColumnPadding =
-          //       window.getComputedStyle(sectionHeadingRow).gap;
-          //     setSelectedColumnsPadding(parseFloat(prevColumnPadding));
-          //   }
-          // }, 2000);
+        //   // Set columns padding to the toolbar
+        //   const sectionHeadingRow = canvasDocument.querySelector(
+        //     `.section ${SECTION_HEADING_ROW_SELECTOR}`
+        //   );
+        //   if (sectionHeadingRow) {
+        //     const prevColumnPadding =
+        //       window.getComputedStyle(sectionHeadingRow).gap;
+        //     setSelectedColumnsPadding(parseFloat(prevColumnPadding));
+        //   }
+        // }, 2000);
         // }
         // console.log('data[0]', data[0])
-      //   setTemplate({
-      //     ...data[0],
-      //   });
+        //   setTemplate({
+        //     ...data[0],
+        //   });
       } catch (err) {
         console.error(err);
       }
@@ -90,12 +88,16 @@ const Template = ({ drawerOpened }: { drawerOpened: boolean }) => {
     }
   }, [editor, router.query.id, fetchTemplate]);
 
-  return (
-    <>
-      <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
-      <Editor openAuthDialog={openAuthDialog} />
-    </>
-  );
+  if (typeof window !== "undefined") {
+    return (
+      <>
+        <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
+        <Editor openAuthDialog={openAuthDialog} />
+      </>
+    );
+  }
+
+  return null;
 };
 
 export default Template;

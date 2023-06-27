@@ -6,7 +6,6 @@ import { dbClient } from "../../tests/helpers/database.helper";
 const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
   const user = useUser();
-  const [engine, setEngine] = useState<any>(null)
 
   useEffect(() => {
     const config: object = {
@@ -34,6 +33,7 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
                 format: ["image/png", "application/pdf"],
                 onclick: () => alert("Download"),
               },
+              save: true,
             },
           },
           libraries: {
@@ -59,7 +59,14 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
           }
           return Promise.resolve();
         },
-        onUpload: undefined,
+        onUpload: 'local',
+        onSave: (scene: any) => {
+          // if (user && user.subscriptionActive) {
+            saveTemplate(scene);
+          // } else {
+          //   openAuthDialog();
+          // }
+        },
       },
       presets: {
         pageFormats: {
@@ -82,13 +89,12 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
 
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
-        async(instance: any) => {
+        async (instance: any) => {
           instance.addDefaultAssetSources();
           instance.addDemoAssetSources();
-          await instance.engine.scene.loadFromURL(
-            'https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/templates/file1'
-          );
-          setEngine(instance.engine)
+          // await instance.engine.scene.loadFromURL(
+          //   "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/templates/file2"
+          // );
         }
       );
     }
@@ -99,25 +105,23 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
     link.download = fileName;
     link.click();
   }
-  const saveTemplate = async () => {
-    const string = await engine.scene.saveToString();
-    const file = new Blob([string], { type: 'text/plain' });
+  const saveTemplate = async (string: string) => {
+    const file = new Blob([string], { type: "text/plain" });
 
     try {
-      const { data, error }: { data: any, error: any } = await dbClient.storage
-        .from('templates') // Replace 'bucket_name' with your actual Supabase storage bucket name
-        .upload(`file2`, file); // Replace 'file_name' with the desired file name
+      const { data, error }: { data: any; error: any } = await dbClient.storage
+        .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+        .upload(`file3`, file); // Replace 'file_name' with the desired file name
 
       if (error) {
-        console.error('Error uploading file:', error.message);
+        console.error("Error uploading file:", error.message);
       } else {
-        console.log('File uploaded successfully:', data.Key);
+        console.log("File uploaded successfully:", data.Key);
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
     }
-
-  }
+  };
   return (
     <div style={cesdkWrapperStyle}>
       <div ref={cesdkContainer} style={cesdkStyle}></div>
