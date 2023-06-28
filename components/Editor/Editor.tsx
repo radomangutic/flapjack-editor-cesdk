@@ -3,25 +3,21 @@ import CreativeEditorSDK from "@cesdk/cesdk-js";
 import { useUser } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
+import { ITemplateDetails, IUserDetails } from "../../interfaces";
 
-const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
+const Editor = ({
+  openAuthDialog,
+  template,
+}: {
+  openAuthDialog: () => void;
+  template: ITemplateDetails | null;
+}) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
-  const user = useUser();
-  const [userProfileData, setuserProfileData] = useState<any>(null);
-  const router = useRouter();
-  console.log("userProfileData", userProfileData);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: userData, error: userError } = await dbClient
-        .from("profiles")
-        .select("*")
-        .eq("id", user?.id)
-        .single();
-      setuserProfileData(userData);
-    };
-    fetchUserProfile();
-  }, [user?.id]);
+  const user = useUser();
+  const router = useRouter();
+
+  console.log("user", user);
 
   useEffect(() => {
     const config: object = {
@@ -102,15 +98,19 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
         },
       },
     };
+    console.log("env====>", template);
 
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
         async (instance: any) => {
           instance.addDefaultAssetSources();
           instance.addDemoAssetSources();
-          // await instance.engine.scene.loadFromURL(
-          //   "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/templates/file2"
-          // );
+          if (template?.content) {
+            await instance.engine.scene.loadFromURL(
+              process.env.NEXT_PUBLIC_SUPABASE_URL +
+                `/storage/v1/object/public/templates/${template?.content}`
+            );
+          }
         }
       );
     }
@@ -123,29 +123,71 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
   }
   const saveTemplate = async (string: string) => {
     const file = new Blob([string], { type: "text/plain" });
-
     try {
-      const { data, error }: { data: any; error: any } = await dbClient.storage
-        .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-        .upload(`file3`, file); // Replace 'file_name' with the desired file name
+      console.log("edit", user);
+      if (!user) {
+        alert("something went wrong");
+        return;
+      }
+      if (template?.content) {
+        const {
+          data: fileRemove,
+          error: fileremoveError,
+        }: { data: any; error: any } = await dbClient.storage
+          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+          .remove(["file3"]); // Replace 'file_name' with the name of the file you want to delete
+        console.log("fileremoveError", fileremoveError);
+        console.log("fileRemove", fileRemove);
 
-      if (error) {
-        console.error("Error uploading file:", error.message);
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage
+            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+            .update(`file5`, file); // Replace 'file_name' with the desired file name
+        if (error) {
+          console.error("Error updating file:", error.message);
+        } else {
+          console.log("File update successfully:", data);
+          const templateData = {
+            createdBy: user?.id,
+            name: user?.email,
+            description: user?.email,
+            content: data?.path,
+            tags: user?.email,
+            isGlobal: user?.role === "flapjack" ? true : false,
+            menuSize: "",
+            templateOrder: 2,
+            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
+          };
+          await dbClient
+            .from("templates")
+            .update(templateData)
+            .eq("id", template.id);
+          router.push("/templates");
+        }
       } else {
-        console.log("File uploaded successfully:", data);
-        const templateData = {
-          createdBy: user?.id,
-          name: user?.email,
-          description: user?.email,
-          content: data?.path,
-          tags: user?.email,
-          isGlobal: user?.role === "flapjack" ? true : false,
-          menuSize: "",
-          templateOrder: 2,
-          restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
-        };
-        await dbClient.from("templates").insert(templateData);
-        router.push("/templates");
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage
+            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+            .upload(`file5`, file); // Replace 'file_name' with the desired file name
+        if (error) {
+          console.error("Error uploading file:", error.message);
+        } else {
+          console.log("File uploaded successfully:", data);
+          const templateData = {
+            createdBy: user?.id,
+            name: user?.email,
+            description: user?.email,
+            content: data?.path,
+            tags: user?.email,
+            isGlobal: user?.role === "flapjack" ? true : false,
+            menuSize: "",
+            templateOrder: 2,
+            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
+          };
+
+          await dbClient.from("templates").insert(templateData);
+          router.push("/templates");
+        }
       }
     } catch (error) {
       console.error("Error uploading file:", error);

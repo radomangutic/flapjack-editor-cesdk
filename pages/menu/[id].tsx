@@ -35,7 +35,7 @@ function TemplateDrawer({
         size="xl"
         title={<DrawerHeader templateData={template} />}
         withOverlay={false}
-        styles={{ drawer: { top: "63px", direction:"rtl"} }}
+        styles={{ drawer: { top: "63px", direction: "rtl" } }}
       >
         <DrawerBody images={images} />
       </Drawer>
@@ -74,13 +74,14 @@ const Menu = ({
   data,
   images,
 }: {
-  data: ITemplateDetails[];
+  data: ITemplateDetails;
   images: string[];
 }) => {
   const [drawerOpened, setDrawerOpened] = useState(true);
+
   return (
     <>
-      <Template drawerOpened={drawerOpened} />
+      <Template drawerOpened={drawerOpened} data={data}/>
     </>
   );
 };
@@ -88,7 +89,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const { data } = await supabase
     .from("templates")
-    .select("name, description, tags")
+    .select(
+      "id, createdBy, name, description, content, tags, isGlobal, menuSize"
+    )
     .eq("id", context?.params?.id);
 
   const { data: images, error } = await supabase.storage
@@ -110,7 +113,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     });
   }
   return {
-    props: { data, images: imageUrls }, // will be passed to the page component as props
+    props: { data: data ? data[0] : null, images: imageUrls }, // will be passed to the page component as props
   };
 }
 
