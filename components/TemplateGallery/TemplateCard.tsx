@@ -2,6 +2,7 @@ import { Card, Image, Text, Badge } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { ITemplateDetails } from "../../interfaces";
 import TemplateCardOverlay from "./TemplateCardOverlay";
+import { useUser } from "@supabase/auth-helpers-react";
 
 export type RemoveTemplate = ((id: number) => Promise<void>) | undefined;
 export type DuplicateTemplate =
@@ -43,6 +44,7 @@ const TemplateCard = ({
   const [showOverlay, setShowOverlay] = useState(false);
   const openOverlay = useCallback(() => setShowOverlay(true), []);
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
+  const user = useUser();
 
   return (
     <Card
@@ -57,15 +59,18 @@ const TemplateCard = ({
       href={`/menu/${template.id}`}
     >
       <Card.Section pos="relative">
-        <TemplateCardOverlay
-          showOverlay={showOverlay}
-          setShowOverlay={setShowOverlay}
-          template={template}
-          onHandleDeleteTemplate={onRemove}
-          onHandleRenameTemplate={onRename}
-          onHandleDuplicateTemplate={onDuplicate}
-          onHandleGlobal={onGlobal}
-        />
+        {(template.createdBy === user?.id || user?.role === "flapjack") && (
+          <TemplateCardOverlay
+            showOverlay={showOverlay}
+            setShowOverlay={setShowOverlay}
+            template={template}
+            onHandleDeleteTemplate={onRemove}
+            onHandleRenameTemplate={onRename}
+            onHandleDuplicateTemplate={onDuplicate}
+            onHandleGlobal={onGlobal}
+          />
+        )}
+
         <Image src={thumbnail} height={235} alt="Norway" />
         {template?.menuSize && (
           <Badge
