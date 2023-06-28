@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/router";
 import AuthDialog from "../components/AuthDialog";
 import Editor from "../components/Editor/Editor";
+import UpsertTemplateDialog from "../components/UpsertTemplateDialog";
 
 export const WRAPPER_PADDING = 10;
 
@@ -24,7 +25,7 @@ const Template = ({
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const supabase = useSupabaseClient();
   const router = useRouter();
-  
+
   useEffect(() => {
     if (typeof window !== "undefined" && selectedFont) {
       sessionStorage.removeItem("bodyFontSize");
@@ -38,6 +39,13 @@ const Template = ({
   if (typeof window !== "undefined") {
     return (
       <>
+        {/* <UpsertTemplateDialog
+          opened={true}
+          onClose={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          content={undefined}
+        /> */}
         <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
         <Editor openAuthDialog={openAuthDialog} template={data} />
       </>

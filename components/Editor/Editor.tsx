@@ -26,7 +26,6 @@ const Editor = ({
         .eq("id", user?.id)
         .single()
         .then(({ data, error }) => {
-          alert("d");
           setuserProfileData(data);
         });
     }
