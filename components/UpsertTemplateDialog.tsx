@@ -35,8 +35,10 @@ const UpsertTemplateDialog = ({
 
   const onSubmit = async (values: { name: string; description: string }) => {
     try {
-      const isUpdating = router.query.id
-      const userCanUpdate = user?.role === "flapjack" || (!template?.isGlobal && user?.subscriptionActive)
+      const isUpdating = router.query.id;
+      const userCanUpdate =
+        user?.role === "flapjack" ||
+        (!template?.isGlobal && user?.subscriptionActive);
       if (isUpdating && userCanUpdate) {
         const { error } = await supabase
           .from("templates")
@@ -54,13 +56,17 @@ const UpsertTemplateDialog = ({
           .insert({
             ...values,
             content: content,
+            isGlobal: user?.role === "flapjack" ? true : false,
+            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
             createdBy: user?.id,
-            createdAt: new Date(),
+            created_at: new Date(),
             updatedAt: new Date(),
           })
           .select();
+        console.log("data===>create temo", data);
+
         if (error) throw error;
-        window.location.pathname = `/menu/${data[0].id}`;
+        await router.push(`/templates`);
       }
     } catch (err) {
       console.error(err);

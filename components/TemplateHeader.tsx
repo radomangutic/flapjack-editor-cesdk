@@ -49,32 +49,34 @@ const TemplateHeader = ({
   const session = useSession();
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
-  const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id)
+  const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
 
   if (typeof document !== "undefined") {
     const panelWrapper = document.querySelector<HTMLElement>(".gjs-pn-panels");
     const canvasWrapper = document.querySelector<HTMLElement>(".gjs-cv-canvas");
-    const scrollableWrapper = document.querySelector<HTMLElement>('.scrollable-wrapper');
+    const scrollableWrapper = document.querySelector<HTMLElement>(
+      ".scrollable-wrapper"
+    );
 
     if (scrollableWrapper !== null) {
       if (userCanEditFontAndColor(user)) {
-        const LEFT_SPACE = '(4vw + 66px)';
-        const RIGHT_SPACE = '200px';
+        const LEFT_SPACE = "(4vw + 66px)";
+        const RIGHT_SPACE = "200px";
         scrollableWrapper.style.width = `calc(100% - ${LEFT_SPACE} - ${RIGHT_SPACE})`;
       }
 
       // Update the canvas offset on scroll.
       // Without updating, the hover border and toolbox are misaligned with the item
-      scrollableWrapper.addEventListener('scroll', () => {
+      scrollableWrapper.addEventListener("scroll", () => {
         editor?.refresh();
-      })
+      });
     }
     if (panelWrapper != null && canvasWrapper !== null) {
       if (user?.role === "flapjack") {
-        canvasWrapper.style.position = 'relative';
+        canvasWrapper.style.position = "relative";
         panelWrapper.style.display = "block";
       } else {
-        canvasWrapper.style.position = 'relative';
+        canvasWrapper.style.position = "relative";
         panelWrapper.style.display = "none";
       }
 
@@ -272,8 +274,9 @@ const TemplateHeader = ({
             {user && (
               <Text
                 // navMenu "cursor-pointer"
-                className={`myMenu ${navMenu === "myMenu" ? "active" : ""
-                  } cursor-pointer`}
+                className={`myMenu ${
+                  navMenu === "myMenu" ? "active" : ""
+                } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
                   router.push("/templates?myMenu");
@@ -305,8 +308,9 @@ const TemplateHeader = ({
               </Text>
             )}
             <Text
-              className={`templates ${navMenu === "templates" ? "active" : ""
-                } cursor-pointer`}
+              className={`templates ${
+                navMenu === "templates" ? "active" : ""
+              } cursor-pointer`}
               fz="sm"
               ml="sm"
               onClick={() => {
@@ -357,11 +361,7 @@ const TemplateHeader = ({
                 size="xs"
                 variant="subtle"
                 onClick={
-                  session
-                    ? triggerUpsellOr(
-                      onTemplateDownload,
-                    )
-                    : openAuthDialog
+                  session ? triggerUpsellOr(onTemplateDownload) : openAuthDialog
                 }
                 sx={{
                   "&:hover": {
@@ -378,11 +378,7 @@ const TemplateHeader = ({
               size="xs"
               color="orange"
               onClick={
-                session
-                  ? triggerUpsellOr(
-                    onTemplateSaveUpdate,
-                  )
-                  : openAuthDialog
+                session ? triggerUpsellOr(onTemplateSaveUpdate) : openAuthDialog
               }
               sx={{ marginRight: "1rem" }}
             >
@@ -391,8 +387,8 @@ const TemplateHeader = ({
                   ? "Update"
                   : "Save Menu"
                 : user
-                  ? "Save"
-                  : "Save Menu"}
+                ? "Save"
+                : "Save Menu"}
             </Button>
           )}
           {session ? (

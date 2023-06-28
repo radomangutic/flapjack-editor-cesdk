@@ -39,13 +39,7 @@ const Template = ({
   if (typeof window !== "undefined") {
     return (
       <>
-        {/* <UpsertTemplateDialog
-          opened={true}
-          onClose={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-          content={undefined}
-        /> */}
+      
         <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
         <Editor openAuthDialog={openAuthDialog} template={data} />
       </>

@@ -5,6 +5,7 @@ import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
 import { v4 as uuidv4 } from "uuid";
+import UpsertTemplateDialog from "../UpsertTemplateDialog";
 const Editor = ({
   openAuthDialog,
   template,
@@ -16,6 +17,8 @@ const Editor = ({
   const [userProfileData, setuserProfileData] = useState<IUserDetails | null>(
     null
   );
+  const [templateModal, settemplateModal] = useState<Boolean>(false);
+  const [content, setcontent] = useState<string>("");
   const user = useUser();
   const router = useRouter();
   useEffect(() => {
@@ -88,7 +91,7 @@ const Editor = ({
         onUpload: "local",
         onSave: (scene: any) => {
           // if (user && user.subscriptionActive) {
-          saveTemplate(scene,userProfileData);
+          saveTemplate(scene, userProfileData);
           // } else {
           //   openAuthDialog();
           // }
@@ -134,7 +137,7 @@ const Editor = ({
     link.download = fileName;
     link.click();
   }
-  const saveTemplate = async (string: string,userProfileData:any) => {
+  const saveTemplate = async (string: string, userProfileData: any) => {
     const file = new Blob([string], { type: "text/plain" });
     try {
       console.log("userProfileData", userProfileData);
@@ -160,23 +163,8 @@ const Editor = ({
         if (error) {
           console.error("Error updating file:", error.message);
         } else {
-          console.log("File update successfully:", data);
-          const templateData = {
-            createdBy: user?.id,
-            name: user?.email,
-            description: user?.email,
-            content: data?.path,
-            tags: user?.email,
-            isGlobal: user?.role === "flapjack" ? true : false,
-            menuSize: "",
-            templateOrder: 2,
-            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
-          };
-          await dbClient
-            .from("templates")
-            .update(templateData)
-            .eq("id", template.id);
-          router.push("/templates");
+          setcontent(data?.path);
+          settemplateModal(true);
         }
       } else {
         const { data, error }: { data: any; error: any } =
@@ -186,21 +174,8 @@ const Editor = ({
         if (error) {
           console.error("Error uploading file:", error.message);
         } else {
-          console.log("File uploaded successfully:", data);
-          const templateData = {
-            createdBy: user?.id,
-            name: user?.email,
-            description: user?.email,
-            content: data?.path,
-            tags: user?.email,
-            isGlobal: user?.role === "flapjack" ? true : false,
-            menuSize: "",
-            templateOrder: 2,
-            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
-          };
-
-          await dbClient.from("templates").insert(templateData);
-          router.push("/templates");
+          setcontent(data?.path);
+          settemplateModal(true);
         }
       }
     } catch (error) {
@@ -208,9 +183,19 @@ const Editor = ({
     }
   };
   return (
-    <div style={cesdkWrapperStyle}>
-      <div ref={cesdkContainer} style={cesdkStyle}></div>
-    </div>
+    <>
+      {templateModal && (
+        <UpsertTemplateDialog
+          opened={true}
+          template={template}
+          onClose={() => settemplateModal(false)}
+          content={content}
+        />
+      )}
+      <div style={cesdkWrapperStyle}>
+        <div ref={cesdkContainer} style={cesdkStyle}></div>
+      </div>
+    </>
   );
 };
 
