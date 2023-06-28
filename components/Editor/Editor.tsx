@@ -4,7 +4,7 @@ import { useUser } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 const Editor = ({
   openAuthDialog,
   template,
@@ -13,9 +13,24 @@ const Editor = ({
   template: ITemplateDetails | null;
 }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
-
+  const [userProfileData, setuserProfileData] = useState<IUserDetails | null>(
+    null
+  );
   const user = useUser();
   const router = useRouter();
+  useEffect(() => {
+    if (user) {
+      dbClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .single()
+        .then(({ data, error }) => {
+          alert("d");
+          setuserProfileData(data);
+        });
+    }
+  }, [user]);
 
   console.log("user", user);
 
@@ -74,7 +89,7 @@ const Editor = ({
         onUpload: "local",
         onSave: (scene: any) => {
           // if (user && user.subscriptionActive) {
-          saveTemplate(scene);
+          saveTemplate(scene,userProfileData);
           // } else {
           //   openAuthDialog();
           // }
@@ -98,7 +113,6 @@ const Editor = ({
         },
       },
     };
-    console.log("env====>", template);
 
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
@@ -121,10 +135,11 @@ const Editor = ({
     link.download = fileName;
     link.click();
   }
-  const saveTemplate = async (string: string) => {
+  const saveTemplate = async (string: string,userProfileData:any) => {
     const file = new Blob([string], { type: "text/plain" });
     try {
-      console.log("edit", user);
+      console.log("userProfileData", userProfileData);
+      console.log("user", user);
       if (!user) {
         alert("something went wrong");
         return;

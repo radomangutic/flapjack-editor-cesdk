@@ -24,6 +24,7 @@ const Template = ({
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const supabase = useSupabaseClient();
   const router = useRouter();
+  
   useEffect(() => {
     if (typeof window !== "undefined" && selectedFont) {
       sessionStorage.removeItem("bodyFontSize");
