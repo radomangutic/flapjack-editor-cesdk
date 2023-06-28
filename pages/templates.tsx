@@ -5,7 +5,7 @@ import TemplateCard from "../components/TemplateGallery/TemplateCard";
 import { Container, SimpleGrid, Text } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../interfaces/ITemplate";
-import { useUser, useTemplateActions } from "../hooks";
+import { useUser, useTemplateActions, fetchTemplates } from "../hooks";
 import { useRouter } from "next/router";
 
 const Templates = ({
@@ -19,7 +19,6 @@ const Templates = ({
   const [templates, setTemplates] = useState<ITemplateDetails[]>(data);
   const [navMenu, setNavMenu] = useState("templates");
   const user = useUser();
-  console.log("user", user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -33,24 +32,13 @@ const Templates = ({
   }, [router]);
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/templates?userId=${user?.id}`);
-        if (!response.ok) {
-          throw new Error("Request failed");
-        }
-        const data = await response.json();
-        console.log("data===>", data);
-
-        setTemplates(data.templates);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      const templatesList = await fetchTemplates(user);
+      setTemplates(templatesList);
     };
     if (user?.id) {
       fetchData();
     }
-  }, [user?.id]);
-  console.log("templates==>", templates);
+  }, [user, user?.id]);
 
   return (
     <>
@@ -105,6 +93,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .order("templateOrder", { ascending: true });
 
   let { data: folders } = await supabase.storage.from("renderings").list();
+  console.log("thumbnails===>", folders);
+
   let thumbnails: any = {};
   folders?.forEach(async (folder) => {
     const { data: images } = await supabase.storage

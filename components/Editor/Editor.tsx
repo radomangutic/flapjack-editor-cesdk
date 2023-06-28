@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import CreativeEditorSDK from "@cesdk/cesdk-js";
-import { useUser, userProfile } from "../../hooks/useUser";
+import { useUser } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
+import { useRouter } from "next/router";
 
 const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
   const user = useUser();
   const [userProfileData, setuserProfileData] = useState<any>(null);
-
+  const router = useRouter();
   console.log("userProfileData", userProfileData);
 
   useEffect(() => {
@@ -121,8 +122,6 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
     link.click();
   }
   const saveTemplate = async (string: string) => {
-    console.log("s");
-
     const file = new Blob([string], { type: "text/plain" });
 
     try {
@@ -140,12 +139,13 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
           description: user?.email,
           content: data?.path,
           tags: user?.email,
-          isGlobal: userProfileData?.role === "flapjack" ? true : false,
+          isGlobal: user?.role === "flapjack" ? true : false,
           menuSize: "",
           templateOrder: 2,
-          restaurant_id: userProfileData?.restaurant_id,
+          restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
         };
         await dbClient.from("templates").insert(templateData);
+        router.push("/templates");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
