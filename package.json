@@ -42,7 +42,8 @@
     "react-dom": "18.2.0",
     "react-hotjar": "^5.3.0",
     "react-use-intercom": "^2.1.0",
-    "stripe": "^11.4.0"
+    "stripe": "^11.4.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.32.1",

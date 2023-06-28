@@ -4,7 +4,7 @@ import { useUser } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
-
+import { v4 as uuidv4 } from 'uuid';
 const Editor = ({
   openAuthDialog,
   template,
@@ -168,7 +168,7 @@ const Editor = ({
         const { data, error }: { data: any; error: any } =
           await dbClient.storage
             .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-            .upload(`file5`, file); // Replace 'file_name' with the desired file name
+            .upload(uuidv4(), file); // Replace 'file_name' with the desired file name
         if (error) {
           console.error("Error uploading file:", error.message);
         } else {
