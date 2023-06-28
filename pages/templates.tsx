@@ -8,18 +8,12 @@ import { ITemplateDetails } from "../interfaces/ITemplate";
 import { useUser, useTemplateActions, fetchTemplates } from "../hooks";
 import { useRouter } from "next/router";
 
-const Templates = ({
-  data,
-  thumbnails,
-}: {
-  data: ITemplateDetails[];
-  thumbnails: string[];
-}) => {
+const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const router = useRouter();
-  const [templates, setTemplates] = useState<ITemplateDetails[]>(data);
+  const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
   const [navMenu, setNavMenu] = useState("templates");
   const user = useUser();
-
+  const [loading, setloading] = useState(false);
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
 
@@ -34,9 +28,14 @@ const Templates = ({
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
       setTemplates(templatesList);
+      setloading(false);
     };
     if (user?.id) {
+      setloading(true);
       fetchData();
+    } else {
+      setloading(false);
+      setTemplates([]);
     }
   }, [user, user?.id]);
 
@@ -47,39 +46,43 @@ const Templates = ({
         <Text size={32} weight={200} sx={{ marginBottom: "1rem" }}>
           {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
         </Text>
-        <SimpleGrid
-          cols={3}
-          breakpoints={[
-            { maxWidth: 1120, cols: 3, spacing: "md" },
-            { maxWidth: 991, cols: 2, spacing: "sm" },
-            { maxWidth: 600, cols: 1, spacing: "sm" },
-          ]}
-        >
-          {templates
-            ?.filter((template) => {
-              if (navMenu === "templates") {
-                return true;
-              } else {
-                if (template.createdBy === user?.id && !template.isGlobal) {
+        {loading ? (
+          <h1 style={{ textAlign: "center" }}>Loadinng...</h1>
+        ) : (
+          <SimpleGrid
+            cols={3}
+            breakpoints={[
+              { maxWidth: 1120, cols: 3, spacing: "md" },
+              { maxWidth: 991, cols: 2, spacing: "sm" },
+              { maxWidth: 600, cols: 1, spacing: "sm" },
+            ]}
+          >
+            {templates
+              ?.filter((template) => {
+                if (navMenu === "templates") {
                   return true;
                 } else {
-                  return false;
+                  if (template.createdBy === user?.id && !template.isGlobal) {
+                    return true;
+                  } else {
+                    return false;
+                  }
                 }
-              }
-            })
-            .map((template: any, i: number) => (
-              <TemplateCard
-                key={i}
-                template={template}
-                thumbnail={thumbnails[template.id]}
-                onRemove={deleteTemplate}
-                onRename={renameTemplate}
-                onDuplicate={duplicateTemplate}
-                //@ts-ignore
-                onGlobal={globalTemplate}
-              />
-            ))}
-        </SimpleGrid>
+              })
+              .map((template: any, i: number) => (
+                <TemplateCard
+                  key={i}
+                  template={template}
+                  thumbnail={thumbnails[template.id]}
+                  onRemove={deleteTemplate}
+                  onRename={renameTemplate}
+                  onDuplicate={duplicateTemplate}
+                  //@ts-ignore
+                  onGlobal={globalTemplate}
+                />
+              ))}
+          </SimpleGrid>
+        )}
       </Container>
     </>
   );

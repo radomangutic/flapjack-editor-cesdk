@@ -21,7 +21,6 @@ export const fetchTemplates = async (
         .select(
           "id, createdBy, name, description, content, tags, isGlobal, menuSize"
         )
-        .eq("isGlobal", true)
         .order("templateOrder", { ascending: true });
 
     if (globalTemplatesError) {
@@ -37,9 +36,9 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags,content, isGlobal, menuSize"
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize"
         )
-        .eq("restaurant_id", restaurant_id)
+        .or(`restaurant_id.eq.${restaurant_id},isGlobal.eq.true`)
         .order("templateOrder", { ascending: true });
 
     if (restaurantTemplatesError) {
