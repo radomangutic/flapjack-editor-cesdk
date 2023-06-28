@@ -14,27 +14,10 @@ const Editor = ({
   template: ITemplateDetails | null;
 }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
-  const [userProfileData, setuserProfileData] = useState<IUserDetails | null>(
-    null
-  );
   const [templateModal, settemplateModal] = useState<Boolean>(false);
   const [content, setcontent] = useState<string>("");
   const user = useUser();
   const router = useRouter();
-  useEffect(() => {
-    if (user) {
-      dbClient
-        .from("profiles")
-        .select("*")
-        .eq("id", user?.id)
-        .single()
-        .then(({ data, error }) => {
-          setuserProfileData(data);
-        });
-    }
-  }, [user]);
-
-  console.log("user", user);
 
   useEffect(() => {
     const config: object = {
@@ -91,7 +74,7 @@ const Editor = ({
         onUpload: "local",
         onSave: (scene: any) => {
           // if (user && user.subscriptionActive) {
-          saveTemplate(scene, userProfileData);
+          saveTemplate(scene);
           // } else {
           //   openAuthDialog();
           // }
@@ -137,16 +120,10 @@ const Editor = ({
     link.download = fileName;
     link.click();
   }
-  const saveTemplate = async (string: string, userProfileData: any) => {
+  const saveTemplate = async (string: string) => {
     const file = new Blob([string], { type: "text/plain" });
     try {
-      console.log("userProfileData", userProfileData);
-      console.log("user", user);
-      if (!user) {
-        alert("something went wrong");
-        return;
-      }
-      if (template?.content) {
+      if (router.query.id && template?.content) {
         const {
           data: fileRemove,
           error: fileremoveError,
