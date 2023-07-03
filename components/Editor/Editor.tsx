@@ -18,6 +18,9 @@ const Editor = ({
   const [content, setcontent] = useState<string>("");
   const user = useUser();
   const router = useRouter();
+  const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
+  const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
+  console.log("aa==>", fontLinkReqular);
 
   useEffect(() => {
     const config: object = {
@@ -94,6 +97,23 @@ const Editor = ({
             width: 8.5,
             height: 14,
             unit: "in",
+          },
+        },
+        typefaces: {
+          helvetica: {
+            family: "Helvetica",
+            fonts: [
+              {
+                fontURL: fontLinkReqular,
+                weight: "regular",
+                style: "normal",
+              },
+              {
+                fontURL: fontLinkBold,
+                weight: "bold",
+                style: "normal",
+              },
+            ],
           },
         },
       },
