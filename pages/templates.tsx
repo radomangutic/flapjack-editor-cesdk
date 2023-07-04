@@ -87,7 +87,6 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     </>
   );
 };
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const { data } = await supabase
