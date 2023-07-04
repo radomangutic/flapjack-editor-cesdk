@@ -30,13 +30,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       setTemplates(templatesList);
       setloading(false);
     };
-    if (user?.id) {
-      setloading(true);
-      fetchData();
-    } else {
-      setloading(false);
-      setTemplates([]);
-    }
+    fetchData();
   }, [user, user?.id]);
 
   return (

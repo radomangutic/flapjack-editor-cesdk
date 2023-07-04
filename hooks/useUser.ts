@@ -28,7 +28,7 @@ export const fetchTemplates = async (
     }
 
     templateData = globalTemplates;
-  } else {
+  } else if (user?.restaurant_id) {
     // Find restaurant-specific templates based on the restaurant ID
     const { restaurant_id } = user; // Replace 'restaurantId' with the actual field name
 
@@ -39,6 +39,21 @@ export const fetchTemplates = async (
           "id, createdBy, name, description, tags, content, isGlobal, menuSize"
         )
         .or(`restaurant_id.eq.${restaurant_id},isGlobal.eq.true`)
+        .order("templateOrder", { ascending: true });
+
+    if (restaurantTemplatesError) {
+      throw restaurantTemplatesError;
+    }
+
+    templateData = restaurantTemplates;
+  } else {
+    const { data: restaurantTemplates, error: restaurantTemplatesError } =
+      await dbClient
+        .from("templates")
+        .select(
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize"
+        )
+        .eq("isGlobal", true)
         .order("templateOrder", { ascending: true });
 
     if (restaurantTemplatesError) {

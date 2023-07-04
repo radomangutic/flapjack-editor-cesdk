@@ -148,14 +148,14 @@ const Editor = ({
           error: fileremoveError,
         }: { data: any; error: any } = await dbClient.storage
           .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-          .remove(["file3"]); // Replace 'file_name' with the name of the file you want to delete
+          .remove([template?.content]); // Replace 'file_name' with the name of the file you want to delete
         console.log("fileremoveError", fileremoveError);
         console.log("fileRemove", fileRemove);
 
         const { data, error }: { data: any; error: any } =
           await dbClient.storage
             .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-            .update(`file5`, file); // Replace 'file_name' with the desired file name
+            .update(template?.content, file); // Replace 'file_name' with the desired file name
         if (error) {
           console.error("Error updating file:", error.message);
         } else {
