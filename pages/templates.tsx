@@ -47,7 +47,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
           {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
         </Text>
         {loading ? (
-          <h1 style={{ textAlign: "center" }}>Loadinng...</h1>
+          <h1 style={{ textAlign: "center" }}>Loading...</h1>
         ) : (
           <SimpleGrid
             cols={3}
