@@ -45,7 +45,6 @@ const TemplateCard = ({
   const openOverlay = useCallback(() => setShowOverlay(true), []);
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
   const user = useUser();
-  console.log("role==>", template.restaurant_id === user?.restaurant_id);
 
   return (
     <Card
