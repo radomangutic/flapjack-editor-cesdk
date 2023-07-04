@@ -2,7 +2,7 @@ import { Card, Image, Text, Badge } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { ITemplateDetails } from "../../interfaces";
 import TemplateCardOverlay from "./TemplateCardOverlay";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useUser } from "../../hooks";
 
 export type RemoveTemplate = ((id: number) => Promise<void>) | undefined;
 export type DuplicateTemplate =
@@ -45,6 +45,7 @@ const TemplateCard = ({
   const openOverlay = useCallback(() => setShowOverlay(true), []);
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
   const user = useUser();
+  console.log("role==>", template.restaurant_id === user?.restaurant_id);
 
   return (
     <Card
@@ -59,7 +60,10 @@ const TemplateCard = ({
       href={`/menu/${template.id}`}
     >
       <Card.Section pos="relative">
-        {(template.createdBy === user?.id || user?.role === "flapjack") && (
+        {(template.createdBy === user?.id ||
+          user?.role === "flapjack" ||
+          (template.restaurant_id === user?.restaurant_id &&
+            user?.role === "owner")) && (
           <TemplateCardOverlay
             showOverlay={showOverlay}
             setShowOverlay={setShowOverlay}

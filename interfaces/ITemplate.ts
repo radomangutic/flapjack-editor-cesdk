@@ -11,4 +11,5 @@ export interface ITemplateDetails extends ITemplate {
   isGlobal: boolean;
   createdBy: string;
   menuSize?: string,
+  restaurant_id?:string
 }
