@@ -20,12 +20,15 @@ export default function App({
   initialSession: Session;
 }>) {
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());
+  const [initialed, setInitial] = useState(false)
   const router = useRouter();
 
   useEffect(() => {
+    setInitial(true);
     hotjar.initialize(3291123, 6);
   }, []);
 
+  if(initialed) {
   return (
     <>
       <Head>
@@ -65,5 +68,7 @@ export default function App({
         </NotificationsProvider>
       </MantineProvider>
     </>
-  );
+  )
+}
+return <></>
 }

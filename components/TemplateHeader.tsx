@@ -49,32 +49,33 @@ const TemplateHeader = ({
   const session = useSession();
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
-  const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id)
+  const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
 
   if (typeof document !== "undefined") {
     const panelWrapper = document.querySelector<HTMLElement>(".gjs-pn-panels");
     const canvasWrapper = document.querySelector<HTMLElement>(".gjs-cv-canvas");
-    const scrollableWrapper = document.querySelector<HTMLElement>('.scrollable-wrapper');
+    const scrollableWrapper = document.querySelector<HTMLElement>(
+      ".scrollable-wrapper"
+    );
 
     if (scrollableWrapper !== null) {
       if (userCanEditFontAndColor(user)) {
-        const LEFT_SPACE = '(4vw + 66px)';
-        const RIGHT_SPACE = '200px';
+        const LEFT_SPACE = "(4vw + 66px)";
+        const RIGHT_SPACE = "200px";
         scrollableWrapper.style.width = `calc(100% - ${LEFT_SPACE} - ${RIGHT_SPACE})`;
       }
 
-      // Update the canvas offset on scroll.
       // Without updating, the hover border and toolbox are misaligned with the item
-      scrollableWrapper.addEventListener('scroll', () => {
+      scrollableWrapper.addEventListener("scroll", () => {
         editor?.refresh();
-      })
+      });
     }
     if (panelWrapper != null && canvasWrapper !== null) {
       if (user?.role === "flapjack") {
-        canvasWrapper.style.position = 'relative';
+        canvasWrapper.style.position = "relative";
         panelWrapper.style.display = "block";
       } else {
-        canvasWrapper.style.position = 'relative';
+        canvasWrapper.style.position = "relative";
         panelWrapper.style.display = "none";
       }
 
@@ -272,8 +273,9 @@ const TemplateHeader = ({
             {user && (
               <Text
                 // navMenu "cursor-pointer"
-                className={`myMenu ${navMenu === "myMenu" ? "active" : ""
-                  } cursor-pointer`}
+                className={`myMenu ${
+                  navMenu === "myMenu" ? "active" : ""
+                } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
                   router.push("/templates?myMenu");
@@ -305,8 +307,9 @@ const TemplateHeader = ({
               </Text>
             )}
             <Text
-              className={`templates ${navMenu === "templates" ? "active" : ""
-                } cursor-pointer`}
+              className={`templates ${
+                navMenu === "templates" ? "active" : ""
+              } cursor-pointer`}
               fz="sm"
               ml="sm"
               onClick={() => {
@@ -338,40 +341,6 @@ const TemplateHeader = ({
             </Text>
           </Flex>
         </Flex>
-        {!router.pathname.includes("templates") && (
-          <Flex align="center">
-            <Select
-              label="Size"
-              placeholder="Pick one"
-              defaultValue="Letter"
-              size="xs"
-              shadow="md"
-              value={sizeValue}
-              onChange={handleSizeChange}
-              styles={(theme) => ({
-                root: {
-                  display: "flex",
-                  alignItems: "center",
-                },
-                input: {
-                  width: "190px",
-                },
-                label: {
-                  marginRight: "10px",
-                },
-              })}
-              data={[
-                { value: "Letter", label: "Full Page (8.5 × 11 in)" },
-                { value: "Horizontal Letter", label: "Full Page Landscape (11 x 8.5 in)" },
-                { value: "Half Letter", label: "1/2 Page (4.5 × 11 in)" },
-                { value: "Quarter Letter", label: "1/4 Page (4.5 × 5.5 in)" },
-                { value: "Legal", label: "Legal (14 x 8.5 in)" },
-                { value: "Horizontal Legal", label: "Legal Landscape (14 x 8.5 in)" },
-                { value: "ARCH E", label: "Wall Poster (36 x 48 in)" },
-              ]}
-            />
-          </Flex>
-        )}
         <Flex align="center">
           {router.pathname.includes("templates") ? (
             user &&
@@ -391,11 +360,7 @@ const TemplateHeader = ({
                 size="xs"
                 variant="subtle"
                 onClick={
-                  session
-                    ? triggerUpsellOr(
-                      onTemplateDownload,
-                    )
-                    : openAuthDialog
+                  session ? triggerUpsellOr(onTemplateDownload) : openAuthDialog
                 }
                 sx={{
                   "&:hover": {
@@ -412,11 +377,7 @@ const TemplateHeader = ({
               size="xs"
               color="orange"
               onClick={
-                session
-                  ? triggerUpsellOr(
-                    onTemplateSaveUpdate,
-                  )
-                  : openAuthDialog
+                session ? triggerUpsellOr(onTemplateSaveUpdate) : openAuthDialog
               }
               sx={{ marginRight: "1rem" }}
             >
@@ -425,8 +386,8 @@ const TemplateHeader = ({
                   ? "Update"
                   : "Save Menu"
                 : user
-                  ? "Save"
-                  : "Save Menu"}
+                ? "Save"
+                : "Save Menu"}
             </Button>
           )}
           {session ? (

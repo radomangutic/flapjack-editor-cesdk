@@ -26,7 +26,7 @@ const UserContextProvider = (props: Props) => {
     if (user) {
       supabase
         .from("profiles")
-        .select("subscriptionActive, subscriptionExpiry, role")
+        .select("*")
         .eq("id", user?.id)
         .single()
         .then(({ data, error }) => {
@@ -36,14 +36,13 @@ const UserContextProvider = (props: Props) => {
               subscriptionActive: false,
               subscriptionExpiry: "",
               role: "user",
+              restaurant_id: "",
             });
             return;
           }
           setUserDetails({
             ...user,
-            subscriptionActive: data.subscriptionActive,
-            subscriptionExpiry: data.subscriptionExpiry,
-            role: data.role,
+            ...data,
           });
         });
     } else if (!user && !isLoading) {

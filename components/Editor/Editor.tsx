@@ -1,10 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import CreativeEditorSDK from "@cesdk/cesdk-js";
 import { useUser } from "../../hooks/useUser";
-
-const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
+import { dbClient } from "../../tests/helpers/database.helper";
+import { useRouter } from "next/router";
+import { ITemplateDetails, IUserDetails } from "../../interfaces";
+import { v4 as uuidv4 } from "uuid";
+import UpsertTemplateDialog from "../UpsertTemplateDialog";
+const Editor = ({
+  openAuthDialog,
+  template,
+}: {
+  openAuthDialog: () => void;
+  template: ITemplateDetails | null;
+}) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
+  const [templateModal, settemplateModal] = useState<Boolean>(false);
+  const [content, setcontent] = useState<string>("");
   const user = useUser();
+  const router = useRouter();
+  const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
+  const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
+  console.log("aa==>", fontLinkReqular);
+
   useEffect(() => {
     const config: object = {
       role: "Creator",
@@ -12,6 +29,15 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
       license: process.env.REACT_APP_LICENSE,
       ui: {
         elements: {
+          dock: {
+            groups: [
+              {
+                id: "ly.img.template",
+                entryIds: ["ly.img.template"],
+              },
+              { id: "ly.img.defaultGroup" },
+            ],
+          },
           panels: {
             settings: true,
           },
@@ -22,22 +48,25 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
                 format: ["image/png", "application/pdf"],
                 onclick: () => alert("Download"),
               },
+              save: true,
             },
           },
           libraries: {
             insert: {
               entries: (defaultEntries: any) => {
-                return defaultEntries.filter(
-                  (item: any) =>
-                    item.id !== "ly.img.upload" && item.id !== "ly.img.sticker"
-                );
+                return [
+                  defaultEntries[0],
+                  defaultEntries[3],
+                  defaultEntries[2],
+                  defaultEntries[4],
+                ];
               },
             },
           },
         },
       },
       callbacks: {
-        onExport: (blobs: any) => {
+        onExport: async (blobs: any) => {
           if (user && user.subscriptionActive) {
             downloadBlobFile(blobs?.[0], `flapjack.png`);
           } else {
@@ -45,7 +74,14 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
           }
           return Promise.resolve();
         },
-        onUpload: undefined,
+        onUpload: "local",
+        onSave: (scene: any) => {
+          // if (user && user.subscriptionActive) {
+          saveTemplate(scene);
+          // } else {
+          //   openAuthDialog();
+          // }
+        },
       },
       presets: {
         pageFormats: {
@@ -63,14 +99,36 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
             unit: "in",
           },
         },
+        typefaces: {
+          helvetica: {
+            family: "Helvetica",
+            fonts: [
+              {
+                fontURL: fontLinkReqular,
+                weight: "regular",
+                style: "normal",
+              },
+              {
+                fontURL: fontLinkBold,
+                weight: "bold",
+                style: "normal",
+              },
+            ],
+          },
+        },
       },
     };
-
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
-        (instance: any) => {
+        async (instance: any) => {
           instance.addDefaultAssetSources();
           instance.addDemoAssetSources();
+          if (template?.content) {
+            await instance.engine.scene.loadFromURL(
+              process.env.NEXT_PUBLIC_SUPABASE_URL +
+                `/storage/v1/object/public/templates/${template?.content}`
+            );
+          }
         }
       );
     }
@@ -81,11 +139,59 @@ const Editor = ({ openAuthDialog }: { openAuthDialog: () => void }) => {
     link.download = fileName;
     link.click();
   }
+  const saveTemplate = async (string: string) => {
+    const file = new Blob([string], { type: "text/plain" });
+    try {
+      if (router.query.id && template?.content) {
+        const {
+          data: fileRemove,
+          error: fileremoveError,
+        }: { data: any; error: any } = await dbClient.storage
+          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+          .remove([template?.content]); // Replace 'file_name' with the name of the file you want to delete
+        console.log("fileremoveError", fileremoveError);
+        console.log("fileRemove", fileRemove);
 
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage
+            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+            .update(template?.content, file); // Replace 'file_name' with the desired file name
+        if (error) {
+          console.error("Error updating file:", error.message);
+        } else {
+          setcontent(data?.path);
+          settemplateModal(true);
+        }
+      } else {
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage
+            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+            .upload(uuidv4(), file); // Replace 'file_name' with the desired file name
+        if (error) {
+          console.error("Error uploading file:", error.message);
+        } else {
+          setcontent(data?.path);
+          settemplateModal(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
   return (
-    <div style={cesdkWrapperStyle}>
-      <div ref={cesdkContainer} style={cesdkStyle}></div>
-    </div>
+    <>
+      {templateModal && (
+        <UpsertTemplateDialog
+          opened={true}
+          template={template}
+          onClose={() => settemplateModal(false)}
+          content={content}
+        />
+      )}
+      <div style={cesdkWrapperStyle}>
+        <div ref={cesdkContainer} style={cesdkStyle}></div>
+      </div>
+    </>
   );
 };
 
