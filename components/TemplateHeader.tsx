@@ -65,7 +65,6 @@ const TemplateHeader = ({
         scrollableWrapper.style.width = `calc(100% - ${LEFT_SPACE} - ${RIGHT_SPACE})`;
       }
 
-      // Update the canvas offset on scroll.
       // Without updating, the hover border and toolbox are misaligned with the item
       scrollableWrapper.addEventListener("scroll", () => {
         editor?.refresh();
