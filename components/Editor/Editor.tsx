@@ -118,7 +118,6 @@ const Editor = ({
         },
       },
     };
-
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
         async (instance: any) => {
