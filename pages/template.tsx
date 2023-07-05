@@ -9,7 +9,6 @@ import { useRouter } from "next/router";
 import AuthDialog from "../components/AuthDialog";
 import Editor from "../components/Editor/Editor";
 import UpsertTemplateDialog from "../components/UpsertTemplateDialog";
-import PrivateRoute from "../components/PrivateRoute";
 
 export const WRAPPER_PADDING = 10;
 
@@ -39,10 +38,10 @@ const Template = ({
 
   if (typeof window !== "undefined") {
     return (
-      <PrivateRoute>
+      <>
         <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
         <Editor openAuthDialog={openAuthDialog} template={data} />
-      </PrivateRoute>
+      </>
     );
   }
 
