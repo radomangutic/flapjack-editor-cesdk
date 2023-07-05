@@ -79,11 +79,18 @@ const Editor = ({
         },
         onUpload: "local",
         onSave: (scene: any) => {
+          let isAbleToUpdate = true;
           setUserData((user: any) => {
-            if (user) {
-              saveTemplate(scene);
-            } else {
-              openAuthDialog();
+            if (isAbleToUpdate) {
+              isAbleToUpdate = false;
+              if (user) {
+                saveTemplate(scene);
+              } else {
+                openAuthDialog();
+              }
+              setTimeout(() => {
+                isAbleToUpdate = true;
+              }, 1000);
             }
             return user;
           });
@@ -161,7 +168,7 @@ const Editor = ({
         const { data, error }: { data: any; error: any } =
           await dbClient.storage
             .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-            .update(template?.content, file); // Replace 'file_name' with the desired file name
+            .upload(uuidv4(), file); // Replace 'file_name' with the desired file name
         if (error) {
           console.error("Error updating file:", error.message);
         } else {

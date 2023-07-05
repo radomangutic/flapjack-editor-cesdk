@@ -49,7 +49,7 @@ const UpsertTemplateDialog = ({
           })
           .eq("id", router.query.id);
         if (error) throw error;
-        await router.push(`/menu/${router.query.id}`);
+        await router.push(`/templates`);
       } else {
         const { error, data } = await supabase
           .from("templates")
