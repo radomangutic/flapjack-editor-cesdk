@@ -16,11 +16,14 @@ const Editor = ({
   const cesdkContainer = useRef<HTMLDivElement>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
   const [content, setcontent] = useState<string>("");
+  const [userData, setUserData] = useState<any>(null);
   const user = useUser();
   const router = useRouter();
   const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
   const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
-  console.log("aa==>", fontLinkReqular);
+  useEffect(() => {
+    setUserData(user);
+  }, [user]);
 
   useEffect(() => {
     const config: object = {
@@ -76,11 +79,14 @@ const Editor = ({
         },
         onUpload: "local",
         onSave: (scene: any) => {
-          // if (user && user.subscriptionActive) {
-          saveTemplate(scene);
-          // } else {
-          //   openAuthDialog();
-          // }
+          setUserData((user: any) => {
+            if (user) {
+              saveTemplate(scene);
+            } else {
+              openAuthDialog();
+            }
+            return user;
+          });
         },
       },
       presets: {
@@ -132,7 +138,7 @@ const Editor = ({
         }
       );
     }
-  });
+  }, []);
   function downloadBlobFile(blob: any, fileName: string) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -178,6 +184,7 @@ const Editor = ({
       console.error("Error uploading file:", error);
     }
   };
+  console.log('user1216', user)
   return (
     <>
       {templateModal && (
