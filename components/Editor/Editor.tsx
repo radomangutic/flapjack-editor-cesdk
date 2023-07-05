@@ -18,6 +18,7 @@ const Editor = ({
   const [content, setcontent] = useState<string>("");
   const [userData, setUserData] = useState<any>(null);
   const user = useUser();
+  const [input, setinput] = useState<any>(1);
   const router = useRouter();
   const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
   const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
@@ -191,8 +192,93 @@ const Editor = ({
       console.error("Error uploading file:", error);
     }
   };
+  useEffect(() => {
+    const removeElement = () => {
+      var elementWithShadowRoot = document.querySelector(
+        "#cesdkContainer #root-shadow "
+      );
+      const leftPanel =
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelRight ";
+      var shadowRoot = elementWithShadowRoot?.shadowRoot;
+      var count = shadowRoot?.querySelector(
+        `${leftPanel} div div `
+      )?.childElementCount;
+      if (count === 2) {
+        var element = shadowRoot?.querySelector(
+          `${leftPanel} div div section `
+        );
+
+        element?.parentNode?.removeChild(element);
+      }
+      var parent = shadowRoot?.querySelector(
+        `${leftPanel} div div section div`
+      );
+      const child = parent?.children;
+
+      if (child?.length === 11) {
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+        parent?.removeChild(child[4]);
+      }
+      var pages = shadowRoot?.querySelector(`${leftPanel} div section`);
+      var pagesChildren = pages?.children;
+      if (pagesChildren?.length === 5) {
+        pages?.removeChild(pagesChildren[4]);
+      }
+      var pageElements = shadowRoot?.querySelector(
+        `${leftPanel} div .UBQ_Inspector__block--CW9ga section  div`
+      );
+      var pageElementsChild = shadowRoot?.querySelector(
+        `${leftPanel} div .UBQ_Inspector__block--CW9ga section  div`
+      )?.children;
+      if (pageElementsChild?.length === 7) {
+        pageElements?.removeChild(pageElementsChild[0]);
+        pageElements?.removeChild(pageElementsChild[0]);
+        pageElements?.removeChild(pageElementsChild[0]);
+        pageElements?.removeChild(pageElementsChild[0]);
+        pageElements?.removeChild(pageElementsChild[1]);
+        pageElements?.removeChild(pageElementsChild[1]);
+      }
+      var placeholderRemove = shadowRoot?.querySelector(
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
+      );
+      var placeholderRemoveChild = shadowRoot?.querySelector(
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
+      )?.children;
+      if (placeholderRemoveChild?.length === 4) {
+        placeholderRemove?.removeChild(placeholderRemoveChild[2]);
+      }
+    };
+    const removeDelayedItems = () => {
+      var elementWithShadowRoot = document.querySelector(
+        "#cesdkContainer #root-shadow "
+      );
+      const leftPanel =
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelRight ";
+      var shadowRoot = elementWithShadowRoot?.shadowRoot;
+      var removeImagesSection = shadowRoot?.querySelector(
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div div .UBQ_AssetLibraryContent__block--mQiYI div div"
+      );
+      var removeImagesSectionChild = shadowRoot?.querySelector(
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div div .UBQ_AssetLibraryContent__block--mQiYI div div"
+      )?.children;
+      if (removeImagesSectionChild?.length === 2) {
+        removeImagesSection?.removeChild(removeImagesSectionChild[1]);
+      }
+    };
+    setTimeout(() => {
+      removeDelayedItems();
+    }, 150);
+    setTimeout(() => {
+      removeElement();
+    }, 20);
+  }, [input]);
   return (
-    <>
+    <div onClick={() => setinput(input + 1)}>
       {templateModal && (
         <UpsertTemplateDialog
           opened={true}
@@ -202,9 +288,9 @@ const Editor = ({
         />
       )}
       <div style={cesdkWrapperStyle}>
-        <div ref={cesdkContainer} style={cesdkStyle}></div>
+        <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
       </div>
-    </>
+    </div>
   );
 };
 

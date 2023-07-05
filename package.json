@@ -13,7 +13,7 @@
     "test:e2e:headless": "playwright test"
   },
   "dependencies": {
-    "@cesdk/cesdk-js": "^1.12.1",
+    "@cesdk/cesdk-js": "1.12.1",
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
     "@mantine/core": "^5.7.2",
