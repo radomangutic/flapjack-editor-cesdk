@@ -184,7 +184,6 @@ const Editor = ({
       console.error("Error uploading file:", error);
     }
   };
-  console.log('user1216', user)
   return (
     <>
       {templateModal && (
