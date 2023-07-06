@@ -93,7 +93,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             meta: {
               uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
               thumbUri:
-                "https://cdn.pixabay.com/photo/2016/02/13/01/30/black-1197221_1280.jpg",
+                `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
             },
           };
         },
@@ -158,7 +158,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           if (template?.content) {
             await instance.engine.scene.loadFromURL(
               process.env.NEXT_PUBLIC_SUPABASE_URL +
-                `/storage/v1/object/public/templates/${template?.content}`
+              `/storage/v1/object/public/templates/${template?.content}`
             );
           }
         }
