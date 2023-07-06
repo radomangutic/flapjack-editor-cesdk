@@ -54,6 +54,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             {templates
               ?.filter((template) => {
                 if (navMenu === "templates") {
+                  if (template.createdBy === user?.id && !template.isGlobal) {
+                    return false;
+                  }
                   return true;
                 } else {
                   if (template.createdBy === user?.id && !template.isGlobal) {

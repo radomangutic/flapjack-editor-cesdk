@@ -22,7 +22,6 @@ const Template = ({
   const [editor, setEditor] = useState<object | null>(null);
   const [selectedFont, setSelectedFont] = useState<IFont | null>(null);
   const [template, setTemplate] = useState<ITemplateDetails | null>(null);
-  const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const supabase = useSupabaseClient();
   const router = useRouter();
 
@@ -39,8 +38,7 @@ const Template = ({
   if (typeof window !== "undefined") {
     return (
       <>
-        <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
-        <Editor openAuthDialog={openAuthDialog} template={data} />
+        <Editor  template={data} />
       </>
     );
   }

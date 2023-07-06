@@ -6,13 +6,9 @@ import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
 import { v4 as uuidv4 } from "uuid";
 import UpsertTemplateDialog from "../UpsertTemplateDialog";
-const Editor = ({
-  openAuthDialog,
-  template,
-}: {
-  openAuthDialog: () => void;
-  template: ITemplateDetails | null;
-}) => {
+import { useDialog } from "../../hooks";
+import AuthDialog from "../AuthDialog";
+const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<HTMLDivElement>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
   const [content, setcontent] = useState<string>("");
@@ -22,8 +18,13 @@ const Editor = ({
   const router = useRouter();
   const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
   const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
+  const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
+
   useEffect(() => {
     setUserData(user);
+    if (user) {
+      closeAuthDialog();
+    }
   }, [user]);
 
   useEffect(() => {
@@ -78,7 +79,24 @@ const Editor = ({
           }
           return Promise.resolve();
         },
-        onUpload: "local",
+        onUpload: async (file: any) => {
+          const { data, error }: { data: any; error: any } =
+            await dbClient.storage
+              .from("templateImages")
+              .upload(uuidv4(), file);
+          if (error) {
+            console.error("error uploading file");
+          }
+          return {
+            id: uuidv4(), // A unique ID identifying the uploaded image
+            name: file?.name || "upload",
+            meta: {
+              uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+              thumbUri:
+                "https://cdn.pixabay.com/photo/2016/02/13/01/30/black-1197221_1280.jpg",
+            },
+          };
+        },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
           setUserData((user: any) => {
@@ -163,8 +181,6 @@ const Editor = ({
         }: { data: any; error: any } = await dbClient.storage
           .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
           .remove([template?.content]); // Replace 'file_name' with the name of the file you want to delete
-        console.log("fileremoveError", fileremoveError);
-        console.log("fileRemove", fileRemove);
 
         const { data, error }: { data: any; error: any } =
           await dbClient.storage
@@ -277,8 +293,11 @@ const Editor = ({
       removeElement();
     }, 20);
   }, [input]);
+
   return (
     <div onClick={() => setinput(input + 1)}>
+      <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
+
       {templateModal && (
         <UpsertTemplateDialog
           opened={true}
