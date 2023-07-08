@@ -16,8 +16,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const user = useUser();
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
-  const fontLinkReqular = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica.ttf`;
-  const fontLinkBold = `${window.location.protocol}//${window.location.host}/Helvetica-Font/Helvetica-Bold.ttf`;
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
 
   useEffect(() => {
@@ -60,9 +58,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             insert: {
               entries: (defaultEntries: any) => {
                 return [
+                  // Templates
                   defaultEntries[0],
+                  // Text
                   defaultEntries[3],
+                  // Images
                   defaultEntries[2],
+                  // Shapes
                   defaultEntries[4],
                 ];
               },
@@ -92,8 +94,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             name: file?.name || "upload",
             meta: {
               uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-              thumbUri:
-                `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+              thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
             },
           };
         },
@@ -131,23 +132,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             unit: "in",
           },
         },
-        typefaces: {
-          helvetica: {
-            family: "Helvetica",
-            fonts: [
-              {
-                fontURL: fontLinkReqular,
-                weight: "regular",
-                style: "normal",
-              },
-              {
-                fontURL: fontLinkBold,
-                weight: "bold",
-                style: "normal",
-              },
-            ],
-          },
-        },
       },
     };
     if (cesdkContainer.current) {
@@ -158,7 +142,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           if (template?.content) {
             await instance.engine.scene.loadFromURL(
               process.env.NEXT_PUBLIC_SUPABASE_URL +
-              `/storage/v1/object/public/templates/${template?.content}`
+                `/storage/v1/object/public/templates/${template?.content}`
             );
           }
         }

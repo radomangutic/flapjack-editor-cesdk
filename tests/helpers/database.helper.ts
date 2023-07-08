@@ -7,10 +7,7 @@ const supabaseURL =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321";
 
 // Use the service role key to bypass the policy to manipulate test data
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZHBteXZ4bnV3cXRkaXZ0amlqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NzM3NjkyMywiZXhwIjoyMDAyOTUyOTIzfQ.W5zlwODQFalsWuSAYPn0QwzHYqZ-X-O_N3pV_9vrpJE";
-
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 export const dbClient = createClient(supabaseURL, supabaseKey);
 
 type Table = {
