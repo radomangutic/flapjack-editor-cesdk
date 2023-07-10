@@ -49,7 +49,6 @@ const UpsertTemplateDialog = ({
           })
           .eq("id", router.query.id);
         if (error) throw error;
-        await router.push(`/templates`);
       } else {
         const { error, data } = await supabase
           .from("templates")
@@ -63,10 +62,8 @@ const UpsertTemplateDialog = ({
             updatedAt: new Date(),
           })
           .select();
-        console.log("data===>create temo", data);
-
-        if (error) throw error;
-        await router.push(`/templates`);
+          if (error) throw error;
+          await router.push(`/menu/${data?.[0]?.id}`);
       }
     } catch (err) {
       console.error(err);

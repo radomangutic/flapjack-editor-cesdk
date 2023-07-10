@@ -74,12 +74,22 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       },
       callbacks: {
         onExport: async (blobs: any) => {
-          if (user && user.subscriptionActive) {
-            downloadBlobFile(blobs?.[0], `flapjack.png`);
-          } else {
-            openAuthDialog();
-          }
-          return Promise.resolve();
+          let isAbleToExport = true;
+          setUserData((user: any) => {
+            if (isAbleToExport) {
+              isAbleToExport = false;
+              if (user) {
+                console.log(user);
+                downloadBlobFile(blobs?.[0], template?.name || "");
+              } else {
+                openAuthDialog();
+              }
+              setTimeout(() => {
+                isAbleToExport = true;
+              }, 1000);
+            }
+            return user;
+          });
         },
         onUpload: async (file: any) => {
           const { data, error }: { data: any; error: any } =
