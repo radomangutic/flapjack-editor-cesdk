@@ -53,14 +53,15 @@ export const fetchTemplates = async (
         .select(
           "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id"
         )
-        .eq("isGlobal", true)
         .order("templateOrder", { ascending: true });
 
     if (restaurantTemplatesError) {
       throw restaurantTemplatesError;
     }
 
-    templateData = restaurantTemplates;
+    templateData = restaurantTemplates?.filter(
+      (item) => item?.isGlobal || item?.createdBy == user?.id
+    );
   }
   return templateData ?? [];
 };
