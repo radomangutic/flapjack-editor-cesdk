@@ -206,8 +206,8 @@ const TemplateHeader = ({
         align="center"
       >
         <Flex align="center">
-          <Link href={"/templates"} >
-            <Flex align={"center"} style={{cursor: 'pointer'}}>
+          <Link href={"/templates"}>
+            <Flex align={"center"} style={{ cursor: "pointer" }}>
               <svg
                 width="31"
                 height="29"
@@ -342,7 +342,10 @@ const TemplateHeader = ({
         <Flex align="center">
           {router.pathname.includes("templates") ? (
             user &&
-            (user.subscriptionActive || user.role === "flapjack") && (
+            (user.subscriptionActive ||
+              user.role === "flapjack" ||
+              user?.role === "owner") &&
+            navMenu == "myMenu" && (
               <Button
                 size="xs"
                 color="orange"

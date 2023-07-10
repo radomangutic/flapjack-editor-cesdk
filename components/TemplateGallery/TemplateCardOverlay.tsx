@@ -48,9 +48,7 @@ export default function TemplateCardOverlay({
   const canUpdate = useMemo(() => {
     if (!user || !router.pathname.includes("templates")) return false;
 
-    const flapjackCanUpdate =
-      (template.isGlobal && user?.role === "flapjack") ||
-      user?.id === template.createdBy;
+    const flapjackCanUpdate = user?.role === "flapjack";
     const isUserTemplate =
       user?.id === template.createdBy && user?.role === "user";
 
@@ -85,7 +83,7 @@ export default function TemplateCardOverlay({
 
   const handleDeleteTemplate = useCallback(async () => {
     if (!onHandleDeleteTemplate) return;
-    await onHandleDeleteTemplate(templateId);
+    await onHandleDeleteTemplate(templateId, template?.content);
     closeModal();
   }, [onHandleDeleteTemplate, templateId, closeModal]);
 
@@ -158,7 +156,9 @@ export default function TemplateCardOverlay({
                 {template.isGlobal ? "Make Private" : "Publish Global"}
               </Menu.Item>
             )}
-            <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
+            {template?.isGlobal && (
+              <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
+            )}
             <Menu.Item onClick={openModal}>Rename</Menu.Item>
             <Menu.Item onClick={openModal}>Delete</Menu.Item>
           </Menu.Dropdown>

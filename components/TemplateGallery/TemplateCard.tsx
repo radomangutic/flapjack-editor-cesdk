@@ -4,7 +4,9 @@ import { ITemplateDetails } from "../../interfaces";
 import TemplateCardOverlay from "./TemplateCardOverlay";
 import { useUser } from "../../hooks";
 
-export type RemoveTemplate = ((id: number) => Promise<void>) | undefined;
+export type RemoveTemplate =
+  | ((id: number, content: string) => Promise<void>)
+  | undefined;
 export type DuplicateTemplate =
   | ((
       templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
