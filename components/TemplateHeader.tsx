@@ -304,6 +304,8 @@ const TemplateHeader = ({
                 My Menus
               </Text>
             )}
+            {(user?.role == "user" && !user?.subscriptionActive) ||
+              user?.role === "flapjack"}
             <Text
               className={`templates ${
                 navMenu === "templates" ? "active" : ""

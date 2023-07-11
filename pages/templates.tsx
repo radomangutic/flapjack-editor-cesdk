@@ -76,6 +76,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   onDuplicate={duplicateTemplate}
                   //@ts-ignore
                   onGlobal={globalTemplate}
+                  navMenu={navMenu}
                 />
               ))}
           </SimpleGrid>
