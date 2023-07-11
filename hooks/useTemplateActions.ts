@@ -1,6 +1,8 @@
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { ITemplateDetails } from "../interfaces";
+import { dbClient } from "../tests/helpers/database.helper";
+import { v4 as uuidv4 } from "uuid";
 
 export const useTemplateActions = (
   templates: ITemplateDetails[],
@@ -10,9 +12,12 @@ export const useTemplateActions = (
   const supabase = useSupabaseClient();
   const router = useRouter();
   const user = useUser();
-  const deleteTemplate = async (id: number) => {
+  const deleteTemplate = async (id: number, content: string) => {
     try {
       if (id) {
+        await dbClient.storage
+          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+          .remove([content]);
         const { error, status } = await supabase
           .from("templates")
           .delete()
@@ -63,34 +68,49 @@ export const useTemplateActions = (
     description: string;
   }) => {
     try {
-
       if (id) {
         const { data, error } = await supabase
           .from("templates")
           .select("name, description, content, isGlobal")
           .eq("id", id);
         if (error) throw error;
+        const newLocation = uuidv4();
+        const {
+          data: storageLink,
+          error: coppyError,
+        }: { data: any; error: any } = await dbClient.storage
+          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+          .copy(data[0].content, newLocation);
+        if (coppyError) throw error;
+
         const { data: duplicateData, error: duplicateError } = await supabase
           .from("templates")
           .insert({
             name,
             description,
-            content: data[0].content,
+            content: newLocation,
+            isGlobal: user?.role === "flapjack" ? true : false,
+            restaurant_id: "",
             createdBy: user?.id,
-            createdAt: new Date(),
+            created_at: new Date(),
             updatedAt: new Date(),
           })
           .select();
+        console.log("duplicateData", storageLink, coppyError);
         if (duplicateError) throw duplicateError;
         const { data: imagesData, error: imagesError } = await supabase.storage
           .from("renderings")
           .list(id.toString());
         let thumbnailError;
         imagesData?.forEach(async (imageUrl) => {
-          const { data: duplicateImagesData, error: duplicateImagesError } = await supabase.storage
-            .from("renderings")
-            .copy(`${id.toString()}/${imageUrl.name}`, `${duplicateData[0].id}/${imageUrl.name}`);
-          thumbnailError = duplicateImagesError
+          const { data: duplicateImagesData, error: duplicateImagesError } =
+            await supabase.storage
+              .from("renderings")
+              .copy(
+                `${id.toString()}/${imageUrl.name}`,
+                `${duplicateData[0].id}/${imageUrl.name}`
+              );
+          thumbnailError = duplicateImagesError;
         });
         if (thumbnailError) throw thumbnailError;
         // Add new  template in myMenu
@@ -101,7 +121,6 @@ export const useTemplateActions = (
     } catch (err) {
       console.error(err);
     }
-
   };
 
   const globalTemplate = async (template: ITemplateDetails, id: string) => {
@@ -119,12 +138,12 @@ export const useTemplateActions = (
         // Get updated template
         router.push("/templates");
         setNavMenu(template.isGlobal ? "myMenu" : "templates");
-        refreshTemplate(template?.id)
+        refreshTemplate(template?.id);
       }
     } catch (err) {
       console.error(err);
     }
-  }
+  };
   const refreshTemplate = async (id: number) => {
     try {
       if (id) {
@@ -137,10 +156,10 @@ export const useTemplateActions = (
           const templateIndex = templates.findIndex(
             (template) => template.id === id
           );
-          if(templateIndex === -1){
-            const addNewTemplate = templates.concat(data as any)
-            setTemplates(addNewTemplate)
-          }else{
+          if (templateIndex === -1) {
+            const addNewTemplate = templates.concat(data as any);
+            setTemplates(addNewTemplate);
+          } else {
             const updatedTemplates = [...templates];
             updatedTemplates[templateIndex] = data[0] as ITemplateDetails;
             await setTemplates(updatedTemplates);
@@ -153,4 +172,4 @@ export const useTemplateActions = (
   };
 
   return { deleteTemplate, renameTemplate, globalTemplate, duplicateTemplate };
-}
+};

@@ -4,7 +4,9 @@ import { ITemplateDetails } from "../../interfaces";
 import TemplateCardOverlay from "./TemplateCardOverlay";
 import { useUser } from "../../hooks";
 
-export type RemoveTemplate = ((id: number) => Promise<void>) | undefined;
+export type RemoveTemplate =
+  | ((id: number, content: string) => Promise<void>)
+  | undefined;
 export type DuplicateTemplate =
   | ((
       templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
@@ -31,6 +33,7 @@ type TemplateCardProps = {
   onRename?: RenameTemplate;
   onDuplicate?: DuplicateTemplate;
   onGlobal?: GlobalTemplate;
+  navMenu: string;
 };
 
 const TemplateCard = ({
@@ -40,9 +43,24 @@ const TemplateCard = ({
   onRename,
   onDuplicate,
   onGlobal,
+  navMenu,
 }: TemplateCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
-  const openOverlay = useCallback(() => setShowOverlay(true), []);
+  const openOverlay = useCallback(() => {
+    if (
+      ((user?.role == "user" && user?.subscriptionActive) ||
+        user?.role === "owner" ||
+        user?.role === "flapjack") &&
+      navMenu == "mymenu"
+    ) {
+      setShowOverlay(true);
+    } else if (navMenu === "templates") {
+      setShowOverlay(true);
+    } else {
+      setShowOverlay(false);
+    }
+  }, []);
+
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
   const user = useUser();
 
@@ -59,20 +77,16 @@ const TemplateCard = ({
       href={`/menu/${template.id}`}
     >
       <Card.Section pos="relative">
-        {(template.createdBy === user?.id ||
-          user?.role === "flapjack" ||
-          (template.restaurant_id === user?.restaurant_id &&
-            user?.role === "owner")) && (
-          <TemplateCardOverlay
-            showOverlay={showOverlay}
-            setShowOverlay={setShowOverlay}
-            template={template}
-            onHandleDeleteTemplate={onRemove}
-            onHandleRenameTemplate={onRename}
-            onHandleDuplicateTemplate={onDuplicate}
-            onHandleGlobal={onGlobal}
-          />
-        )}
+        <TemplateCardOverlay
+          showOverlay={showOverlay}
+          setShowOverlay={setShowOverlay}
+          template={template}
+          onHandleDeleteTemplate={onRemove}
+          onHandleRenameTemplate={onRename}
+          onHandleDuplicateTemplate={onDuplicate}
+          onHandleGlobal={onGlobal}
+          navMenu={navMenu}
+        />
 
         <Image src={thumbnail} height={235} alt="Norway" />
         {template?.menuSize && (
