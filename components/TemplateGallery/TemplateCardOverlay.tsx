@@ -27,7 +27,7 @@ interface TemplateCardOverlayProps {
   onHandleRenameTemplate: RenameTemplate;
   onHandleDuplicateTemplate: DuplicateTemplate;
   onHandleGlobal: GlobalTemplate;
-  navMenu: string
+  navMenu: string;
 }
 
 export default function TemplateCardOverlay({
@@ -38,7 +38,7 @@ export default function TemplateCardOverlay({
   onHandleRenameTemplate,
   onHandleDuplicateTemplate,
   onHandleGlobal,
-  navMenu
+  navMenu,
 }: TemplateCardOverlayProps) {
   const {
     id: templateId,
@@ -158,7 +158,7 @@ export default function TemplateCardOverlay({
                 {template.isGlobal ? "Make Private" : "Publish Global"}
               </Menu.Item>
             )}
-            {template?.isGlobal && (
+            {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
             <Menu.Item onClick={openModal}>Rename</Menu.Item>
