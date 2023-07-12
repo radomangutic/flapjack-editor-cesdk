@@ -50,9 +50,9 @@ export default function TemplateCardOverlay({
   const canUpdate = useMemo(() => {
     if (!user || !router.pathname.includes("templates")) return false;
 
-    const flapjackCanUpdate = user?.role === "flapjack";
+    const flapjackCanUpdate = user?.role === "flapjack" || user?.role === "owner";
     const isUserTemplate =
-      user?.id === template.createdBy && user?.role === "user";
+      (user?.id === template.createdBy )&& user?.role === "user";
 
     return flapjackCanUpdate || isUserTemplate;
   }, [user, router.pathname, template.isGlobal, template.createdBy, navMenu]);

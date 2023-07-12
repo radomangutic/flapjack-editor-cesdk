@@ -10,9 +10,9 @@ import { useRouter } from "next/router";
 
 const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const router = useRouter();
+  const user = useUser();
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
   const [navMenu, setNavMenu] = useState("templates");
-  const user = useUser();
   const [loading, setloading] = useState(false);
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -31,8 +31,13 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       setloading(false);
     };
     fetchData();
+    setNavMenu(
+      (user?.role == "user" && user?.subscriptionActive) ||
+        user?.role === "owner"
+        ? "myMenu"
+        : "templates"
+    );
   }, [user, user?.id]);
-
   return (
     <>
       <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
@@ -54,12 +59,12 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             {templates
               ?.filter((template) => {
                 if (navMenu === "templates") {
-                  if (template.createdBy === user?.id && !template.isGlobal) {
+                  if (template.createdBy === user?.id && !template.isGlobal || template?.restaurant_id === user?.restaurant_id) {
                     return false;
                   }
                   return true;
                 } else {
-                  if (template.createdBy === user?.id && !template.isGlobal) {
+                  if (template.createdBy === user?.id && !template.isGlobal ||  template?.restaurant_id === user?.restaurant_id) {
                     return true;
                   } else {
                     return false;
