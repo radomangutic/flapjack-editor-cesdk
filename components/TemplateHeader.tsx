@@ -46,6 +46,7 @@ const TemplateHeader = ({
 }: ITemplateHeaderProps) => {
   const router = useRouter();
   const user = useUser();
+  console.log("navMenu =>", navMenu);
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useSession();
   const supabase = useSupabaseClient();
@@ -304,41 +305,44 @@ const TemplateHeader = ({
                 My Menus
               </Text>
             )}
-            {(user?.role == "user" && !user?.subscriptionActive) ||
-              user?.role === "flapjack"}
-            <Text
-              className={`templates ${
-                navMenu === "templates" ? "active" : ""
-              } cursor-pointer`}
-              fz="sm"
-              ml="sm"
-              onClick={() => {
-                router.push("/templates");
-                activeClassFun("templates");
-              }}
-            >
-              <span
-                style={{
-                  padding: "6px 8px",
-                  backgroundColor: "#FFF9DB",
-                  borderRadius: "5px",
-                  marginRight: "5px",
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="#FAB005"
-                  className="bi bi-columns"
-                  viewBox="0 0 16 16"
-                  style={{ verticalAlign: "sub" }}
+            {(user?.role == "user" && user?.subscriptionActive) ||
+              (user?.role === "owner" ? (
+                <></>
+              ) : (
+                <Text
+                  className={`templates ${
+                    navMenu === "templates" ? "active" : ""
+                  } cursor-pointer`}
+                  fz="sm"
+                  ml="sm"
+                  onClick={() => {
+                    router.push("/templates");
+                    activeClassFun("templates");
+                  }}
                 >
-                  <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2zm8.5 0v8H15V2H8.5zm0 9v3H15v-3H8.5zm-1-9H1v3h6.5V2zM1 14h6.5V6H1v8z" />
-                </svg>
-              </span>
-              Templates
-            </Text>
+                  <span
+                    style={{
+                      padding: "6px 8px",
+                      backgroundColor: "#FFF9DB",
+                      borderRadius: "5px",
+                      marginRight: "5px",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="#FAB005"
+                      className="bi bi-columns"
+                      viewBox="0 0 16 16"
+                      style={{ verticalAlign: "sub" }}
+                    >
+                      <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2zm8.5 0v8H15V2H8.5zm0 9v3H15v-3H8.5zm-1-9H1v3h6.5V2zM1 14h6.5V6H1v8z" />
+                    </svg>
+                  </span>
+                  Templates
+                </Text>
+              ))}
           </Flex>
         </Flex>
         <Flex align="center">

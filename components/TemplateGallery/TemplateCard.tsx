@@ -49,12 +49,13 @@ const TemplateCard = ({
   const openOverlay = useCallback(() => {
     if (
       ((user?.role == "user" && user?.subscriptionActive) ||
-        user?.role === "owner" ||
         user?.role === "flapjack") &&
       navMenu == "mymenu"
     ) {
       setShowOverlay(true);
     } else if (navMenu === "templates") {
+      setShowOverlay(true);
+    } else if (user?.role === "owner") {
       setShowOverlay(true);
     } else {
       setShowOverlay(false);
