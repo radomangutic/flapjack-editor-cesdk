@@ -46,7 +46,6 @@ const TemplateHeader = ({
 }: ITemplateHeaderProps) => {
   const router = useRouter();
   const user = useUser();
-  console.log("navMenu =>", navMenu);
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useSession();
   const supabase = useSupabaseClient();
