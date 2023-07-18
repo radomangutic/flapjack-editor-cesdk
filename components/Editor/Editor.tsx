@@ -58,8 +58,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             insert: {
               entries: (defaultEntries: any) => {
                 return [
-                  // Templates
-                  defaultEntries[0],
                   // Text
                   defaultEntries[3],
                   // Images
