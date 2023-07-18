@@ -32,6 +32,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       license: process.env.REACT_APP_LICENSE,
       ui: {
         elements: {
+          view: 'advanced',
           dock: {
             groups: [
               {
@@ -42,7 +43,18 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             ],
           },
           panels: {
-            settings: false,
+            settings: true,
+          },
+          blocks: {
+            opacity: true,
+            transform: true,
+            '//ly.img.ubq/image': {
+              adjustments: false,
+              filters: false,
+              effects: false,
+              blur: false,
+              crop: true
+            }
           },
           navigation: {
             action: {
