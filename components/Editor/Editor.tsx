@@ -54,6 +54,14 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
               effects: false,
               blur: false,
               crop: true
+            },
+            '//ly.img.ubq/page': {
+              manage: true,
+              format: true,
+              adjustments: false,
+              filters: false,
+              effects: false,
+              blur: false,
             }
           },
           navigation: {
