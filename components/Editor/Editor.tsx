@@ -43,7 +43,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             ],
           },
           panels: {
-            settings: true,
+            settings: false,
           },
           blocks: {
             opacity: true,
