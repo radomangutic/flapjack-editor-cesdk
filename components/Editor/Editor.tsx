@@ -42,7 +42,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             ],
           },
           panels: {
-            settings: true,
+            settings: false,
           },
           navigation: {
             action: {
@@ -152,7 +152,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           if (template?.content) {
             await instance.engine.scene.loadFromURL(
               process.env.NEXT_PUBLIC_SUPABASE_URL +
-                `/storage/v1/object/public/templates/${template?.content}`
+              `/storage/v1/object/public/templates/${template?.content}`
             );
           }
         }
