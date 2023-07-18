@@ -32,7 +32,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       license: process.env.REACT_APP_LICENSE,
       ui: {
         elements: {
-          view: 'advanced',
+          view: 'default',
           dock: {
             groups: [
               {
