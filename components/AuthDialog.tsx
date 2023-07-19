@@ -91,7 +91,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
           (event == "SIGNED_IN" || event === "SIGNED_OUT") &&
           router.pathname.includes("menu")
         )
-          window.location.reload();
+          router.push("/templates");
       }
     );
 
