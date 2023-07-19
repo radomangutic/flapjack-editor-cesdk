@@ -18,8 +18,8 @@ const AppHeader = () => {
         justify="space-between"
         align="center"
       >
-        <Link href={"/templates"} >
-          <Flex align="center" style={{cursor: 'pointer'}}>
+        <Link href={"/templates"}>
+          <Flex align="center" style={{ cursor: "pointer" }}>
             <svg
               width="31"
               height="29"
@@ -99,7 +99,10 @@ const AppHeader = () => {
               </a>
               <Menu.Item
                 icon={<IconLogout size={14} />}
-                onClick={() => supabase.auth.signOut()}
+                onClick={() => {
+                  localStorage.clear();
+                  supabase.auth.signOut();
+                }}
               >
                 Logout
               </Menu.Item>

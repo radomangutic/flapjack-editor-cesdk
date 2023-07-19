@@ -65,3 +65,57 @@ export const fetchTemplates = async (
   }
   return templateData ?? [];
 };
+export const fetchAssets = async (): Promise<any[]> => {
+  const user = getUser();
+  let templateData;
+  if (user) {
+    const { restaurant_id, role, id } = user;
+    if (role === "flapjack") {
+      const { data: globalTemplates, error: globalTemplatesError } =
+        await dbClient
+          .from("assets")
+          .select("id, createdBy, content ,restaurant_id");
+
+      if (globalTemplatesError) {
+        throw globalTemplatesError;
+      }
+
+      templateData = globalTemplates;
+    } else if (restaurant_id) {
+      const { data: globalTemplates, error: globalTemplatesError } =
+        await dbClient
+          .from("assets")
+          .select("id, createdBy, content ,restaurant_id")
+          .or(`restaurant_id.eq.${restaurant_id}`);
+
+      if (globalTemplatesError) {
+        throw globalTemplatesError;
+      }
+
+      templateData = globalTemplates;
+    } else {
+      const { data: globalTemplates, error: globalTemplatesError } =
+        await dbClient
+          .from("assets")
+          .select("id, createdBy, content ,restaurant_id")
+          .or(`createdBy.eq.${id}`);
+
+      if (globalTemplatesError) {
+        throw globalTemplatesError;
+      }
+
+      templateData = globalTemplates;
+    }
+  }
+
+  return templateData ?? [];
+};
+
+export const getUser = () => {
+  const user = localStorage.getItem("userData");
+  if (user) {
+    const userData = JSON.parse(user);
+    return userData;
+  }
+  return null;
+};

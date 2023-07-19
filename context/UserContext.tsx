@@ -44,6 +44,10 @@ const UserContextProvider = (props: Props) => {
             ...user,
             ...data,
           });
+          localStorage.setItem(
+            "userData",
+            JSON.stringify({ ...user, ...data })
+          );
         });
     } else if (!user && !isLoading) {
       setUserDetails(null);

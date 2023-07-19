@@ -418,7 +418,10 @@ const TemplateHeader = ({
                 </a>
                 <Menu.Item
                   icon={<IconLogout size={14} />}
-                  onClick={() => supabase.auth.signOut()}
+                  onClick={() => {
+                    localStorage.clear();
+                    supabase.auth.signOut();
+                  }}
                 >
                   Logout
                 </Menu.Item>

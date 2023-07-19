@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import CreativeEditorSDK from "@cesdk/cesdk-js";
-import { useUser } from "../../hooks/useUser";
+import { fetchAssets, getUser, useUser } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
@@ -9,10 +9,10 @@ import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
-  const cesdkContainer = useRef<HTMLDivElement>(null);
+  const cesdkContainer = useRef<any>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
   const [content, setcontent] = useState<string>("");
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(getUser());
   const user = useUser();
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
@@ -32,7 +32,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       license: process.env.REACT_APP_LICENSE,
       ui: {
         elements: {
-          view: 'default',
+          view: "default",
           dock: {
             groups: [
               {
@@ -48,21 +48,21 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           blocks: {
             opacity: true,
             transform: true,
-            '//ly.img.ubq/image': {
+            "//ly.img.ubq/image": {
               adjustments: false,
               filters: false,
               effects: false,
               blur: false,
-              crop: true
+              crop: true,
             },
-            '//ly.img.ubq/page': {
+            "//ly.img.ubq/page": {
               manage: true,
               format: true,
               adjustments: false,
               filters: false,
               effects: false,
               blur: false,
-            }
+            },
           },
           navigation: {
             action: {
@@ -81,7 +81,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
                   // Text
                   defaultEntries[3],
                   // Images
-                  defaultEntries[2],
+                  { ...defaultEntries[2], sourceIds: ["ly.img.image.upload"] },
                   // Shapes
                   defaultEntries[4],
                 ];
@@ -110,21 +110,49 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           });
         },
         onUpload: async (file: any) => {
-          const { data, error }: { data: any; error: any } =
-            await dbClient.storage
-              .from("templateImages")
-              .upload(uuidv4(), file);
-          if (error) {
-            console.error("error uploading file");
-          }
-          return {
-            id: uuidv4(), // A unique ID identifying the uploaded image
-            name: file?.name || "upload",
-            meta: {
-              uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-              thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-            },
-          };
+          let isAbleToExport = true;
+          const data: any = await new Promise((resolve, reject) => {
+            setUserData(async (user: any) => {
+              if (isAbleToExport) {
+                isAbleToExport = false;
+                if (user) {
+                  const content = uuidv4();
+                  const { data, error }: { data: any; error: any } =
+                    await dbClient.storage
+                      .from("templateImages")
+                      .upload(content, file);
+                  if (error) {
+                    console.error("error uploading file");
+                  }
+                  const userData = localStorage.getItem("userData");
+                  const user = userData && JSON.parse(userData);
+                  await dbClient.from("assets").insert({
+                    content,
+                    createdBy: user?.id,
+                    restaurant_id: user?.restaurant_id,
+                    template_id: template?.id,
+                  });
+                  setTimeout(() => {
+                    isAbleToExport = true;
+                  }, 1000);
+                  resolve(data);
+                } else {
+                  reject("Please login to continue");
+                }
+              }
+              return user;
+            });
+          });
+          return (
+            data && {
+              id: uuidv4(), // A unique ID identifying the uploaded image
+              name: file?.name || "upload",
+              meta: {
+                uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+              },
+            }
+          );
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
@@ -163,18 +191,32 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       },
     };
     if (cesdkContainer.current) {
-      CreativeEditorSDK.init(cesdkContainer.current, config).then(
-        async (instance: any) => {
-          instance.addDefaultAssetSources();
-          instance.addDemoAssetSources();
-          if (template?.content) {
-            await instance.engine.scene.loadFromURL(
-              process.env.NEXT_PUBLIC_SUPABASE_URL +
-              `/storage/v1/object/public/templates/${template?.content}`
-            );
+      fetchAssets().then((assetsData) => {
+        CreativeEditorSDK.init(cesdkContainer.current, config).then(
+          async (instance: any) => {
+            instance.addDefaultAssetSources();
+            instance.addDemoAssetSources();
+            if (template?.content) {
+              await instance.engine.scene.loadFromURL(
+                process.env.NEXT_PUBLIC_SUPABASE_URL +
+                  `/storage/v1/object/public/templates/${template?.content}`
+              );
+            }
+            const getAssetSources = async () => {
+              if (assetsData.length) {
+                const assets = assetsData.map(translateToAssetResult);
+                assets.forEach((asset) => {
+                  instance.engine.asset.addAssetToSource(
+                    "ly.img.image.upload",
+                    asset
+                  );
+                });
+              }
+            };
+            getAssetSources();
           }
-        }
-      );
+        );
+      });
     }
   }, []);
   function downloadBlobFile(blob: any, fileName: string) {
@@ -255,7 +297,12 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       var pages = shadowRoot?.querySelector(`${leftPanel} div section`);
       var pagesChildren = pages?.children;
       if (pagesChildren?.length === 5) {
-        pages?.removeChild(pagesChildren[4]);
+        var placeholder = shadowRoot?.querySelector(
+          `${leftPanel} div section :nth-child(5)`
+        );
+        if (placeholder instanceof HTMLElement) {
+          placeholder.style.display = "none";
+        }
       }
       var pageElements = shadowRoot?.querySelector(
         `${leftPanel} div .UBQ_Inspector__block--CW9ga section  div`
@@ -305,6 +352,15 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       removeElement();
     }, 20);
   }, [input]);
+  function translateToAssetResult(image: any) {
+    return {
+      id: image.id.toString(),
+      meta: {
+        uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
+        thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
+      },
+    };
+  }
 
   return (
     <div onClick={() => setinput(input + 1)}>
