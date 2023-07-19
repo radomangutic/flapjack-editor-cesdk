@@ -19,6 +19,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
 
   useEffect(() => {
+    console.log('test12145678')
     setUserData(user);
     if (user) {
       closeAuthDialog();

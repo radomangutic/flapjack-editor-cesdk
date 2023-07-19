@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Modal, Grid, Stack, Text, Flex } from "@mantine/core";
 import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -83,22 +82,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "";
-
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (
-          (event == "SIGNED_IN" || event === "SIGNED_OUT") &&
-          router.pathname.includes("menu")
-        )
-          router.push("/templates");
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
 
   return (
     <Modal
