@@ -8,6 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
+import { Button, FileInput, Group, Modal } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconUpload } from "@tabler/icons";
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<any>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
@@ -17,9 +20,10 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
+  const [opened, { open, close }] = useDisclosure(false);
 
   useEffect(() => {
-    console.log('test12145678')
+
     setUserData(user);
     if (user) {
       closeAuthDialog();
@@ -345,7 +349,23 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       if (removeImagesSectionChild?.length === 2) {
         removeImagesSection?.removeChild(removeImagesSectionChild[1]);
       }
+      var addElement = shadowRoot?.querySelector(
+        "div #ubq-portal-container_default div div div ul"
+      );
+      var addElementChild = shadowRoot?.querySelector(
+        "div #ubq-portal-container_default div div div ul"
+      )?.children;
+      if (addElementChild?.length === 51 && addElement) {
+        const newLi = document.createElement("li");
+        newLi.textContent = "Upload custom font";
+        newLi.style.cursor = "pointer";
+        newLi.style.padding = "5px 8px ";
+        newLi.style.fontFamily = "'Roboto', sans-serif";
+        newLi.addEventListener("click", open);
+        addElement.appendChild(newLi);
+      }
     };
+
     setTimeout(() => {
       removeDelayedItems();
     }, 150);
@@ -378,6 +398,18 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       <div style={cesdkWrapperStyle}>
         <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
       </div>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Upload Custom Fonts"
+        centered
+      >
+        <FileInput label="Your custom font" placeholder="Your custom font" icon={<IconUpload size={14} />} />
+        <Group position="right" mt={"md"}>
+          <Button onClick={close}>Cancle</Button>
+          <Button>Upload</Button>
+        </Group>
+      </Modal>
     </div>
   );
 };

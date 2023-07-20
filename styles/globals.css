@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,500&display=swap');
 html,
 body {
   padding: 0;
@@ -47,7 +48,8 @@ a {
 }
 
 /* Hide scrollbar corner */
-.gjs-editor-cont ::-webkit-scrollbar-corner, ::-webkit-scrollbar-corner {
+.gjs-editor-cont ::-webkit-scrollbar-corner,
+::-webkit-scrollbar-corner {
   background-color: transparent !important;
 }
 

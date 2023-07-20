@@ -79,10 +79,9 @@ export const fetchAssets = async (): Promise<any[]> => {
       if (globalTemplatesError) {
         throw globalTemplatesError;
       }
-
       templateData = globalTemplates;
     } else if (restaurant_id) {
-      const { data: globalTemplates, error: globalTemplatesError } =
+      const { data: globalTemplatesResturantId, error: globalTemplatesError } =
         await dbClient
           .from("assets")
           .select("id, createdBy, content ,restaurant_id")
@@ -92,9 +91,9 @@ export const fetchAssets = async (): Promise<any[]> => {
         throw globalTemplatesError;
       }
 
-      templateData = globalTemplates;
+      templateData = globalTemplatesResturantId;
     } else if (id) {
-      const { data: globalTemplates, error: globalTemplatesError } =
+      const { data: globalTemplatesUser, error: globalTemplatesError } =
         await dbClient
           .from("assets")
           .select("id, createdBy, content ,restaurant_id")
@@ -104,7 +103,7 @@ export const fetchAssets = async (): Promise<any[]> => {
         throw globalTemplatesError;
       }
 
-      templateData = globalTemplates;
+      templateData = globalTemplatesUser;
     }
   }
 
