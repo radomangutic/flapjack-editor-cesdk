@@ -34,6 +34,7 @@ type TemplateCardProps = {
   onDuplicate?: DuplicateTemplate;
   onGlobal?: GlobalTemplate;
   navMenu: string;
+  resturantsOptions: any;
 };
 
 const TemplateCard = ({
@@ -44,6 +45,7 @@ const TemplateCard = ({
   onDuplicate,
   onGlobal,
   navMenu,
+  resturantsOptions,
 }: TemplateCardProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const openOverlay = useCallback(() => {
@@ -87,6 +89,7 @@ const TemplateCard = ({
           onHandleDuplicateTemplate={onDuplicate}
           onHandleGlobal={onGlobal}
           navMenu={navMenu}
+          resturantsOptions={resturantsOptions}
         />
 
         <Image src={thumbnail} height={235} alt="Norway" />

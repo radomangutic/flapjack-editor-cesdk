@@ -93,7 +93,7 @@ export const fetchAssets = async (): Promise<any[]> => {
       }
 
       templateData = globalTemplates;
-    } else {
+    } else if (id) {
       const { data: globalTemplates, error: globalTemplatesError } =
         await dbClient
           .from("assets")
@@ -118,4 +118,49 @@ export const getUser = () => {
     return userData;
   }
   return null;
+};
+export const fetchResturants = async (): Promise<any[]> => {
+  const user = getUser();
+  let restaurants;
+  if (user) {
+    const { role } = user;
+    if (role === "flapjack") {
+      const { data: restaurantsData, error: restaurantsDataError } =
+        await dbClient.from("restaurants").select("*");
+
+      if (restaurantsDataError) {
+        throw restaurantsDataError;
+      }
+      const reseturantOptions = restaurantsData.map((item) => {
+        return {
+          label: item?.name,
+          value: item.id,
+        };
+      });
+      restaurants = reseturantOptions;
+    }
+  }
+
+  return restaurants ?? [];
+};
+export const transferTemplate = async (
+  templateId: number,
+  restaurant_id: number
+) => {
+  try {
+    const { error } = await dbClient
+      .from("templates")
+      .update({
+        restaurant_id,
+      })
+      .eq("id", templateId);
+    if (error) throw error;
+    const { error: updateAssetsError } = await dbClient
+      .from("assets")
+      .update({
+        restaurant_id,
+      })
+      .eq("template_id", templateId);
+    if (updateAssetsError) throw updateAssetsError;
+  } catch (error) {}
 };

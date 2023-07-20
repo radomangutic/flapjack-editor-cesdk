@@ -4,12 +4,14 @@ import {
   CloseButton,
   Flex,
   Menu,
+  Modal,
   Overlay,
+  Select,
 } from "@mantine/core";
 import { IconDots } from "@tabler/icons";
 import { useRouter } from "next/router";
-import { useCallback, useState, useMemo } from "react";
-import { useUser } from "../../hooks";
+import { useCallback, useState, useMemo, forwardRef, useEffect } from "react";
+import { fetchResturants, transferTemplate, useUser } from "../../hooks";
 import { ITemplateDetails } from "../../interfaces";
 import {
   DuplicateTemplate,
@@ -18,6 +20,8 @@ import {
   RenameTemplate,
 } from "./TemplateCard";
 import TemplateCardModal, { TemplateCardModalProps } from "./TemplateCardModal";
+import { useDisclosure } from "@mantine/hooks";
+import { Group, Avatar, Text } from "@mantine/core";
 
 interface TemplateCardOverlayProps {
   showOverlay: boolean;
@@ -28,6 +32,7 @@ interface TemplateCardOverlayProps {
   onHandleDuplicateTemplate: DuplicateTemplate;
   onHandleGlobal: GlobalTemplate;
   navMenu: string;
+  resturantsOptions: any;
 }
 
 export default function TemplateCardOverlay({
@@ -39,6 +44,7 @@ export default function TemplateCardOverlay({
   onHandleDuplicateTemplate,
   onHandleGlobal,
   navMenu,
+  resturantsOptions,
 }: TemplateCardOverlayProps) {
   const {
     id: templateId,
@@ -50,14 +56,18 @@ export default function TemplateCardOverlay({
   const canUpdate = useMemo(() => {
     if (!user || !router.pathname.includes("templates")) return false;
 
-    const flapjackCanUpdate = user?.role === "flapjack" || user?.role === "owner";
+    const flapjackCanUpdate =
+      user?.role === "flapjack" || user?.role === "owner";
     const isUserTemplate =
-      (user?.id === template.createdBy )&& user?.role === "user";
+      user?.id === template.createdBy && user?.role === "user";
 
     return flapjackCanUpdate || isUserTemplate;
   }, [user, router.pathname, template.isGlobal, template.createdBy, navMenu]);
   const [menuIsOpened, setMenuIsOpened] = useState(false);
   const [modalIsOpened, setModalIsOpened] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resturantId, setResturantId] = useState();
+  const [opened, { open, close }] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
 
@@ -113,6 +123,20 @@ export default function TemplateCardOverlay({
     }
   }, [onHandleGlobal, user?.id]);
 
+  const handleTransfer = async () => {
+    try {
+      if (resturantId) {
+        setLoading(true);
+        await transferTemplate(template?.id, resturantId);
+      }
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+      close();
+    }
+  };
+
   if (!showOverlay) return null;
 
   return (
@@ -158,6 +182,9 @@ export default function TemplateCardOverlay({
                 {template.isGlobal ? "Make Private" : "Publish Global"}
               </Menu.Item>
             )}
+            {user?.role === "flapjack" && (
+              <Menu.Item onClick={open}>Transfer Template </Menu.Item>
+            )}
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
@@ -195,6 +222,26 @@ export default function TemplateCardOverlay({
           Edit Template
         </Button>
       </Flex>
+      <Modal opened={opened} onClose={close} title="Transfer Template" centered>
+        <Select
+          label="Select a resturant"
+          placeholder="Select a resturant"
+          data={resturantsOptions}
+          searchable
+          onChange={(value: any) => setResturantId(value)}
+          maxDropdownHeight={400}
+          nothingFound="Resturant not found"
+          filter={(value: string, item: any) =>
+            item.label.toLowerCase().includes(value.toLowerCase().trim())
+          }
+        />
+        <Group position="right" mt={"md"}>
+          <Button onClick={close}>Cancle</Button>
+          <Button disabled={loading} onClick={handleTransfer}>
+            {loading ? "Transfering " : "Transfer"}
+          </Button>
+        </Group>
+      </Modal>
     </Overlay>
   );
 }

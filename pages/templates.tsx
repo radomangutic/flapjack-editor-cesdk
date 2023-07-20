@@ -5,7 +5,12 @@ import TemplateCard from "../components/TemplateGallery/TemplateCard";
 import { Container, SimpleGrid, Text } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../interfaces/ITemplate";
-import { useUser, useTemplateActions, fetchTemplates } from "../hooks";
+import {
+  useUser,
+  useTemplateActions,
+  fetchTemplates,
+  fetchResturants,
+} from "../hooks";
 import { useRouter } from "next/router";
 
 const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
@@ -14,6 +19,8 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(false);
+  const [resturantsOptions, setResturantsOptions] = useState([]);
+
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
 
@@ -30,6 +37,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       setTemplates(templatesList);
       setloading(false);
     };
+    const getOptions = async () => {
+      const options: any = await fetchResturants();
+      setResturantsOptions(options);
+    };
+    getOptions();
     fetchData();
     setNavMenu(
       (user?.role == "user" && user?.subscriptionActive) ||
@@ -59,12 +71,18 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             {templates
               ?.filter((template) => {
                 if (navMenu === "templates") {
-                  if (template.createdBy === user?.id && !template.isGlobal || template?.restaurant_id === user?.restaurant_id) {
+                  if (
+                    (template.createdBy === user?.id && !template.isGlobal) ||
+                    template?.restaurant_id === user?.restaurant_id
+                  ) {
                     return false;
                   }
                   return true;
                 } else {
-                  if (template.createdBy === user?.id && !template.isGlobal ||  template?.restaurant_id === user?.restaurant_id) {
+                  if (
+                    (template.createdBy === user?.id && !template.isGlobal) ||
+                    template?.restaurant_id === user?.restaurant_id
+                  ) {
                     return true;
                   } else {
                     return false;
@@ -82,6 +100,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   //@ts-ignore
                   onGlobal={globalTemplate}
                   navMenu={navMenu}
+                  resturantsOptions={resturantsOptions}
                 />
               ))}
           </SimpleGrid>

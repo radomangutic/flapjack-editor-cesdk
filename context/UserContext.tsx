@@ -51,6 +51,7 @@ const UserContextProvider = (props: Props) => {
         });
     } else if (!user && !isLoading) {
       setUserDetails(null);
+      localStorage.clear()
     }
   }, [user, isLoading, supabase]);
 
