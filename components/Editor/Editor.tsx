@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import CreativeEditorSDK from "@cesdk/cesdk-js";
-import { fetchAssets, getUser, useUser } from "../../hooks/useUser";
+import {
+  fetchAssets,
+  fetchFonts,
+  getUser,
+  uploadCustomFont,
+  useUser,
+} from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
 import { ITemplateDetails, IUserDetails } from "../../interfaces";
@@ -8,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
-import { Button, FileInput, Group, Modal } from "@mantine/core";
+import { Button, FileInput, Group, Modal, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
@@ -21,16 +27,21 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const router = useRouter();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const [opened, { open, close }] = useDisclosure(false);
+  const [loading, setloading] = useState(false);
+  const [font, setFont] = useState();
+  const [titleFontSize, setTitleFontSize] = useState<any>("");
+  const [fonts, setFonts] = useState<any>([]);
 
   useEffect(() => {
-
     setUserData(user);
     if (user) {
       closeAuthDialog();
     }
   }, [user]);
 
-  useEffect(() => {
+  const setup = async () => {
+    const templateFonts = await fetchFonts();
+    setFonts(templateFonts);
     const config: object = {
       role: "Creator",
       theme: "light",
@@ -86,7 +97,10 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
                   // Text
                   defaultEntries[3],
                   // Images
-                  { ...defaultEntries[2], sourceIds: ["ly.img.image.upload"] },
+                  {
+                    ...defaultEntries[2],
+                    sourceIds: ["ly.img.image.upload"],
+                  },
                   // Shapes
                   defaultEntries[4],
                 ];
@@ -102,7 +116,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             if (isAbleToExport) {
               isAbleToExport = false;
               if (user) {
-                console.log(user);
                 downloadBlobFile(blobs?.[0], template?.name || "");
               } else {
                 openAuthDialog();
@@ -193,6 +206,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             unit: "in",
           },
         },
+        typefaces: getFonts(templateFonts),
       },
     };
     if (cesdkContainer.current) {
@@ -223,6 +237,9 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         );
       });
     }
+  };
+  useEffect(() => {
+    setup();
   }, []);
   function downloadBlobFile(blob: any, fileName: string) {
     const link = document.createElement("a");
@@ -355,11 +372,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       var addElementChild = shadowRoot?.querySelector(
         "div #ubq-portal-container_default div div div ul"
       )?.children;
-      if (addElementChild?.length === 51 && addElement) {
+      if (addElementChild?.length === 51 + fonts.length && addElement) {
         const newLi = document.createElement("li");
         newLi.textContent = "Upload custom font";
         newLi.style.cursor = "pointer";
         newLi.style.padding = "5px 8px ";
+        newLi.style.fontWeight = "500";
+        newLi.style.fontSize = "14px";
         newLi.style.fontFamily = "'Roboto', sans-serif";
         newLi.addEventListener("click", open);
         addElement.appendChild(newLi);
@@ -382,7 +401,39 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       },
     };
   }
-
+  function getFonts(fontsData: any) {
+    let fonts: any = {};
+    fontsData.map((item: any) => {
+      if (item?.name) {
+        fonts[item?.name as keyof typeof fonts] = {
+          family: item?.name,
+          fonts: [
+            {
+              fontURL: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fonts/${item?.content}`,
+              weight: "regular",
+              style: "normal",
+            },
+          ],
+        };
+      }
+    });
+    return fonts;
+  }
+  const handleUploadFont = async () => {
+    try {
+      if (user) {
+        setloading(true);
+        await uploadCustomFont(font, template?.id, titleFontSize);
+      } else {
+        openAuthDialog()
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setloading(false);
+      close();
+    }
+  };
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
@@ -404,10 +455,22 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         title="Upload Custom Fonts"
         centered
       >
-        <FileInput label="Your custom font" placeholder="Your custom font" icon={<IconUpload size={14} />} />
+        <TextInput
+          label="Your custom font name"
+          placeholder="Your custom font name"
+          onChange={(e) => setTitleFontSize(e.target.value)}
+        />
+        <FileInput
+          label="Your custom font"
+          placeholder="Your custom font"
+          icon={<IconUpload size={14} />}
+          onChange={(file: any) => setFont(file)}
+        />
         <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>
-          <Button>Upload</Button>
+          <Button onClick={handleUploadFont} disabled={loading}>
+            {loading ? "Uploading..." : "Upload"}
+          </Button>
         </Group>
       </Modal>
     </div>
