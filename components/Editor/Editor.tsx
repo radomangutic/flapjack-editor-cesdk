@@ -17,6 +17,7 @@ import AuthDialog from "../AuthDialog";
 import { Button, FileInput, Group, Modal, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
+import { Font } from "../../grapeJs/versions/types";
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<any>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
@@ -41,7 +42,8 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
 
   const setup = async () => {
     const templateFonts = await fetchFonts();
-    setFonts(templateFonts);
+    const uniqueFonts = getUniqueFontsByName(templateFonts);
+    setFonts(uniqueFonts);
     const config: object = {
       role: "Creator",
       theme: "light",
@@ -357,15 +359,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       const leftPanel =
         "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelRight ";
       var shadowRoot = elementWithShadowRoot?.shadowRoot;
-      var removeImagesSection = shadowRoot?.querySelector(
-        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div div .UBQ_AssetLibraryContent__block--mQiYI div div"
-      );
-      var removeImagesSectionChild = shadowRoot?.querySelector(
-        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div div .UBQ_AssetLibraryContent__block--mQiYI div div"
-      )?.children;
-      if (removeImagesSectionChild?.length === 2) {
-        removeImagesSection?.removeChild(removeImagesSectionChild[1]);
-      }
       var addElement = shadowRoot?.querySelector(
         "div #ubq-portal-container_default div div div ul"
       );
@@ -425,7 +418,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         setloading(true);
         await uploadCustomFont(font, template?.id, titleFontSize);
       } else {
-        openAuthDialog()
+        openAuthDialog();
       }
     } catch (error) {
       console.error(error);
@@ -434,6 +427,17 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       close();
     }
   };
+
+  function getUniqueFontsByName(fonts: Font[]): Font[] {
+    const uniqueFontsMap: Map<string, Font> = new Map();
+    for (const font of fonts) {
+      if (!uniqueFontsMap.has(font.name)) {
+        uniqueFontsMap.set(font.name, font);
+      }
+    }
+    return Array.from(uniqueFontsMap.values());
+  }
+
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
