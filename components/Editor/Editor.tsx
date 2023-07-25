@@ -212,6 +212,21 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             height: 14,
             unit: "in",
           },
+          Tabloid: {
+            width: 11,
+            height: 17,
+            unit: "in",
+          },
+          "Half Letter": {
+            width: 5.5,
+            height: 8.5,
+            unit: "in",
+          },
+          "Quarter Letter": {
+            width: 4.25,
+            height: 5.5,
+            unit: "in",
+          }
         },
         typefaces: getFonts(templateFonts),
       },
