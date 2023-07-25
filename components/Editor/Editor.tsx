@@ -18,6 +18,10 @@ import { Button, FileInput, Group, Modal, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
 import { Font } from "../../grapeJs/versions/types";
+interface fontsErrorsType {
+  title?: string;
+  file?: string;
+}
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<any>(null);
   const [templateModal, settemplateModal] = useState<Boolean>(false);
@@ -32,6 +36,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const [font, setFont] = useState();
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
+  const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
 
   useEffect(() => {
     setUserData(user);
@@ -415,16 +420,26 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const handleUploadFont = async () => {
     try {
       if (user) {
+        if (!titleFontSize) {
+          setFontsError({ title: "Font title required" });
+          return;
+        }
+        if (!font) {
+          setFontsError({ file: "Font file required" });
+          return;
+        }
+        setFontsError({});
+
         setloading(true);
         await uploadCustomFont(font, template?.id, titleFontSize);
       } else {
         openAuthDialog();
       }
+      close();
     } catch (error) {
       console.error(error);
     } finally {
       setloading(false);
-      close();
     }
   };
 
@@ -463,12 +478,14 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           label="Your custom font name"
           placeholder="Your custom font name"
           onChange={(e) => setTitleFontSize(e.target.value)}
+          error={fontsError?.title}
         />
         <FileInput
           label="Your custom font"
           placeholder="Your custom font"
           icon={<IconUpload size={14} />}
           onChange={(file: any) => setFont(file)}
+          error={fontsError?.file}
         />
         <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>

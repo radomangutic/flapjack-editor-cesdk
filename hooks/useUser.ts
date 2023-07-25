@@ -174,7 +174,8 @@ export const transferTemplate = async (
 export const uploadCustomFont = async (
   file: any,
   templateId: number | undefined,
-  titleFont: string) => {
+  titleFont: string
+) => {
   const content = uuidv4();
   const user = getUser();
   const { data, error }: { data: any; error: any } = await dbClient.storage
@@ -182,6 +183,7 @@ export const uploadCustomFont = async (
     .upload(content, file);
   if (error) {
     console.error("error uploading file");
+    return error;
   }
   await dbClient.from("fonts").insert({
     content,
@@ -190,7 +192,6 @@ export const uploadCustomFont = async (
     template_id: templateId,
     name: titleFont,
   });
-
 };
 export const fetchFonts = async (): Promise<any[]> => {
   const user = getUser();
