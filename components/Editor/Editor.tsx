@@ -14,13 +14,21 @@ import { v4 as uuidv4 } from "uuid";
 import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
-import { Button, FileInput, Group, Modal, TextInput } from "@mantine/core";
+import {
+  Button,
+  FileInput,
+  Group,
+  Modal,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
 import { Font } from "../../grapeJs/versions/types";
 interface fontsErrorsType {
   title?: string;
   file?: string;
+  submit?: string;
 }
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<any>(null);
@@ -47,8 +55,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
 
   const setup = async () => {
     const templateFonts = await fetchFonts();
-    const uniqueFonts = getUniqueFontsByName(templateFonts);
-    setFonts(uniqueFonts);
+    setFonts(templateFonts);
     const config: object = {
       role: "Creator",
       theme: "light",
@@ -393,7 +400,10 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         newLi.style.fontWeight = "500";
         newLi.style.fontSize = "14px";
         newLi.style.fontFamily = "'Roboto', sans-serif";
-        newLi.addEventListener("click", open);
+        newLi.addEventListener("click", () => {
+          open();
+          setFontsError({});
+        });
         addElement.appendChild(newLi);
       }
     };
@@ -418,8 +428,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
     let fonts: any = {};
     fontsData.map((item: any) => {
       if (item?.name) {
-        fonts[item?.name as keyof typeof fonts] = {
-          family: item?.name,
+        const user = getUser();
+        let key =
+          user?.role === "flapjack"
+            ? `${item?.name}  ( ${item?.id} )`
+            : item?.name;
+        fonts[key as keyof typeof fonts] = {
+          family: key,
           fonts: [
             {
               fontURL: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fonts/${item?.content}`,
@@ -443,6 +458,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           setFontsError({ file: "Font file required" });
           return;
         }
+        const alreadyUploaded = [...fonts, ...defaultFonts].filter(
+          (item: any) => item?.name === titleFontSize
+        );
+        if (alreadyUploaded.length) {
+          setFontsError({ submit: "Font already exist" });
+          return;
+        }
         setFontsError({});
 
         setloading(true);
@@ -457,16 +479,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       setloading(false);
     }
   };
-
-  function getUniqueFontsByName(fonts: Font[]): Font[] {
-    const uniqueFontsMap: Map<string, Font> = new Map();
-    for (const font of fonts) {
-      if (!uniqueFontsMap.has(font.name)) {
-        uniqueFontsMap.set(font.name, font);
-      }
-    }
-    return Array.from(uniqueFontsMap.values());
-  }
 
   return (
     <div onClick={() => setinput(input + 1)}>
@@ -502,6 +514,9 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           onChange={(file: any) => setFont(file)}
           error={fontsError?.file}
         />
+        <Text color="red" fz={"xs"} my={"xs"}>
+          {fontsError?.submit}
+        </Text>
         <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>
           <Button onClick={handleUploadFont} disabled={loading}>
@@ -533,3 +548,159 @@ const cesdkWrapperStyle: object = {
     "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)",
   minHeight: "calc(100vh - 70px)",
 };
+
+const defaultFonts = [
+  {
+    name: "Abril Fatface",
+  },
+  {
+    name: "Aleo",
+  },
+  {
+    name: "AmaticSC",
+  },
+  {
+    name: "Archivo",
+  },
+  {
+    name: "Bangers",
+  },
+  {
+    name: "Barlow Condensed",
+  },
+  {
+    name: "Bungee Inline",
+  },
+  {
+    name: "Carter",
+  },
+  {
+    name: "Caveat",
+  },
+  {
+    name: "Coiny",
+  },
+  {
+    name: "Courier Prime",
+  },
+  {
+    name: "Elsie Swash Caps",
+  },
+  {
+    name: "Fira Sans",
+  },
+  {
+    name: "Krona",
+  },
+  {
+    name: "Kumar",
+  },
+  {
+    name: "Lobster Two",
+  },
+  {
+    name: "Manrope",
+  },
+  {
+    name: "Marker",
+  },
+  {
+    name: "Monoton",
+  },
+  {
+    name: "Montserrat",
+  },
+  {
+    name: "Nixie",
+  },
+  {
+    name: "Notable",
+  },
+  {
+    name: "Nunito",
+  },
+  {
+    name: "Open Sans",
+  },
+  {
+    name: "Ostrich",
+  },
+  {
+    name: "Oswald",
+  },
+  {
+    name: "Palanquin Dark",
+  },
+  {
+    name: "Parisienne",
+  },
+  {
+    name: "Permanent Marker",
+  },
+  {
+    name: "Petit Formal Script",
+  },
+  {
+    name: "Playfair Display",
+  },
+  {
+    name: "Poppins",
+  },
+  {
+    name: "Quicksand",
+  },
+  {
+    name: "Rasa",
+  },
+  {
+    name: "Roboto",
+  },
+  {
+    name: "Roboto Condensed",
+  },
+  {
+    name: "Roboto Slab",
+  },
+  {
+    name: "Sancreek",
+  },
+  {
+    name: "Shrikhand",
+  },
+  {
+    name: "Source Code Pro",
+  },
+  {
+    name: "Source Sans Pro",
+  },
+  {
+    name: "Source Serif Pro",
+  },
+  {
+    name: "Space Grotesk",
+  },
+  {
+    name: "Space Mono",
+  },
+  {
+    name: "Stint Ultra Condensed",
+  },
+  {
+    name: "Stint Ultra Expanded",
+  },
+  {
+    name: "Sue",
+  },
+  {
+    name: "Trash Hand",
+  },
+  {
+    name: "Ultra",
+  },
+  {
+    name: "VT323",
+  },
+  {
+    name: "Yeseva",
+  },
+];
