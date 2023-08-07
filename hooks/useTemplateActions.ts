@@ -1,6 +1,6 @@
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { ITemplateDetails } from "../interfaces";
+import { ITemplateDetails, DeleteAssetsIDs } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,10 +15,16 @@ export const useTemplateActions = (
   const deleteTemplate = async (id: number, content: string) => {
     try {
       if (id) {
-        await dbClient.storage
-          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-          .remove([content]);
-        const { error, status } = await supabase
+        const relatedFonts: Array<DeleteAssetsIDs> | null =
+          await fetchRelatedAssetIds(id, "fonts");
+        const relatedImages: Array<DeleteAssetsIDs> | null =
+          await fetchRelatedAssetIds(id, "assets");
+        await deleteRelatedAssetsFiles(relatedFonts, "fonts");
+        await deleteRelatedAssetsFiles(relatedImages, "templateImages");
+        await deleteRelatedAssets(relatedImages, "assets");
+        await deleteRelatedAssets(relatedFonts, "fonts");
+        await dbClient.storage.from("templates").remove([content]);
+        const { error, status } = await dbClient
           .from("templates")
           .delete()
           .eq("id", id);
@@ -168,6 +174,54 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchRelatedAssetIds = async (templateId: number, table: string) => {
+    const { data, error } = await dbClient
+      .from(table)
+      .select("id, content")
+      .eq("template_id", templateId);
+
+    if (error) {
+      return null
+    }
+
+    return data;
+  };
+  const deleteRelatedAssets = async (
+    assetIds: Array<DeleteAssetsIDs>  | null,
+    table: string
+  ) => {
+    if (assetIds) {
+      const deletePromises = assetIds.map(async (assetId) => {
+        const { error } = await dbClient
+          .from(table)
+          .delete()
+          .eq("id", assetId?.id);
+        if (error) {
+          return error;
+        }
+      });
+
+      await Promise.all(deletePromises);
+    }
+  };
+  const deleteRelatedAssetsFiles = async (
+    assetIds: Array<DeleteAssetsIDs>  | null,
+    table: string
+  ) => {
+    if (assetIds) {
+      const deletePromises = assetIds.map(async (assetId) => {
+        const { error } = await dbClient.storage
+          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
+          .remove([assetId?.content]);
+        if (error) {
+          return error;
+        }
+      });
+
+      await Promise.all(deletePromises);
     }
   };
 

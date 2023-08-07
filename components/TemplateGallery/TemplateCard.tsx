@@ -52,8 +52,10 @@ const TemplateCard = ({
     if (
       ((user?.role == "user" && user?.subscriptionActive) ||
         user?.role === "flapjack") &&
-      navMenu == "mymenu"
+      navMenu == "myMenu"
     ) {
+      setShowOverlay(true);
+    } else if (user?.role === "user" && navMenu == "myMenu") {
       setShowOverlay(true);
     } else if (navMenu === "templates") {
       setShowOverlay(true);
@@ -62,7 +64,7 @@ const TemplateCard = ({
     } else {
       setShowOverlay(false);
     }
-  }, []);
+  }, [navMenu]);
 
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
   const user = useUser();

@@ -10,6 +10,11 @@ export interface ITemplateDetails extends ITemplate {
   tags: string[];
   isGlobal: boolean;
   createdBy: string;
-  menuSize?: string,
-  restaurant_id?:string
+  menuSize?: string;
+  restaurant_id?: string;
+}
+
+export interface DeleteAssetsIDs {
+  id: string;
+  content: string;
 }

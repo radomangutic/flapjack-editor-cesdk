@@ -233,7 +233,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
             width: 4.25,
             height: 5.5,
             unit: "in",
-          }
+          },
         },
         typefaces: getFonts(templateFonts),
       },
@@ -244,6 +244,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           async (instance: any) => {
             instance.addDefaultAssetSources();
             instance.addDemoAssetSources();
+            setinput(input + 1)
             if (template?.content) {
               await instance.engine.scene.loadFromURL(
                 process.env.NEXT_PUBLIC_SUPABASE_URL +
@@ -346,6 +347,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         parent?.removeChild(child[4]);
       }
       var pages = shadowRoot?.querySelector(`${leftPanel} div section`);
+      var preview = shadowRoot?.querySelector(
+        `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
+      );
+      let previewChildLength = preview?.children;
+      if (previewChildLength?.length === 3) {
+        preview?.removeChild(previewChildLength[1]);
+      }
       var pagesChildren = pages?.children;
       if (pagesChildren?.length === 5) {
         var placeholder = shadowRoot?.querySelector(
@@ -375,8 +383,14 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       var placeholderRemoveChild = shadowRoot?.querySelector(
         "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
       )?.children;
+      if (placeholderRemoveChild?.length === 3) {
+        placeholderRemove?.removeChild(placeholderRemoveChild[1]);
+      }
       if (placeholderRemoveChild?.length === 4) {
         placeholderRemove?.removeChild(placeholderRemoveChild[2]);
+      }
+      if (placeholderRemoveChild?.length === 5) {
+        placeholderRemove?.removeChild(placeholderRemoveChild[4]);
       }
     };
     const removeDelayedItems = () => {
