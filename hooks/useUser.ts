@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { dbClient } from "../tests/helpers/database.helper";
-import { ITemplateDetails } from "../interfaces";
+import { ITemplateDetails, IUserDetails } from "../interfaces";
 import { v4 as uuidv4 } from "uuid";
 
 export const useUser = () => {
@@ -232,4 +232,12 @@ export const fetchFonts = async (): Promise<any[]> => {
     }
   }
   return templateFonts ?? [];
+};
+export const canCreateTemplate = (user: IUserDetails | null) => {
+  return (
+    user &&
+    (user.subscriptionActive ||
+      user.role === "flapjack" ||
+      user?.role === "owner")
+  );
 };

@@ -16,7 +16,13 @@ import {
 } from "@tabler/icons";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
-import { useDialog, useUser, useUpsell } from "../hooks";
+import {
+  useDialog,
+  useUser,
+  useUpsell,
+  getUser,
+  canCreateTemplate,
+} from "../hooks";
 import { useWarnIfUnsaved } from "../hooks/useWarnIfUnsavedChanges";
 import grapesjs from "grapesjs";
 import Router from "next/router";
@@ -91,6 +97,9 @@ const TemplateHeader = ({
 
   let editorEmpty = false;
   useEffect(() => {
+    if (!getUser()) {
+      openAuthDialog();
+    }
     const reload = sessionStorage.getItem("reload");
     if (
       typeof window !== "undefined" &&
@@ -346,10 +355,7 @@ const TemplateHeader = ({
         </Flex>
         <Flex align="center">
           {router.pathname.includes("templates") ? (
-            user &&
-            (user.subscriptionActive ||
-              user.role === "flapjack" ||
-              user?.role === "owner") &&
+            canCreateTemplate(user) &&
             navMenu == "myMenu" && (
               <Button
                 size="xs"

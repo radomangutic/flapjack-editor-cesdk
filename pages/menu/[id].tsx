@@ -1,87 +1,21 @@
-import { useRouter } from "next/router";
-import Template from "../template";
-import { useState } from "react";
-import { Drawer, Button, Group, Text, Stack, ScrollArea } from "@mantine/core";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import {
-  GetServerSidePropsContext,
-  GetStaticPathsContext,
-  GetStaticPropsContext,
-} from "next";
+import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../../interfaces";
-import DrawerHeader from "../../components/TemplateDetail/DrawerHeader";
-import DrawerBody from "../../components/TemplateDetail/DrawerBody";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons";
+import Editor from "../../components/Editor/Editor";
+import { getUser } from "../../hooks";
+import PrivatePage from "../../components/PrivatePage/PrivatePage";
 
-function TemplateDrawer({
-  data: template,
-  images,
-  drawerOpened,
-  setDrawerOpened,
-}: {
-  data: ITemplateDetails;
-  images: string[];
-  drawerOpened: boolean;
-  setDrawerOpened: (open: boolean) => void;
-}) {
+const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
+  const user = getUser();
+  if (
+    (!user && !data?.isGlobal) ||
+    user?.restaurant_id !== data?.restaurant_id && user?.role !== "flapjack"
+  ) {
+    return <PrivatePage login={!user} />;
+  }
   return (
     <>
-      <Drawer
-        opened={drawerOpened}
-        onClose={() => setDrawerOpened(false)}
-        lockScroll={true}
-        padding="xl"
-        position="right"
-        size="xl"
-        title={<DrawerHeader templateData={template} />}
-        withOverlay={false}
-        styles={{ drawer: { top: "63px", direction: "rtl" } }}
-      >
-        <DrawerBody images={images} />
-      </Drawer>
-      <Group
-        position="center"
-        style={{
-          position: "absolute",
-          top: 0,
-          zIndex: 9,
-          right: 0,
-          height: "100%",
-        }}
-      >
-        <Button
-          onClick={() => setDrawerOpened(true)}
-          color="gray"
-          compact
-          variant="white"
-          style={{
-            paddingLeft: 0,
-            paddingRight: 0,
-            height: "100%",
-            width: "25px",
-          }}
-        >
-          <IconChevronLeft
-            style={{ position: "absolute", top: "10%", left: 0 }}
-          />
-        </Button>
-      </Group>
-    </>
-  );
-}
-
-const Menu = ({
-  data,
-  images,
-}: {
-  data: ITemplateDetails;
-  images: string[];
-}) => {
-  const [drawerOpened, setDrawerOpened] = useState(true);
-
-  return (
-    <>
-      <Template drawerOpened={drawerOpened} data={data}/>
+      <Editor template={data} />
     </>
   );
 };
