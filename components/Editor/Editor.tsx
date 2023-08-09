@@ -244,7 +244,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           async (instance: any) => {
             instance.addDefaultAssetSources();
             instance.addDemoAssetSources();
-            setinput(input + 1)
+            setinput(input + 1);
             if (template?.content) {
               await instance.engine.scene.loadFromURL(
                 process.env.NEXT_PUBLIC_SUPABASE_URL +
@@ -377,20 +377,16 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         pageElements?.removeChild(pageElementsChild[1]);
         pageElements?.removeChild(pageElementsChild[1]);
       }
-      var placeholderRemove = shadowRoot?.querySelector(
-        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
-      );
       var placeholderRemoveChild = shadowRoot?.querySelector(
         "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
       )?.children;
-      if (placeholderRemoveChild?.length === 3) {
-        placeholderRemove?.removeChild(placeholderRemoveChild[1]);
-      }
-      if (placeholderRemoveChild?.length === 4) {
-        placeholderRemove?.removeChild(placeholderRemoveChild[2]);
-      }
-      if (placeholderRemoveChild?.length === 5) {
-        placeholderRemove?.removeChild(placeholderRemoveChild[4]);
+      if (placeholderRemoveChild) {
+        for (var i = 0; i < placeholderRemoveChild.length; i++) {
+          var placeholderChild = placeholderRemoveChild[i];
+          if (placeholderChild?.textContent?.includes("Placeholder")) {
+            placeholderChild.remove();
+          }
+        }
       }
     };
     const removeDelayedItems = () => {

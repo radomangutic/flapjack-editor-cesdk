@@ -140,7 +140,10 @@ export default function TemplateCardOverlay({
   if (!showOverlay) return null;
 
   return (
-    <Overlay color="black" zIndex={3}>
+    <Overlay
+      color="black"
+      zIndex={3}
+    >
       {canUpdate && (
         <Menu
           position="bottom-end"
@@ -205,13 +208,12 @@ export default function TemplateCardOverlay({
         templateDescription={templateDescription}
       />
 
-      <Flex justify="center">
+      <Flex justify="center" h={'100%'} align={'center'}>
         <Button
           variant="outline"
           color="dark.1"
           radius="xl"
           size="md"
-          top={55}
           styles={() => ({
             root: {
               border: "2px solid #fff",

@@ -16,7 +16,7 @@ const PrivatePage: React.FC<IPrivatePageProps> = ({ login }) => {
             fz={"28px"}
             variant="subtle"
             p={"0"}
-            onClick={() => router.push("templates")}
+            onClick={() => router.back()}
           >
             Login{" "}
           </Button>{" "}

@@ -27,10 +27,17 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   // Fix `My Menu` button on the template page temporarily.
   // The better way is creating a separate `My Menu` page.
   useEffect(() => {
-    if (router.isReady && Object.hasOwn(router.query, "myMenu")) {
+    if (router.isReady && Object.hasOwn(router.query, "myMenu") && user) {
       setNavMenu("myMenu");
+    } else {
+      setNavMenu(
+        (user?.role == "user" && user?.subscriptionActive) ||
+          user?.role === "owner"
+          ? "myMenu"
+          : "templates"
+      );
     }
-  }, [router]);
+  }, [router, user]);
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
@@ -43,12 +50,6 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     };
     getOptions();
     fetchData();
-    setNavMenu(
-      (user?.role == "user" && user?.subscriptionActive) ||
-        user?.role === "owner"
-        ? "myMenu"
-        : "templates"
-    );
   }, [user, user?.id]);
   return (
     <>

@@ -1,15 +1,16 @@
-import { Header, Flex, Text, Button, Avatar, Menu } from "@mantine/core";
+import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { IconChevronDown, IconLogout, IconMail } from "@tabler/icons";
 import { useDialog } from "../hooks";
 import AuthDialog from "./AuthDialog";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const AppHeader = () => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useSession();
   const supabase = useSupabaseClient();
-
+  const router  = useRouter()
   return (
     <Header height={64}>
       <Flex
@@ -18,7 +19,7 @@ const AppHeader = () => {
         justify="space-between"
         align="center"
       >
-        <Link href={"/templates"}>
+        <Box sx={{cursor: 'pointer'}} onClick={() => router.back()}>
           <Flex align="center" style={{ cursor: "pointer" }}>
             <svg
               width="31"
@@ -78,7 +79,7 @@ const AppHeader = () => {
               flapjack
             </Text>
           </Flex>
-        </Link>
+        </Box>
         {session ? (
           <Menu shadow="md" width={200}>
             <Menu.Target>
