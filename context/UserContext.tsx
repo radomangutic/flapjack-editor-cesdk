@@ -4,14 +4,17 @@ import {
   useSessionContext,
 } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../interfaces";
+import { getUser } from "../hooks";
 
-type UserContextType = {
+interface UserContextType {
   user: IUserDetails | null;
-};
+  setUser?: (IUserDetails: IUserDetails | null) => any;
+}
 
-export const UserContext = createContext<UserContextType | undefined>(
-  undefined
-);
+export const UserContext = createContext<UserContextType | undefined>({
+  user: null,
+  setUser: (userDetails: any) => null,
+});
 
 export interface Props {
   [propName: string]: any;
@@ -19,9 +22,28 @@ export interface Props {
 
 const UserContextProvider = (props: Props) => {
   const { isLoading, supabaseClient: supabase } = useSessionContext();
-  const user = useSupaUser();
+  const supabaseUser = useSupaUser();
+  const [user, setuser] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<IUserDetails | null>(null);
-
+  const setUser = (userDetails: any) => {
+    if (userDetails) {
+      setuser(userDetails);
+    } else {
+      setUserDetails(null);
+      localStorage.clear();
+    }
+  };
+  useEffect(() => {
+    let data = getUser();
+    if (data) {
+      setuser(data);
+    }
+  }, []);
+  useEffect(() => {
+    if (supabaseUser) {
+      setuser(supabaseUser);
+    }
+  }, [supabaseUser]);
   useEffect(() => {
     if (user) {
       supabase
@@ -51,12 +73,13 @@ const UserContextProvider = (props: Props) => {
         });
     } else if (!user && !isLoading) {
       setUserDetails(null);
-      localStorage.clear()
+      localStorage.clear();
     }
   }, [user, isLoading, supabase]);
 
   const value = {
     user: userDetails,
+    setUser,
   };
 
   return <UserContext.Provider value={value} {...props} />;

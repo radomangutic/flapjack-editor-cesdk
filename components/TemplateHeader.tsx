@@ -22,6 +22,7 @@ import {
   useUpsell,
   getUser,
   canCreateTemplate,
+  useSetUser,
 } from "../hooks";
 import { useWarnIfUnsaved } from "../hooks/useWarnIfUnsavedChanges";
 import grapesjs from "grapesjs";
@@ -54,6 +55,7 @@ const TemplateHeader = ({
   const user = useUser();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useSession();
+  const setUser = useSetUser();
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
@@ -97,8 +99,10 @@ const TemplateHeader = ({
 
   let editorEmpty = false;
   useEffect(() => {
-    if (!getUser()) {
+    if (!getUser() && !user) {
       openAuthDialog();
+    } else {
+      closeAuthDialog();
     }
     const reload = sessionStorage.getItem("reload");
     if (
@@ -138,7 +142,7 @@ const TemplateHeader = ({
         return true;
       });
     };
-  }, []);
+  }, [user]);
 
   let isConfirm = false;
   Router.events.on("routeChangeStart", () => {
@@ -402,7 +406,7 @@ const TemplateHeader = ({
                 : "Save Menu"}
             </Button>
           )}
-          {session ? (
+          {user ? (
             <Menu shadow="md" width={200}>
               <Menu.Target>
                 <Flex align="center" sx={{ cursor: "pointer" }}>
@@ -427,6 +431,7 @@ const TemplateHeader = ({
                   onClick={() => {
                     localStorage.clear();
                     supabase.auth.signOut();
+                    setUser?.(null);
                   }}
                 >
                   Logout
@@ -443,7 +448,7 @@ const TemplateHeader = ({
               Sign Up
             </Button>
           )}
-          {authDialog && !session && (
+          {authDialog && (
             <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
           )}
         </Flex>

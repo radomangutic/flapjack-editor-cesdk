@@ -11,6 +11,13 @@ export const useUser = () => {
   }
   return context.user;
 };
+export const useSetUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error(`useUser must be used within a UserContextProvider.`);
+  }
+  return context.setUser;
+};
 export const fetchTemplates = async (
   user: any
 ): Promise<ITemplateDetails[]> => {

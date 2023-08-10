@@ -1,16 +1,17 @@
 import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { IconChevronDown, IconLogout, IconMail } from "@tabler/icons";
-import { useDialog } from "../hooks";
+import { useDialog, useSetUser, useUser } from "../hooks";
 import AuthDialog from "./AuthDialog";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 const AppHeader = () => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
-  const session = useSession();
+  const session = useUser();
+  const setUser = useSetUser();
   const supabase = useSupabaseClient();
-  const router  = useRouter()
+  const router = useRouter();
   return (
     <Header height={64}>
       <Flex
@@ -19,7 +20,14 @@ const AppHeader = () => {
         justify="space-between"
         align="center"
       >
-        <Box sx={{cursor: 'pointer'}} onClick={() => router.back()}>
+        <Box
+          sx={{ cursor: "pointer" }}
+          onClick={() =>
+            window.history.length > 2
+              ? router.back()
+              : router.push("/templates")
+          }
+        >
           <Flex align="center" style={{ cursor: "pointer" }}>
             <svg
               width="31"
@@ -103,6 +111,7 @@ const AppHeader = () => {
                 onClick={() => {
                   localStorage.clear();
                   supabase.auth.signOut();
+                  setUser?.(null);
                 }}
               >
                 Logout
