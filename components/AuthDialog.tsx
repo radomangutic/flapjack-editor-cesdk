@@ -99,7 +99,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [otpScreen, setOtpScreen] = useState(false);
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<ILoginErrors>({});
-  const inventoryTime = 30;
+  const inventoryTime = 60;
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
 
   const inventoryTimerRef = useRef<number | null>(null);
@@ -173,6 +173,9 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
     }
   }
   async function verifyOtp() {
+    if (otp.length > 6) {
+      setError({phone: "Invalid OTP"})
+    }
     const { data, error } = await dbClient.auth.verifyOtp({
       phone: value,
       token: otp,

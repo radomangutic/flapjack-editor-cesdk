@@ -7,11 +7,10 @@ import PrivatePage from "../../components/PrivatePage/PrivatePage";
 
 const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
   const user = getUser();
-  if (
-    (!user && !data?.isGlobal) ||
-    user?.restaurant_id !== data?.restaurant_id && user?.role !== "flapjack"
-  ) {
-    return <PrivatePage login={!user} />;
+  if (user?.role !== "flpajack") {
+    if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
+      return <PrivatePage login={!user} />;
+    }
   }
   return (
     <>
@@ -24,7 +23,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { data } = await supabase
     .from("templates")
     .select(
-      "id, createdBy, name, description, content, tags, isGlobal, menuSize"
+      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
     .eq("id", context?.params?.id);
 
