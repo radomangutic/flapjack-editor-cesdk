@@ -138,9 +138,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
 
       const { data, error } = await dbClient.auth.signInWithOtp({
         email: value,
-        options: {
-          emailRedirectTo: "http://localhost:3000/templates",
-        },
       });
       if (error) {
         errorOnSubmit = { email: error.message || "Something went wrong" };
@@ -174,7 +171,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   }
   async function verifyOtp() {
     if (otp.length > 6) {
-      setError({phone: "Invalid OTP"})
+      setError({ phone: "Invalid OTP" });
     }
     const { data, error } = await dbClient.auth.verifyOtp({
       phone: value,
