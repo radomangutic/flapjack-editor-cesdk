@@ -3,9 +3,10 @@ import { useRouter } from "next/router";
 
 interface IPrivatePageProps {
   login?: boolean;
+  text?: string;
 }
 
-const PrivatePage: React.FC<IPrivatePageProps> = ({ login }) => {
+const PrivatePage: React.FC<IPrivatePageProps> = ({ login, text }) => {
   const router = useRouter();
   if (login) {
     return (
@@ -27,7 +28,9 @@ const PrivatePage: React.FC<IPrivatePageProps> = ({ login }) => {
   }
   return (
     <Flex justify={"center"} align={"center"} h={"calc(100vh - 65px)"}>
-      <Text fz={"28px"}>You do not have access to this page.</Text>
+      <Text fz={"28px"}>
+        {text ? text : "You do not have access to this page."}
+      </Text>
     </Flex>
   );
 };
