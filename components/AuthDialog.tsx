@@ -135,16 +135,24 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         return;
       }
       setError({});
-
-      const { data, error } = await dbClient.auth.signInWithOtp({
-        email: value,
-      });
-      if (error) {
-        errorOnSubmit = { email: error.message || "Something went wrong" };
-        setError(errorOnSubmit);
-        return;
+      const { data: whiteListUser, error: errorOnGetting } = await dbClient
+        .from("whitelist_users")
+        .select("*")
+        .eq("email", value)
+        .single();
+      if (whiteListUser && !errorOnGetting) {
+        const { data, error } = await dbClient.auth.signInWithOtp({
+          email: value,
+        });
+        if (error) {
+          errorOnSubmit = { email: error.message || "Something went wrong" };
+          setError(errorOnSubmit);
+          return;
+        }
+        setIsSendLoginEmail("Please check your email");
+      } else {
+        onClose();
       }
-      setIsSendLoginEmail("Please check your email");
     } else {
       if (!value) {
         errorOnSubmit = { phone: "Phone required" };
@@ -157,16 +165,26 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         return;
       }
       setError({});
-      const { data, error } = await dbClient.auth.signInWithOtp({
-        phone: value,
-      });
-      if (error) {
-        errorOnSubmit = { phone: error.message || "Something went wrong" };
-        setError(errorOnSubmit);
-        return;
+      const { data: whiteListUserPhone, error: errorOnGettingPhone } =
+        await dbClient
+          .from("whitelist_users")
+          .select("*")
+          .eq("phone", value)
+          .single();
+      if (whiteListUserPhone && !errorOnGettingPhone) {
+        const { data, error } = await dbClient.auth.signInWithOtp({
+          phone: value,
+        });
+        if (error) {
+          errorOnSubmit = { phone: error.message || "Something went wrong" };
+          setError(errorOnSubmit);
+          return;
+        }
+        handleTimerStart();
+        setOtpScreen(true);
+      } else {
+        onClose();
       }
-      handleTimerStart();
-      setOtpScreen(true);
     }
   }
   async function verifyOtp() {
