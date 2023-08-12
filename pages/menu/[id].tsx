@@ -8,7 +8,7 @@ import PrivatePage from "../../components/PrivatePage/PrivatePage";
 const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
   console.log('data', data)
   const user = getUser();
-  if (user?.role !== "flpajack") {
+  if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
     }
