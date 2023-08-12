@@ -141,18 +141,17 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         .eq("email", value)
         .single();
       if (whiteListUser && !errorOnGetting) {
-        const { data, error } = await dbClient.auth.signInWithOtp({
-          email: value,
-        });
-        if (error) {
-          errorOnSubmit = { email: error.message || "Something went wrong" };
-          setError(errorOnSubmit);
-          return;
-        }
-        setIsSendLoginEmail("Please check your email");
-      } else {
-        onClose();
+        window.location.href = "https://app.flapjack.co"
       }
+      const { data, error } = await dbClient.auth.signInWithOtp({
+        email: value,
+      });
+      if (error) {
+        errorOnSubmit = { email: error.message || "Something went wrong" };
+        setError(errorOnSubmit);
+        return;
+      }
+      setIsSendLoginEmail("Please check your email");
     } else {
       if (!value) {
         errorOnSubmit = { phone: "Phone required" };
@@ -172,19 +171,18 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
           .eq("phone", value)
           .single();
       if (whiteListUserPhone && !errorOnGettingPhone) {
-        const { data, error } = await dbClient.auth.signInWithOtp({
-          phone: value,
-        });
-        if (error) {
-          errorOnSubmit = { phone: error.message || "Something went wrong" };
-          setError(errorOnSubmit);
-          return;
-        }
-        handleTimerStart();
-        setOtpScreen(true);
-      } else {
-        onClose();
+        window.location.href = "https://app.flapjack.co"
       }
+      const { data, error } = await dbClient.auth.signInWithOtp({
+        phone: value,
+      });
+      if (error) {
+        errorOnSubmit = { phone: error.message || "Something went wrong" };
+        setError(errorOnSubmit);
+        return;
+      }
+      handleTimerStart();
+      setOtpScreen(true);
     }
   }
   async function verifyOtp() {
