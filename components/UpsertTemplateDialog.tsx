@@ -4,6 +4,8 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { useUser } from "../hooks";
 import { ITemplate } from "../interfaces";
+import { dbClient } from "../tests/helpers/database.helper";
+import { v4 as uuidv4 } from "uuid";
 
 interface IUpsertTemplateDialogProps {
   opened: boolean;
@@ -36,6 +38,26 @@ const UpsertTemplateDialog = ({
   const onSubmit = async (values: { name: string; description: string }) => {
     try {
       const isUpdating = router.query.id;
+      const file = new Blob([content], { type: "text/plain" });
+      let contentUpload = "";
+      if (isUpdating && template?.content) {
+        await dbClient.storage.from("templates").remove([template?.content]);
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage.from("templates").upload(uuidv4(), file);
+        if (error) {
+          return;
+        } else {
+          contentUpload = data?.path;
+        }
+      } else {
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage.from("templates").upload(uuidv4(), file);
+        if (error) {
+          return;
+        } else {
+          contentUpload = data?.path;
+        }
+      }
       const userCanUpdate =
         user?.role === "flapjack" ||
         (!template?.isGlobal && user?.subscriptionActive);
@@ -44,7 +66,7 @@ const UpsertTemplateDialog = ({
           .from("templates")
           .update({
             ...values,
-            content: content,
+            content: contentUpload,
             updatedAt: new Date(),
           })
           .eq("id", router.query.id);
@@ -54,7 +76,7 @@ const UpsertTemplateDialog = ({
           .from("templates")
           .insert({
             ...values,
-            content: content,
+            content: contentUpload,
             isGlobal: user?.role === "flapjack" ? true : false,
             restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
             createdBy: user?.id,
@@ -62,8 +84,8 @@ const UpsertTemplateDialog = ({
             updatedAt: new Date(),
           })
           .select();
-          if (error) throw error;
-          await router.push(`/menu/${data?.[0]?.id}`);
+        if (error) throw error;
+        await router.push(`/menu/${data?.[0]?.id}`);
       }
     } catch (err) {
       console.error(err);

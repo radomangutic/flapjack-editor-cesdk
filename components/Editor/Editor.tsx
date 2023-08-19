@@ -24,7 +24,6 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
-import { Font } from "../../grapeJs/versions/types";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -32,7 +31,7 @@ interface fontsErrorsType {
 }
 const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   const cesdkContainer = useRef<any>(null);
-  const [templateModal, settemplateModal] = useState<Boolean>(false);
+  const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
   const [userData, setUserData] = useState<any>(getUser());
   const user = useUser();
@@ -277,42 +276,11 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
     link.download = fileName;
     link.click();
   }
-  const saveTemplate = async (string: string) => {
-    const file = new Blob([string], { type: "text/plain" });
-    try {
-      if (router.query.id && template?.content) {
-        const {
-          data: fileRemove,
-          error: fileremoveError,
-        }: { data: any; error: any } = await dbClient.storage
-          .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-          .remove([template?.content]); // Replace 'file_name' with the name of the file you want to delete
-
-        const { data, error }: { data: any; error: any } =
-          await dbClient.storage
-            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-            .upload(uuidv4(), file); // Replace 'file_name' with the desired file name
-        if (error) {
-          console.error("Error updating file:", error.message);
-        } else {
-          setcontent(data?.path);
-          settemplateModal(true);
-        }
-      } else {
-        const { data, error }: { data: any; error: any } =
-          await dbClient.storage
-            .from("templates") // Replace 'bucket_name' with your actual Supabase storage bucket name
-            .upload(uuidv4(), file); // Replace 'file_name' with the desired file name
-        if (error) {
-          console.error("Error uploading file:", error.message);
-        } else {
-          setcontent(data?.path);
-          settemplateModal(true);
-        }
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
+  const saveTemplate = (string: string) => {
+    setTimeout(() => {
+      settemplateModal(true);
+      setcontent(string);
+    }, 100);
   };
   useEffect(() => {
     const removeElement = () => {
@@ -489,19 +457,11 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       setloading(false);
     }
   };
-
+  console.log(templateModal);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
 
-      {templateModal && (
-        <UpsertTemplateDialog
-          opened={true}
-          template={template}
-          onClose={() => settemplateModal(false)}
-          content={content}
-        />
-      )}
       <div style={cesdkWrapperStyle}>
         <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
       </div>
@@ -534,6 +494,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           </Button>
         </Group>
       </Modal>
+
+      <UpsertTemplateDialog
+        opened={templateModal}
+        template={template}
+        onClose={() => settemplateModal(false)}
+        content={content}
+      />
     </div>
   );
 };
