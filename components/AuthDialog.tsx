@@ -141,7 +141,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         .eq("email", value)
         .single();
       if (whiteListUser && !errorOnGetting) {
-        window.location.href = "https://app.flapjack.co"
+        window.location.href = "https://app.flapjack.co";
       }
       const { data, error } = await dbClient.auth.signInWithOtp({
         email: value,
@@ -171,7 +171,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
           .eq("phone", value)
           .single();
       if (whiteListUserPhone && !errorOnGettingPhone) {
-        window.location.href = "https://app.flapjack.co"
+        window.location.href = "https://app.flapjack.co";
       }
       const { data, error } = await dbClient.auth.signInWithOtp({
         phone: value,
@@ -385,6 +385,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                   value={value}
                   onChange={(phone: string) => setValue(phone)}
                   className="input-phone"
+                  defaultCountry="US"
                 />
 
                 {error?.phone && (
