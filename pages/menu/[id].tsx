@@ -6,7 +6,6 @@ import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 
 const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
-  console.log('data', data)
   const user = getUser();
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
