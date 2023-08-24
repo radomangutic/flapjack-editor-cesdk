@@ -95,7 +95,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const setUser = useSetUser();
   const [value, setValue] = useState("");
   const [isSendLoginEmail, setIsSendLoginEmail] = useState("");
-  const [loginWithEmail, setLoginWithEmail] = useState(true);
+  const [loginWithEmail, setLoginWithEmail] = useState(false);
   const [otpScreen, setOtpScreen] = useState(false);
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<ILoginErrors>({});
