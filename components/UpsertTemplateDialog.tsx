@@ -40,14 +40,16 @@ const UpsertTemplateDialog = ({
       const isUpdating = router.query.id;
       const file = new Blob([content], { type: "text/plain" });
       let contentUpload = "";
-      if (isUpdating && template?.content) {
-        await dbClient.storage.from("templates").remove([template?.content]);
-        const { data, error }: { data: any; error: any } =
-          await dbClient.storage.from("templates").upload(uuidv4(), file);
+      const userCanUpdate =
+        user?.role === "flapjack" ||
+        (!template?.isGlobal && user?.subscriptionActive) ||
+        user?.role === "owner";
+      if (isUpdating && template?.content && userCanUpdate) {
+        const { data, error } = await supabase.storage
+          .from("templates")
+          .update(`${template?.content}`, file);
         if (error) {
           return;
-        } else {
-          contentUpload = data?.path;
         }
       } else {
         const { data, error }: { data: any; error: any } =
@@ -58,20 +60,7 @@ const UpsertTemplateDialog = ({
           contentUpload = data?.path;
         }
       }
-      const userCanUpdate =
-        user?.role === "flapjack" ||
-        (!template?.isGlobal && user?.subscriptionActive);
-      if (isUpdating && userCanUpdate) {
-        const { error } = await supabase
-          .from("templates")
-          .update({
-            ...values,
-            content: contentUpload,
-            updatedAt: new Date(),
-          })
-          .eq("id", router.query.id);
-        if (error) throw error;
-      } else {
+      if (!isUpdating) {
         const { error, data } = await supabase
           .from("templates")
           .insert({
