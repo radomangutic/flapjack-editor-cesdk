@@ -110,7 +110,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
         </Text>
         {loading ? (
           <h1 style={{ textAlign: "center" }}>Loading...</h1>
-        ) : user?.role === "owner" ? (
+        ) : user?.restaurant?.location?.length ? (
           <>
             {groupedMenus.map((item: any, i) => (
               <div key={i}>
