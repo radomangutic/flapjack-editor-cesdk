@@ -15,6 +15,7 @@ import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 import {
+  Box,
   Button,
   FileInput,
   Group,
@@ -353,7 +354,7 @@ const Editor = ({
       let previewChildLength = previewParent?.children;
       if (previewChildLength?.length === 3 && preview) {
         let elementToRemove = previewChildLength[1] as HTMLElement;
-        elementToRemove.click()
+        elementToRemove.click();
         previewParent?.removeChild(elementToRemove);
       }
       var pagesChildren = pages?.children;
@@ -552,7 +553,17 @@ const Editor = ({
         <Text
           style={{ position: "absolute", right: 30, bottom: 30, zIndex: 1000 }}
         >
-          Made with ❤️ by Flapjack
+          Made with ❤️ by{" "}
+          <Box
+            style={{
+              borderBottom: "1px solid black",
+              display: "inline",
+              cursor: "pointer",
+            }}
+            onClick={() => router.push("/templates")}
+          >
+            Flapjack
+          </Box>
         </Text>
       )}
     </div>
