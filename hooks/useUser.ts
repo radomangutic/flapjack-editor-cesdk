@@ -27,7 +27,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -44,7 +44,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .or(`restaurant_id.eq.${restaurant_id},isGlobal.eq.true`)
         .order("templateOrder", { ascending: true });
@@ -59,7 +59,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -142,6 +142,7 @@ export const fetchResturants = async (): Promise<any[]> => {
         return {
           label: item?.name,
           value: item.id,
+          location: item?.location,
         };
       });
       restaurants = reseturantOptions;
@@ -152,13 +153,15 @@ export const fetchResturants = async (): Promise<any[]> => {
 };
 export const transferTemplate = async (
   templateId: number,
-  restaurant_id: number
+  restaurant_id: string,
+  location: string
 ) => {
   try {
     const { error } = await dbClient
       .from("templates")
       .update({
         restaurant_id,
+        location,
       })
       .eq("id", templateId);
     if (error) throw error;

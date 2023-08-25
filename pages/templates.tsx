@@ -51,6 +51,56 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     getOptions();
     fetchData();
   }, [user, user?.id]);
+
+  const templateData = templates?.filter((template) => {
+    if (navMenu === "templates") {
+      if (
+        (template.createdBy === user?.id && !template.isGlobal) ||
+        template?.restaurant_id === user?.restaurant_id
+      ) {
+        return false;
+      }
+      return true;
+    } else {
+      if (
+        (template.createdBy === user?.id && !template.isGlobal) ||
+        template?.restaurant_id === user?.restaurant_id
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  });
+  const groupMenusByLocation = (menus: any[], locations: string[]) => {
+    const menuMap: { [key: string]: any[] } = {};
+      menus.forEach((menu) => {
+      const { location, ...menuData } = menu;
+      const currentLocation = location || "No Location";
+      if (!menuMap[currentLocation]) {
+        menuMap[currentLocation] = [];
+      }
+      menuMap[currentLocation].push(menuData);
+    });
+      const groupedMenus: any[] = locations.map((location) => ({
+      location,
+      menus: menuMap[location] || [],
+    }));
+  
+    if (menuMap["No Location"]) {
+      groupedMenus.push({
+        location: "",
+        menus: menuMap["No Location"],
+      });
+    }
+  
+    return groupedMenus;
+  };
+  const groupedMenus = groupMenusByLocation(
+    templateData,
+    user?.restaurant?.location || []
+  );
+
   return (
     <>
       <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
@@ -60,6 +110,37 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
         </Text>
         {loading ? (
           <h1 style={{ textAlign: "center" }}>Loading...</h1>
+        ) : user?.role === "owner" ? (
+          <>
+            {groupedMenus.map((item: any, i) => (
+              <div key={i}>
+                <Text fz={'xl'} fw={'bold'} my={'md'}>{item?.location}</Text>
+                <SimpleGrid
+                  cols={3}
+                  breakpoints={[
+                    { maxWidth: 1120, cols: 3, spacing: "md" },
+                    { maxWidth: 991, cols: 2, spacing: "sm" },
+                    { maxWidth: 600, cols: 1, spacing: "sm" },
+                  ]}
+                >
+                  {item?.menus.map((template: any, i: number) => (
+                    <TemplateCard
+                      key={i}
+                      template={template}
+                      thumbnail={thumbnails[template.id]}
+                      onRemove={deleteTemplate}
+                      onRename={renameTemplate}
+                      onDuplicate={duplicateTemplate}
+                      //@ts-ignore
+                      onGlobal={globalTemplate}
+                      navMenu={navMenu}
+                      resturantsOptions={resturantsOptions}
+                    />
+                  ))}
+                </SimpleGrid>
+              </div>
+            ))}
+          </>
         ) : (
           <SimpleGrid
             cols={3}
@@ -69,41 +150,20 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               { maxWidth: 600, cols: 1, spacing: "sm" },
             ]}
           >
-            {templates
-              ?.filter((template) => {
-                if (navMenu === "templates") {
-                  if (
-                    (template.createdBy === user?.id && !template.isGlobal) ||
-                    template?.restaurant_id === user?.restaurant_id
-                  ) {
-                    return false;
-                  }
-                  return true;
-                } else {
-                  if (
-                    (template.createdBy === user?.id && !template.isGlobal) ||
-                    template?.restaurant_id === user?.restaurant_id
-                  ) {
-                    return true;
-                  } else {
-                    return false;
-                  }
-                }
-              })
-              .map((template: any, i: number) => (
-                <TemplateCard
-                  key={i}
-                  template={template}
-                  thumbnail={thumbnails[template.id]}
-                  onRemove={deleteTemplate}
-                  onRename={renameTemplate}
-                  onDuplicate={duplicateTemplate}
-                  //@ts-ignore
-                  onGlobal={globalTemplate}
-                  navMenu={navMenu}
-                  resturantsOptions={resturantsOptions}
-                />
-              ))}
+            {templateData.map((template: any, i: number) => (
+              <TemplateCard
+                key={i}
+                template={template}
+                thumbnail={thumbnails[template.id]}
+                onRemove={deleteTemplate}
+                onRename={renameTemplate}
+                onDuplicate={duplicateTemplate}
+                //@ts-ignore
+                onGlobal={globalTemplate}
+                navMenu={navMenu}
+                resturantsOptions={resturantsOptions}
+              />
+            ))}
           </SimpleGrid>
         )}
       </Container>

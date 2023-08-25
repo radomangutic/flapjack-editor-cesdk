@@ -66,10 +66,13 @@ export default function TemplateCardOverlay({
   const [menuIsOpened, setMenuIsOpened] = useState(false);
   const [modalIsOpened, setModalIsOpened] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resturantId, setResturantId] = useState();
+  const [resturantId, setResturantId] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
+  const [locations, setLocations] = useState([]);
+  const [location, setLocation] = useState("");
+  const [error, setError] = useState("");
 
   const handleOpenMenu = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,24 +129,31 @@ export default function TemplateCardOverlay({
   const handleTransfer = async () => {
     try {
       if (resturantId) {
+        if (locations.length && !location) {
+          setError("Please select a resturant location");
+          return;
+        }
+        setError("");
         setLoading(true);
-        await transferTemplate(template?.id, resturantId);
+        await transferTemplate(template?.id, resturantId, location);
+        setLocation("");
+        setLocations([]);
+        setResturantId("");
+        close();
+      } else {
+        setError("Please select a resturant");
       }
     } catch (error) {
       throw error;
     } finally {
       setLoading(false);
-      close();
     }
   };
 
   if (!showOverlay) return null;
 
   return (
-    <Overlay
-      color="black"
-      zIndex={3}
-    >
+    <Overlay color="black" zIndex={3}>
       {canUpdate && (
         <Menu
           position="bottom-end"
@@ -208,7 +218,7 @@ export default function TemplateCardOverlay({
         templateDescription={templateDescription}
       />
 
-      <Flex justify="center" h={'100%'} align={'center'}>
+      <Flex justify="center" h={"100%"} align={"center"}>
         <Button
           variant="outline"
           color="dark.1"
@@ -230,13 +240,48 @@ export default function TemplateCardOverlay({
           placeholder="Select a resturant"
           data={resturantsOptions}
           searchable
-          onChange={(value: any) => setResturantId(value)}
+          onChange={(value: string) => {
+            let locationExist = resturantsOptions?.filter(
+              (item: any) => item?.value === value
+            );
+            let location = locationExist[0]?.location;
+            if (location?.length) {
+              const locationMap = location.map((item: string) => {
+                return {
+                  label: item,
+                  value: item,
+                };
+              });
+              setLocations(locationMap);
+            }
+            setResturantId(value);
+          }}
           maxDropdownHeight={400}
           nothingFound="Resturant not found"
           filter={(value: string, item: any) =>
             item.label.toLowerCase().includes(value.toLowerCase().trim())
           }
         />
+        {locations.length ? (
+          <Select
+            label="Select a resturant location"
+            placeholder="Select a resturant location"
+            data={locations}
+            value={location}
+            onChange={(value: string) => {
+              setLocation(value);
+            }}
+          />
+        ) : (
+          <></>
+        )}
+        {error ? (
+          <Text fz={"sm"} c="red">
+            {error}
+          </Text>
+        ) : (
+          <></>
+        )}
         <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>
           <Button disabled={loading} onClick={handleTransfer}>
