@@ -56,6 +56,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
+      logger: () => {},
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
@@ -457,7 +458,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       setloading(false);
     }
   };
-  console.log(templateModal);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
