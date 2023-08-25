@@ -355,6 +355,13 @@ const Editor = ({
         parent?.removeChild(child[4]);
       }
       var pages = shadowRoot?.querySelector(`${leftPanel} div section`);
+      var previewParent = shadowRoot?.querySelector(
+        `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
+      );
+      let previewChildLength = previewParent?.children;
+      if (previewChildLength?.length === 3 && preview) {
+        previewParent?.removeChild(previewChildLength[1]);
+      }
       var pagesChildren = pages?.children;
       if (pagesChildren?.length === 5) {
         var placeholder = shadowRoot?.querySelector(

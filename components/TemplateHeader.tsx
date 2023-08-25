@@ -95,6 +95,7 @@ const TemplateHeader = ({
   const activeClassFun = (value: string) => {
     // @ts-ignore
     navMenu && setNavMenu(value);
+    localStorage.setItem("activeTab", value);
   };
 
   let editorEmpty = false;
@@ -289,7 +290,6 @@ const TemplateHeader = ({
                 } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
-                  router.push("/templates?myMenu");
                   activeClassFun("myMenu");
                 }}
               >
@@ -328,7 +328,6 @@ const TemplateHeader = ({
                   fz="sm"
                   ml="sm"
                   onClick={() => {
-                    router.push("/templates");
                     activeClassFun("templates");
                   }}
                 >
