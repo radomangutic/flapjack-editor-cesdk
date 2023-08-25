@@ -292,15 +292,7 @@ const Editor = ({
     let previewChildLength = previewElement?.children;
     if (previewChildLength?.length === 3 && template?.id) {
       let elementToRemove = previewChildLength[1] as HTMLElement;
-      if (preview) {
-        elementToRemove.click();
-        if (!elementToRemove.hasAttribute("data-click-listener")) {
-          elementToRemove.setAttribute("data-click-listener", "true");
-          elementToRemove.addEventListener("click", () => {
-            router.push(`/menu/${template?.id}`);
-          });
-        }
-      } else {
+      if (!preview) {
         if (!elementToRemove.hasAttribute("data-click-listener")) {
           elementToRemove.setAttribute("data-click-listener", "true");
           elementToRemove.addEventListener("click", () => {
@@ -360,7 +352,9 @@ const Editor = ({
       );
       let previewChildLength = previewParent?.children;
       if (previewChildLength?.length === 3 && preview) {
-        previewParent?.removeChild(previewChildLength[1]);
+        let elementToRemove = previewChildLength[1] as HTMLElement;
+        elementToRemove.click()
+        previewParent?.removeChild(elementToRemove);
       }
       var pagesChildren = pages?.children;
       if (pagesChildren?.length === 5) {
@@ -506,7 +500,6 @@ const Editor = ({
       setloading(false);
     }
   };
-  console.log(templateModal);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
