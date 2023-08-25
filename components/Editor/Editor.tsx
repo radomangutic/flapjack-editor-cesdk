@@ -29,7 +29,13 @@ interface fontsErrorsType {
   file?: string;
   submit?: string;
 }
-const Editor = ({ template }: { template: ITemplateDetails | null }) => {
+const Editor = ({
+  template,
+  preview,
+}: {
+  template: ITemplateDetails | null;
+  preview?: boolean;
+}) => {
   const cesdkContainer = useRef<any>(null);
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
@@ -106,6 +112,10 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
           libraries: {
             insert: {
               entries: (defaultEntries: any) => {
+                if (preview) {
+                  // if preview don't show sidebar
+                  return [];
+                }
                 return [
                   // Text
                   defaultEntries[3],
@@ -261,6 +271,7 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
                 });
               }
             };
+            enablePreviewMode();
             getAssetSources();
           }
         );
@@ -270,6 +281,35 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
   useEffect(() => {
     setup();
   }, []);
+  const enablePreviewMode = () => {
+    var elementWithShadowRoot = document.querySelector(
+      "#cesdkContainer #root-shadow "
+    );
+    var shadowRoot = elementWithShadowRoot?.shadowRoot;
+    var previewElement = shadowRoot?.querySelector(
+      `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
+    );
+    let previewChildLength = previewElement?.children;
+    if (previewChildLength?.length === 3 && template?.id) {
+      let elementToRemove = previewChildLength[1] as HTMLElement;
+      if (preview) {
+        elementToRemove.click();
+        if (!elementToRemove.hasAttribute("data-click-listener")) {
+          elementToRemove.setAttribute("data-click-listener", "true");
+          elementToRemove.addEventListener("click", () => {
+            router.push(`/menu/${template?.id}`);
+          });
+        }
+      } else {
+        if (!elementToRemove.hasAttribute("data-click-listener")) {
+          elementToRemove.setAttribute("data-click-listener", "true");
+          elementToRemove.addEventListener("click", () => {
+            router.push(`/menu/preview/${template?.id}`);
+          });
+        }
+      }
+    }
+  };
   function downloadBlobFile(blob: any, fileName: string) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -315,13 +355,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         parent?.removeChild(child[4]);
       }
       var pages = shadowRoot?.querySelector(`${leftPanel} div section`);
-      var preview = shadowRoot?.querySelector(
-        `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
-      );
-      let previewChildLength = preview?.children;
-      if (previewChildLength?.length === 3) {
-        preview?.removeChild(previewChildLength[1]);
-      }
       var pagesChildren = pages?.children;
       if (pagesChildren?.length === 5) {
         var placeholder = shadowRoot?.querySelector(
@@ -329,6 +362,15 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         );
         if (placeholder instanceof HTMLElement) {
           placeholder.style.display = "none";
+        }
+      }
+      var parentElement = shadowRoot?.querySelector(
+        `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerLeft--kAbkj`
+      );
+
+      if (parentElement && preview) {
+        while (parentElement.firstChild) {
+          parentElement.removeChild(parentElement.firstChild);
         }
       }
       var pageElements = shadowRoot?.querySelector(
@@ -462,7 +504,12 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
 
-      <div style={cesdkWrapperStyle}>
+      <div
+        style={{
+          ...cesdkWrapperStyle,
+          minHeight: preview ? "100vh" : "calc(100vh - 70px)",
+        }}
+      >
         <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
       </div>
       <Modal
@@ -501,6 +548,13 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
         onClose={() => settemplateModal(false)}
         content={content}
       />
+      {preview && (
+        <Text
+          style={{ position: "absolute", right: 30, bottom: 30, zIndex: 1000 }}
+        >
+          Made with ❤️ by Flapjack
+        </Text>
+      )}
     </div>
   );
 };
@@ -523,7 +577,6 @@ const cesdkWrapperStyle: object = {
   borderRadius: "0.75rem",
   boxShadow:
     "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)",
-  minHeight: "calc(100vh - 70px)",
 };
 
 const defaultFonts = [
