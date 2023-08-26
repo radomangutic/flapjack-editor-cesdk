@@ -106,6 +106,7 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
     setisLoading(false);
     setselectedLocation("");
     setmodalType("empty");
+    setisEditLocation('')
   };
   const addLocation = async () => {
     if (isEditLocation) {
@@ -142,6 +143,7 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
       setselectedLocation("");
       setmodalType("empty");
     }
+    setisEditLocation('')
   };
   return (
     <>
