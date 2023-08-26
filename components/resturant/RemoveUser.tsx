@@ -14,18 +14,20 @@ interface RemoveUserProps {
   onClose: () => void;
   onRemove: () => void;
   isLoading: boolean;
-  userEmail:string | undefined;
+  userEmail: string | undefined;
 }
 
 const RemoveUser: React.FC<RemoveUserProps> = ({
   onRemove,
   isLoading,
-  onClose,userEmail
+  onClose,
+  userEmail,
 }) => {
   return (
     <Paper>
       <Text size="xl" weight={500} align="center" mb="lg">
-        Are you sure you want to remove the {userEmail}?
+        Are you sure you want to remove the{" "}
+        <span style={{ fontWeight: "bold" }}>{userEmail}</span>?
       </Text>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button color="gray" onClick={onClose} mr={"10px"}>

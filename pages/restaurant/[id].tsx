@@ -10,18 +10,28 @@ import RemoveUser from "../../components/resturant/RemoveUser";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 import { useUser } from "../../hooks";
+import { RestaurantType } from "../../interfaces/RestaurantType";
+import { RestaurantLocationTable } from "../../components/resturant/RestaurantLocationTable";
 
 export type ModalType = "inviteUser" | "empty" | "removeUser";
-const ResturantManage = ({ profiles }: { profiles: [] }) => {
+const ResturantManage = ({
+  profiles,
+  resturantDetail,
+}: {
+  profiles: [];
+  resturantDetail: RestaurantType;
+}) => {
   const { supabaseClient: supabase } = useSessionContext();
   const user = useUser();
   const [modalType, setmodalType] = useState<ModalType>("empty");
   const [selectedUser, setselectedUser] = useState<IUserDetails | null>(null);
   const [allUsers, setallUsers] = useState<IUserDetails[]>(profiles);
   const [isLoading, setisLoading] = useState(false);
+  const [isUserTableSelect, setisUserTableSelect] = useState(false);
   if (user?.role !== "owner") {
     return <PrivatePage />;
   }
+
   const onRemove = async () => {
     if (!selectedUser || !supabase) return;
     setisLoading(true);
@@ -44,22 +54,50 @@ const ResturantManage = ({ profiles }: { profiles: [] }) => {
   };
   return (
     <Paper bg={"white"} mih={"100vh"}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: "20px",
+        }}
+      >
+        <Button
+          color={isUserTableSelect ? "red" : "gray"}
+          onClick={() => setisUserTableSelect(true)}
+          mr={"10px"}
+        >
+          Users
+        </Button>
+        <Button
+          color={!isUserTableSelect ? "red" : "gray"}
+          onClick={() => setisUserTableSelect(false)}
+        >
+          Location
+        </Button>
+      </div>
       <Container size="xl" pt={10}>
-        <Flex justify={"flex-end"} my={10}>
-          <Button
-            size="xs"
-            color="orange"
-            onClick={() => setmodalType("inviteUser")}
-            sx={{ marginRight: "1rem" }}
-          >
-            Invite a user
-          </Button>
-        </Flex>
-        <UsersTable
-          setselectedUser={setselectedUser}
-          data={allUsers}
-          setmodalType={setmodalType}
-        />
+        {isUserTableSelect ? (
+          <>
+            <Flex justify={"flex-end"} my={10}>
+              <Button
+                size="xs"
+                color="orange"
+                onClick={() => setmodalType("inviteUser")}
+                sx={{ marginRight: "1rem" }}
+              >
+                Invite a user
+              </Button>
+            </Flex>
+            <UsersTable
+              setselectedUser={setselectedUser}
+              data={allUsers}
+              setmodalType={setmodalType}
+            />
+          </>
+        ) : (
+          <RestaurantLocationTable data={resturantDetail} />
+        )}
+
         {
           {
             inviteUser: (
@@ -105,10 +143,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .from("profiles")
     .select("*")
     .eq("restaurant_id", id);
-
+  const resturantDetail = await supabase
+    .from("restaurants")
+    .select("*")
+    .eq("id", id)
+    .single();
   return {
     props: {
       profiles: data,
+      resturantDetail: resturantDetail?.data,
     },
   };
 }

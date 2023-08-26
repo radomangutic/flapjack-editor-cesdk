@@ -54,7 +54,7 @@ export function UsersTable({
         </Text>
       </td>
       <td>
-        <Group spacing={0} position="right">        
+        <Group spacing={0} position="right">
           <ActionIcon
             color="red"
             onClick={() => {
@@ -71,7 +71,7 @@ export function UsersTable({
 
   return (
     <ScrollArea>
-      <Table sx={{ minWidth: 800 }} verticalSpacing="sm" withBorder>
+      <Table verticalSpacing="sm">
         <thead>
           <tr>
             <th>Photo</th>
