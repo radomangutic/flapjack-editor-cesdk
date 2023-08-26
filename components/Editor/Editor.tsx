@@ -560,7 +560,7 @@ const Editor = ({
               display: "inline",
               cursor: "pointer",
             }}
-            onClick={() => router.push("/templates")}
+            onClick={() => router.push("http://flapjack.co/")}
           >
             Flapjack
           </Box>
