@@ -74,7 +74,7 @@ export function UsersTable({
       <Table verticalSpacing="sm">
         <thead>
           <tr>
-            <th>Photo</th>
+            <th>User</th>
             <th>Email</th>
             <th>Role</th>
             <th>Phone</th>
