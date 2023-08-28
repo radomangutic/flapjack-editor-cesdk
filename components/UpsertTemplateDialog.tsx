@@ -37,6 +37,7 @@ const UpsertTemplateDialog = ({
   const user = useUser();
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
+  const [loader, setloader] = useState(false);
   const filUrl = `${
     process.env.NEXT_PUBLIC_SUPABASE_URL
   }/storage/v1/object/public/renderings/${
@@ -61,6 +62,7 @@ const UpsertTemplateDialog = ({
     coverImage: File | null;
   }) => {
     try {
+      setloader(true);
       const isUpdating = router.query.id;
       const file = new Blob([content], { type: "text/plain" });
 
@@ -138,6 +140,8 @@ const UpsertTemplateDialog = ({
     } catch (err) {
       console.error(err);
     } finally {
+      setloader(false);
+
       onClose();
     }
   };
@@ -235,7 +239,7 @@ const UpsertTemplateDialog = ({
           {...form.getInputProps("description")}
         />
         <Flex justify="flex-end" mt="lg">
-          <Button variant="filled" type="submit">
+          <Button variant="filled" type="submit" loading={loader}>
             {template ? "Update" : "Save"}
           </Button>
         </Flex>
