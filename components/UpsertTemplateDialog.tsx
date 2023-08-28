@@ -100,8 +100,8 @@ const UpsertTemplateDialog = ({
           .eq("id", router.query.id);
         if (values?.coverImage) {
           const folderPath: string = `renderings/${router.query.id}`;
-
-          if (isFileEsist) {
+          const isEsist = await checkFileExists();
+          if (isEsist) {
             const response: any = await dbClient.storage
               .from(folderPath)
               .update("coverImage", values?.coverImage, {
@@ -157,14 +157,18 @@ const UpsertTemplateDialog = ({
   };
   const checkFileExists = async () => {
     const response = await fetch(filUrl);
-    if (response?.status == 200) {
-      setisFileEsist(true);
-    } else {
-      setisFileEsist(false);
-    }
+    console.log('response',response);
+    
+    return response?.status === 200;
   };
   useEffect(() => {
-    checkFileExists();
+    checkFileExists().then((res) => {
+      if (res) {
+        setisFileEsist(true);
+      } else {
+        setisFileEsist(false);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.id]);
 

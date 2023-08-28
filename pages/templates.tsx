@@ -98,7 +98,7 @@ const Templates = () => {
                     process.env.NEXT_PUBLIC_SUPABASE_URL
                   }/storage/v1/object/public/renderings/${
                     template.id
-                  }/coverImage?${Date.now()}`}
+                  }/coverImage?${i}${Date.now()}`}
                   onRemove={deleteTemplate}
                   onRename={renameTemplate}
                   onDuplicate={duplicateTemplate}
