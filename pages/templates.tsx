@@ -124,7 +124,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   folders?.forEach(async (folder) => {
     const { data: images } = await supabase.storage
       .from("renderings")
-      .getPublicUrl(`${folder.name}/1.jpg`);
+      .getPublicUrl(`${folder.name}/coverImage`);
     thumbnails[folder.name] = images.publicUrl;
   });
   return {
