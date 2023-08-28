@@ -27,7 +27,8 @@ const Templates = () => {
   // Fix `My Menu` button on the template page temporarily.
   // The better way is creating a separate `My Menu` page.
   useEffect(() => {
-    if (router.isReady && Object.hasOwn(router.query, "myMenu") && user) {
+    const activeTab = localStorage.getItem("activeTab");
+    if (router.isReady && activeTab === "myMenu" && user) {
       setNavMenu("myMenu");
     } else {
       setNavMenu(
@@ -37,7 +38,7 @@ const Templates = () => {
           : "templates"
       );
     }
-  }, [router, user]);
+  }, [user]);
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
