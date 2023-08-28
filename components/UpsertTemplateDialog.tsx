@@ -77,8 +77,8 @@ const UpsertTemplateDialog = ({
           .insert({
             ...values,
             content: contentUpload,
-            isGlobal: user?.role === "flapjack" ? true : false,
-            restaurant_id: user?.restaurant_id ? user?.restaurant_id : "",
+            isGlobal: false,
+            restaurant_id: user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
             updatedAt: new Date(),
