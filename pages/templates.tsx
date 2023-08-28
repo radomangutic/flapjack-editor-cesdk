@@ -127,7 +127,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     <TemplateCard
                       key={i}
                       template={template}
-                      thumbnail={thumbnails[template.id]}
+                      thumbnail={thumbnails?.[template.id]}
                       onRemove={deleteTemplate}
                       onRename={renameTemplate}
                       onDuplicate={duplicateTemplate}
@@ -154,7 +154,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               <TemplateCard
                 key={i}
                 template={template}
-                thumbnail={thumbnails[template.id]}
+                thumbnail={thumbnails?.[template.id]}
                 onRemove={deleteTemplate}
                 onRename={renameTemplate}
                 onDuplicate={duplicateTemplate}
