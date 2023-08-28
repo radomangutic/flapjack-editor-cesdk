@@ -37,7 +37,11 @@ const UpsertTemplateDialog = ({
   const user = useUser();
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
-  const filUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/renderings/${router.query.id}/coverImage`;
+  const filUrl = `${
+    process.env.NEXT_PUBLIC_SUPABASE_URL
+  }/storage/v1/object/public/renderings/${
+    router.query.id
+  }/coverImage?${Date.now()}`;
 
   const form = useForm({
     initialValues: {
@@ -94,11 +98,18 @@ const UpsertTemplateDialog = ({
           .eq("id", router.query.id);
         if (values?.coverImage) {
           const folderPath: string = `renderings/${router.query.id}`;
-          const response: any = await dbClient.storage
-            .from(folderPath)
-            .update("coverImage", values?.coverImage, {
-              upsert: true,
-            });
+
+          if (isFileEsist) {
+            const response: any = await dbClient.storage
+              .from(folderPath)
+              .update("coverImage", values?.coverImage, {
+                upsert: true,
+              });
+          } else {
+            await dbClient.storage
+              .from(folderPath)
+              .upload("coverImage", values?.coverImage);
+          }
         }
         if (error) throw error;
       } else {
@@ -116,12 +127,12 @@ const UpsertTemplateDialog = ({
           })
           .select();
         if (error) throw error;
-        // if (values?.coverImage) {
-        //   const folderPath: string = `renderings/${data?.[0]?.id}`; // Define the folder path
-        //   await dbClient.storage
-        //     .from(folderPath)
-        //     .upload("coverImage", values?.coverImage);
-        // }
+        if (values?.coverImage) {
+          const folderPath: string = `renderings/${data?.[0]?.id}`; // Define the folder path
+          await dbClient.storage
+            .from(folderPath)
+            .upload("coverImage", values?.coverImage);
+        }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
     } catch (err) {
@@ -152,7 +163,6 @@ const UpsertTemplateDialog = ({
     checkFileExists();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.id]);
-  console.log("isFileEsist",isFileEsist, filUrl);
 
   return (
     <Modal
