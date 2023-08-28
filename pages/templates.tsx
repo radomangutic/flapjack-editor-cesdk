@@ -13,7 +13,7 @@ import {
 } from "../hooks";
 import { useRouter } from "next/router";
 
-const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
+const Templates = () => {
   const router = useRouter();
   const user = useUser();
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
@@ -94,7 +94,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 <TemplateCard
                   key={i}
                   template={template}
-                  thumbnail={thumbnails[template.id]}
+                  thumbnail={`${
+                    process.env.NEXT_PUBLIC_SUPABASE_URL
+                  }/storage/v1/object/public/renderings/${
+                    template.id
+                  }/coverImage?${i}${Date.now()}`}
                   onRemove={deleteTemplate}
                   onRename={renameTemplate}
                   onDuplicate={duplicateTemplate}
@@ -117,18 +121,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .select("id, createdBy, name, description, tags, isGlobal, menuSize")
     .order("templateOrder", { ascending: true });
 
-  let { data: folders } = await supabase.storage.from("renderings").list();
-  // console.log("thumbnails===>", folders);
-
-  let thumbnails: any = {};
-  folders?.forEach(async (folder) => {
-    const { data: images } = await supabase.storage
-      .from("renderings")
-      .getPublicUrl(`${folder.name}/1.jpg`);
-    thumbnails[folder.name] = images.publicUrl;
-  });
   return {
-    props: { data, thumbnails }, // will be passed to the page component as props
+    props: { data }, // will be passed to the page component as props
   };
 }
 export default Templates;
