@@ -13,7 +13,7 @@ import {
 } from "../hooks";
 import { useRouter } from "next/router";
 
-const Templates = () => {
+const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const router = useRouter();
   const user = useUser();
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
@@ -74,7 +74,7 @@ const Templates = () => {
   });
   const groupMenusByLocation = (menus: any[], locations: string[]) => {
     const menuMap: { [key: string]: any[] } = {};
-      menus.forEach((menu) => {
+    menus.forEach((menu) => {
       const { location, ...menuData } = menu;
       const currentLocation = location || "No Location";
       if (!menuMap[currentLocation]) {
@@ -82,18 +82,18 @@ const Templates = () => {
       }
       menuMap[currentLocation].push(menuData);
     });
-      const groupedMenus: any[] = locations.map((location) => ({
+    const groupedMenus: any[] = locations.map((location) => ({
       location,
       menus: menuMap[location] || [],
     }));
-  
+
     if (menuMap["No Location"]) {
       groupedMenus.push({
         location: "",
         menus: menuMap["No Location"],
       });
     }
-  
+
     return groupedMenus;
   };
   const groupedMenus = groupMenusByLocation(
