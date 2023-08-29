@@ -11,8 +11,10 @@ import {
   Loader,
   Box,
   Flex,
+  Button,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../../interfaces";
@@ -32,71 +34,82 @@ const useStyles = createStyles((theme) => ({
     },
   },
 }));
-
-const InviteUserDesign = () => {
+interface Props {
+  onClose: () => void;
+}
+const InviteUserDesign = ({ onClose }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
+  const [error, setError] = useState("");
+  const [value, setValue] = useState<string>("");
 
-  const [users, setUsers] = useState<IUserDetails[]>([]);
+  const handleInviteUser = async () => {
+    try {
+      const response = await fetch("/api/inviteuser", {
+        method: "POST",
+        body: JSON.stringify({
+          phone: value,
+        }), // Or 'GET' depending on your API route configuration
+      });
+      console.log("response===>", response);
 
-  useEffect(() => {
-    async function fetchUsers() {
-      setisLoading(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .neq("restaurant_id", user?.restaurant_id);
-      if (error) {
-        console.error("Error fetching users:", error);
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+      } else {
+        console.error("Failed to send invitation");
       }
-      setisLoading(false);
-      setUsers(data);
+    } catch (error) {
+      console.log("An error occurred", error);
     }
-    if (supabase) {
-      fetchUsers();
+  };
+  const handleSubmit = async () => {
+    if (!isValidPhoneNumber(value)) {
+      setError("Invalid phone");
+      return;
     }
-  }, [supabase]);
-
-  const handleUserClick = (user: IUserDetails) => {
-    alert(`Clicked on user: ${user.email}`);
+    await handleInviteUser();
   };
 
   return (
-    <Paper m="auto" my={4} p={4} shadow="xs" style={{ maxWidth: "500px" }}>
-      {isLoading ? (
-        <Flex justify={"center"} mih={"100px"} align={"center"}>
-          <Loader />
-        </Flex>
-      ) : users.length === 0 ? (
-        <Text>No users found.</Text>
-      ) : (
-        users.map((user) => (
-          <UnstyledButton
-            key={user.id}
-            className={classes.user}
-            onClick={() => handleUserClick(user)}
-          >
-            <Group>
-              <Avatar radius="xl" />
+    <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
+      <Box>
+        <label
+          className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
+          style={{ color: "gray", marginBottom: "10px" }}
+        >
+          Phone
+        </label>
+        <PhoneInput
+          placeholder="Enter user phone number"
+          value={value}
+          onChange={(phone: string) => setValue(phone)}
+          className="input-phone"
+          defaultCountry="US"
+        />
 
-              <div style={{ flex: 1 }}>
-                <Text size="sm" weight={500}>
-                  {user.email}
-                </Text>
-
-                <Text color="dimmed" size="xs">
-                  {user.role}
-                </Text>
-              </div>
-
-              {<IconChevronRight size="0.9rem" stroke={1.5} />}
-            </Group>
-          </UnstyledButton>
-        ))
-      )}
+        {error && (
+          <Text fz={"sm"} color={"red"}>
+            {error}
+          </Text>
+        )}
+      </Box>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "20px",
+        }}
+      >
+        <Button color="gray" onClick={onClose} mr={"10px"}>
+          Cancel
+        </Button>
+        <Button color="red" onClick={handleSubmit} loading={isLoading}>
+          Send
+        </Button>
+      </div>
     </Paper>
   );
 };
