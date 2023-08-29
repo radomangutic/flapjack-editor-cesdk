@@ -56,18 +56,22 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const templateData = templates?.filter((template) => {
     if (navMenu === "templates") {
       if (
+      // template is template created by user and not global or template is created by user's restaurant
         (template.createdBy === user?.id && !template.isGlobal) ||
         template?.restaurant_id === user?.restaurant_id
       ) {
         return false;
       }
       return true;
+      // template is global
     } else {
+      // template is created by user and not global or template is created by user's restaurant
       if (
         (template.createdBy === user?.id && !template.isGlobal) ||
         template?.restaurant_id === user?.restaurant_id
       ) {
         return true;
+        // template is global
       } else {
         return false;
       }
