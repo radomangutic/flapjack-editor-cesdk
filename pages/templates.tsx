@@ -179,7 +179,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const { data } = await supabase
     .from("templates")
-    .select("id, createdBy, name, description, tags, isGlobal, menuSize")
+    .select("id, createdBy, name, description, tags, isGlobal, menuSize, location")
     .order("templateOrder", { ascending: true });
 
   return {

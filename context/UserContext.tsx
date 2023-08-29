@@ -62,11 +62,11 @@ const UserContextProvider = (props: Props) => {
             });
             return;
           }
-          if (user?.restaurant_id) {
+          if (data?.restaurant_id) {
             const { data: restaurantData } = await supabase
               .from("restaurants")
               .select("*")
-              .eq("id", user?.restaurant_id)
+              .eq("id", data?.restaurant_id)
               .single();
             data.restaurant = restaurantData;
           }
