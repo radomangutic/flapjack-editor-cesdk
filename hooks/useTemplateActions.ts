@@ -1,8 +1,9 @@
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { ITemplateDetails, DeleteAssetsIDs } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
+import { useUser } from "./useUser";
 
 export const useTemplateActions = (
   templates: ITemplateDetails[],
@@ -95,14 +96,13 @@ export const useTemplateActions = (
             name,
             description,
             content: newLocation,
-            isGlobal: user?.role === "flapjack" ? true : false,
-            restaurant_id: "",
+            isGlobal: false,
+            restaurant_id: user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
             updatedAt: new Date(),
           })
           .select();
-        console.log("duplicateData", storageLink, coppyError);
         if (duplicateError) throw duplicateError;
         const { data: imagesData, error: imagesError } = await supabase.storage
           .from("renderings")

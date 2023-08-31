@@ -48,7 +48,7 @@ export default function App({
             <UserContextProvider>
               <AppShell
                 padding={0}
-                header={<Header />}
+                header={!router.pathname.includes("preview") ? <Header /> : <></>}
                 styles={(theme) => ({
                   main: {
                    backgroundColor: !router.pathname.includes("templates") ? "#e7ebee" : 'inherit'
