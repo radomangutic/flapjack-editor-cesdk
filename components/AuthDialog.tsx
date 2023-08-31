@@ -95,8 +95,12 @@ const SalesContent = () => {
 const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const router = useRouter();
   const userPhoneByUrl = router?.query?.phone;
+  const restaurantId = router?.query?.id;
+
   const setUser = useSetUser();
-  const [value, setValue] = useState(userPhoneByUrl?`+${userPhoneByUrl}`:"");
+  const [value, setValue] = useState(
+    userPhoneByUrl ? `+${userPhoneByUrl}` : ""
+  );
   const [isSendLoginEmail, setIsSendLoginEmail] = useState("");
   const [loginWithEmail, setLoginWithEmail] = useState(false);
   const [otpScreen, setOtpScreen] = useState(false);
@@ -104,7 +108,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [error, setError] = useState<ILoginErrors>({});
   const inventoryTime = 60;
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
- 
 
   const inventoryTimerRef = useRef<number | null>(null);
 
@@ -180,6 +183,8 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       const { data, error } = await dbClient.auth.signInWithOtp({
         phone: value,
       });
+      console.log("data", data);
+
       if (error) {
         errorOnSubmit = { phone: error.message || "Something went wrong" };
         setError(errorOnSubmit);
@@ -198,9 +203,19 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       token: otp,
       type: "sms",
     });
+    console.log("data", data);
 
     if (error) {
       setError({ phone: "Invalid Otp" });
+    }
+    if (restaurantId) {
+      await dbClient
+        .from("profiles")
+        .update({
+          restaurant_id: restaurantId,
+        })
+        .eq("id", data?.user?.id);
+      router.push("/templates");
     }
 
     setUser?.(data?.user);

@@ -19,6 +19,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../../interfaces";
 import { useUser } from "../../hooks";
+import { RestaurantType } from "../../interfaces/RestaurantType";
 const useStyles = createStyles((theme) => ({
   user: {
     display: "block",
@@ -36,9 +37,9 @@ const useStyles = createStyles((theme) => ({
 }));
 interface Props {
   onClose: () => void;
-  restaurantName: string;
+  resturantDetail: RestaurantType;
 }
-const InviteUserDesign = ({ onClose, restaurantName }: Props) => {
+const InviteUserDesign = ({ onClose, resturantDetail }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
@@ -53,7 +54,8 @@ const InviteUserDesign = ({ onClose, restaurantName }: Props) => {
         method: "POST",
         body: JSON.stringify({
           phone: value,
-          restaurantName: restaurantName,
+          restaurantName: resturantDetail?.name,
+          restaurantId: resturantDetail?.id,
         }),
       });
       console.log("response===>", response);

@@ -7,9 +7,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { phone, restaurantName } = JSON.parse(req.body);
+  const { phone, restaurantName,restaurantId } = JSON.parse(req.body);
   try {
-    const messageBody = `📲 ${restaurantName} Invite 📲\nHello,\nYou've been invited to join ${restaurantName}! Click the link below to get started:\n${process.env.SITE_DOMAIN}/templates?phone=${phone}\nIf you didn't request this invitation, please ignore this message.\nBest regards,\n${restaurantName}`;
+    const messageBody = `📲 ${restaurantName} Invite 📲\nHello,\nYou've been invited to join ${restaurantName}! Click the link below to get started:\n${process.env.SITE_DOMAIN}/templates?phone=${phone}&id=${restaurantId}\nIf you didn't request this invitation, please ignore this message.\nBest regards,\n${restaurantName}`;
     console.log(messageBody)
     const message = await client.messages.create({
       body: messageBody,
