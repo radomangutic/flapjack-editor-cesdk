@@ -16,6 +16,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
 import { useSetUser, useUser } from "../hooks";
+import { useRouter } from "next/router";
 
 interface IAuthDialogProps {
   opened: boolean;
@@ -92,8 +93,10 @@ const SalesContent = () => {
 };
 
 const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
+  const router = useRouter();
+  const userPhoneByUrl = router?.query?.phone;
   const setUser = useSetUser();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(userPhoneByUrl?`+${userPhoneByUrl}`:"");
   const [isSendLoginEmail, setIsSendLoginEmail] = useState("");
   const [loginWithEmail, setLoginWithEmail] = useState(false);
   const [otpScreen, setOtpScreen] = useState(false);
@@ -101,6 +104,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [error, setError] = useState<ILoginErrors>({});
   const inventoryTime = 60;
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
+ 
 
   const inventoryTimerRef = useRef<number | null>(null);
 

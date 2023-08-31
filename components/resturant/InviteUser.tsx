@@ -36,8 +36,9 @@ const useStyles = createStyles((theme) => ({
 }));
 interface Props {
   onClose: () => void;
+  restaurantName: string;
 }
-const InviteUserDesign = ({ onClose }: Props) => {
+const InviteUserDesign = ({ onClose, restaurantName }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
@@ -47,22 +48,29 @@ const InviteUserDesign = ({ onClose }: Props) => {
 
   const handleInviteUser = async () => {
     try {
+      setisLoading(true)
       const response = await fetch("/api/inviteuser", {
         method: "POST",
         body: JSON.stringify({
           phone: value,
-        }), // Or 'GET' depending on your API route configuration
+          restaurantName: restaurantName,
+        }),
       });
       console.log("response===>", response);
+      setisLoading(false)
 
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
+        onClose();
       } else {
         console.error("Failed to send invitation");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("An error occurred", error);
+      setisLoading(false)
+
+      setError(error?.message);
     }
   };
   const handleSubmit = async () => {

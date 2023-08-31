@@ -7,14 +7,14 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { phone } = JSON.parse(req.body);
+  const { phone, restaurantName } = JSON.parse(req.body);
   try {
-    console.log(accountSid, authToken);
-    
+    const messageBody = `📲 ${restaurantName} Invite 📲\nHello,\nYou've been invited to join ${restaurantName}! Click the link below to get started:\n${process.env.SITE_DOMAIN}/templates?phone=${phone}\nIf you didn't request this invitation, please ignore this message.\nBest regards,\n${restaurantName}`;
+    console.log(messageBody)
     const message = await client.messages.create({
-      body: "This is the ship that made the Kessel Run in fourteen parsecs?",
-      from: "+18559315319", // Replace with your Twilio phone number
-      to: phone, // Replace with recipient's phone number
+      body: messageBody,
+      from: process.env.TWILLO_PHONE,
+      to: phone,
     });
 
     console.log(message.sid);

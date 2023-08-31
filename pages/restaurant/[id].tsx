@@ -106,7 +106,10 @@ const ResturantManage = ({
                 isOpen={true}
                 onClose={() => setmodalType("empty")}
               >
-                <InviteUserDesign  onClose={() => setmodalType("empty")} />
+                <InviteUserDesign
+                  restaurantName={resturantDetail?.name}
+                  onClose={() => setmodalType("empty")}
+                />
               </CommanModal>
             ),
             empty: <></>,
