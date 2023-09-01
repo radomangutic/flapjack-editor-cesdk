@@ -12,6 +12,7 @@ import {
   Box,
   Flex,
   Button,
+  TextInput,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
@@ -36,6 +37,28 @@ const useStyles = createStyles((theme) => ({
     },
   },
 }));
+interface ILoginErrors {
+  email?: string;
+  phone?: string;
+}
+const validateEmail = (email: string) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+function extractDoubleQuotedStrings(inputString: string): string {
+  const regex = /"([^"]*)"/g;
+  const matches = [];
+  let match;
+
+  while ((match = regex.exec(inputString)) !== null) {
+    matches.push(match[1]); // Use match[1] to capture the content inside the quotes
+  }
+
+  return matches[0];
+}
 interface Props {
   onClose: () => void;
   newUser: (user: IUserDetails) => void;
@@ -45,8 +68,11 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
-  const [error, setError] = useState("");
+  const [error, setError] = useState<ILoginErrors>({});
+
   const [value, setValue] = useState<string>("");
+  const [email, setemail] = useState<string>("");
+  let errorOnSubmit;
 
   const handleCreateUser = async () => {
     try {
@@ -54,9 +80,14 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
       const { data, error } = await dbClient.auth.admin.createUser({
         phone: value,
         phone_confirm: true,
+        email: email,
+        email_confirm: true,
       });
       if (error) {
-        setError(error?.message);
+        errorOnSubmit = {
+          phone: error?.message,
+        };
+        setError(errorOnSubmit);
         setisLoading(false);
         return;
       }
@@ -74,14 +105,30 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
     } catch (error: any) {
       console.log("An error occurred", error);
       setisLoading(false);
-
       setError(error?.message);
     }
   };
+
   const handleSubmit = async () => {
-    setError("");
+    setError({});
+    if (!email) {
+      errorOnSubmit = { email: "Email required" };
+      setError(errorOnSubmit);
+      return;
+    }
+    if (!validateEmail(email)) {
+      errorOnSubmit = { email: "Invalid email" };
+      setError(errorOnSubmit);
+      return;
+    }
+    if (!value) {
+      errorOnSubmit = { phone: "Phone required" };
+      setError(errorOnSubmit);
+      return;
+    }
     if (!isValidPhoneNumber(value)) {
-      setError("Invalid phone");
+      errorOnSubmit = { phone: "Invalid phone" };
+      setError(errorOnSubmit);
       return;
     }
     await handleCreateUser();
@@ -90,6 +137,22 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
       <Box>
+        <TextInput
+          label="Email address"
+          placeholder="Enter your email address"
+          value={email}
+          onChange={(e) => setemail(e.target.value)}
+          labelProps={{
+            style: { color: "grey", marginBottom: "10px" },
+          }}
+        />
+        {error?.email && (
+          <Text fz={"sm"} color={"red"}>
+            {error?.email}
+          </Text>
+        )}
+      </Box>
+      <Box mt={10}>
         <label
           className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
           style={{ color: "gray", marginBottom: "10px" }}
@@ -105,8 +168,8 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
         />
 
         {error && (
-          <Text fz={"sm"} color={"red"}>
-            {error}
+          <Text fz={"sm"} color={"red"} mt={10}>
+            {error?.phone}
           </Text>
         )}
       </Box>
