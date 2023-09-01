@@ -11,19 +11,15 @@ import {
 } from "@mantine/core";
 import { IconPencil, IconTrash } from "@tabler/icons";
 import { IUserDetails } from "../../interfaces";
-import { ModalType } from "../../pages/restaurant/[id]";
 
 interface UsersTableProps {
   data: IUserDetails[];
-  setmodalType: (modalType: ModalType) => void;
-  setselectedUser: (user: IUserDetails) => void;
+
+  onDelete: (user: IUserDetails) => void;
+  onEdit?: (user: IUserDetails) => void;
 }
 
-export function UsersTable({
-  data,
-  setmodalType,
-  setselectedUser,
-}: UsersTableProps) {
+export function UsersTable({ data, onDelete, onEdit }: UsersTableProps) {
   const theme = useMantineTheme();
   const rows = data.map((item: IUserDetails) => (
     <tr key={item.id}>
@@ -55,11 +51,20 @@ export function UsersTable({
       </td>
       <td>
         <Group spacing={0} position="right">
+          {onEdit && (
+            <ActionIcon
+              onClick={() => {
+                onEdit(item);
+              }}
+            >
+              <IconPencil size="1rem" stroke={1.5} />
+            </ActionIcon>
+          )}
+
           <ActionIcon
             color="red"
             onClick={() => {
-              setselectedUser(item);
-              setmodalType("removeUser");
+              onDelete(item);
             }}
           >
             <IconTrash size="1rem" stroke={1.5} />

@@ -5,30 +5,23 @@ import { Button, Container, Flex, Paper, Text } from "@mantine/core";
 import { UsersTable } from "../../components/resturant/UsersTable";
 import CommanModal from "../../components/CommanModal";
 import { useState } from "react";
-import InviteUserDesign from "../../components/resturant/InviteUser";
 import RemoveUser from "../../components/resturant/RemoveUser";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 import { useUser } from "../../hooks";
-import { RestaurantType } from "../../interfaces/RestaurantType";
-import { RestaurantLocationTable } from "../../components/resturant/RestaurantLocationTable";
+import AddNewUser from "../../components/resturant/AddNewUser";
+import { dbClient } from "../../tests/helpers/database.helper";
 
-export type ModalType = "inviteUser" | "empty" | "removeUser";
-const ResturantManage = ({
-  profiles,
-  resturantDetail,
-}: {
-  profiles: [];
-  resturantDetail: RestaurantType;
-}) => {
+export type ModalType = "empty" | "removeUser" | "addUser";
+const Dashboard = ({ profiles }: { profiles: [] }) => {
   const { supabaseClient: supabase } = useSessionContext();
   const user = useUser();
   const [modalType, setmodalType] = useState<ModalType>("empty");
   const [selectedUser, setselectedUser] = useState<IUserDetails | null>(null);
   const [allUsers, setallUsers] = useState<IUserDetails[]>(profiles);
   const [isLoading, setisLoading] = useState(false);
-  const [isUserTableSelect, setisUserTableSelect] = useState(false);
-  if (user?.role !== "owner") {
+
+  if (user?.role !== "flapjack") {
     return <PrivatePage />;
   }
 
@@ -38,79 +31,64 @@ const ResturantManage = ({
     // Update the user's restaurant_id to empty
     const { data, error } = await supabase
       .from("profiles")
-      .update({ restaurant_id: null })
+      .delete()
       .eq("id", selectedUser.id);
+
     if (error) {
       alert("Something went wrong");
       setisLoading(false);
       setmodalType("empty");
       return;
     }
+    const res = await dbClient.auth.admin.deleteUser(selectedUser.id);
     const filterList = allUsers?.filter((user) => user.id !== selectedUser.id);
     setallUsers(filterList);
     setisLoading(false);
 
     setmodalType("empty");
   };
+  const modalClose = () => {
+    setmodalType("empty");
+    setselectedUser(null);
+  };
   return (
     <Paper bg={"white"} mih={"100vh"}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          paddingTop: "20px",
-        }}
-      >
-        <Button
-          color={isUserTableSelect ? "red" : "gray"}
-          onClick={() => setisUserTableSelect(true)}
-          mr={"10px"}
-        >
-          Users
-        </Button>
-        <Button
-          color={!isUserTableSelect ? "red" : "gray"}
-          onClick={() => setisUserTableSelect(false)}
-        >
-          Location
-        </Button>
-      </div>
       <Container size="xl" pt={10}>
-        {isUserTableSelect ? (
-          <>
-            <Flex justify={"flex-end"} my={10}>
-              <Button
-                size="xs"
-                color="orange"
-                onClick={() => setmodalType("inviteUser")}
-                sx={{ marginRight: "1rem" }}
-              >
-                Invite a user
-              </Button>
-            </Flex>
-            <UsersTable
-              data={allUsers}
-              onDelete={(item) => {
-                setselectedUser(item);
-                setmodalType("removeUser");
-              }}
-            />
-          </>
-        ) : (
-          <RestaurantLocationTable data={resturantDetail} />
-        )}
+        <Flex justify={"flex-end"} my={10}>
+          <Button
+            size="xs"
+            color="orange"
+            onClick={() => setmodalType("addUser")}
+            sx={{ marginRight: "1rem" }}
+          >
+            Add User
+          </Button>
+        </Flex>
+        <UsersTable
+          data={allUsers}
+          onDelete={(item) => {
+            setselectedUser(item);
+            setmodalType("removeUser");
+          }}
+          onEdit={(user) => {
+            setselectedUser(user);
+            setmodalType("addUser");
+          }}
+        />
 
         {
           {
-            inviteUser: (
+            addUser: (
               <CommanModal
-                title={"Invite a user"}
+                title={"Add new user"}
                 isOpen={true}
-                onClose={() => setmodalType("empty")}
+                onClose={modalClose}
               >
-                <InviteUserDesign
-                  resturantDetail={resturantDetail}
-                  onClose={() => setmodalType("empty")}
+                <AddNewUser
+                  onClose={modalClose}
+                  newUser={(user) => {
+                    setallUsers([user, ...allUsers]);
+                  }}
                 />
               </CommanModal>
             ),
@@ -119,10 +97,10 @@ const ResturantManage = ({
               <CommanModal
                 title={"Remove a user"}
                 isOpen={true}
-                onClose={() => setmodalType("empty")}
+                onClose={modalClose}
               >
                 <RemoveUser
-                  onClose={() => setmodalType("empty")}
+                  onClose={modalClose}
                   onRemove={onRemove}
                   isLoading={isLoading}
                   userEmail={selectedUser?.email}
@@ -136,27 +114,19 @@ const ResturantManage = ({
   );
 };
 
-export default ResturantManage;
+export default Dashboard;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { id } = context.query;
-  console.log("dddd", id);
-
   const supabase = createServerSupabaseClient(context);
   // Fetch user profiles from Supabase where id matches
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("restaurant_id", id);
-  const resturantDetail = await supabase
-    .from("restaurants")
-    .select("*")
-    .eq("id", id)
-    .single();
+    .order("created_at", { ascending: false });
+
   return {
     props: {
       profiles: data,
-      resturantDetail: resturantDetail?.data,
     },
   };
 }

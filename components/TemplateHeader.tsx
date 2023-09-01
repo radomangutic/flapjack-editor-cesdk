@@ -12,7 +12,8 @@ import {
   IconChevronDown,
   IconDownload,
   IconLogout,
-  IconMail,IconSettings
+  IconMail,
+  IconSettings,
 } from "@tabler/icons";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
@@ -428,7 +429,13 @@ const TemplateHeader = ({
                     </Menu.Item>
                   </Link>
                 )}
-
+                {user?.role === "flapjack" && (
+                  <Link href={`/dashboard`} target="_blank" rel="noreferrer">
+                    <Menu.Item icon={<IconSettings size={14} />}>
+                     Dashboard
+                    </Menu.Item>
+                  </Link>
+                )}
                 <a
                   href="mailto:Howdy@Flapjack.co"
                   target="_blank"
