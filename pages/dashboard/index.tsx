@@ -11,8 +11,9 @@ import PrivatePage from "../../components/PrivatePage/PrivatePage";
 import { useUser } from "../../hooks";
 import AddNewUser from "../../components/resturant/AddNewUser";
 import { dbClient } from "../../tests/helpers/database.helper";
+import UpdateUser from "../../components/resturant/UpdateUser";
 
-export type ModalType = "empty" | "removeUser" | "addUser";
+export type ModalType = "empty" | "removeUser" | "addUser" | "editUser";
 const Dashboard = ({ profiles }: { profiles: [] }) => {
   const { supabaseClient: supabase } = useSessionContext();
   const user = useUser();
@@ -66,21 +67,36 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
         </Flex>
         <UsersTable
           data={allUsers}
-          onDelete={(item) => {
-            setselectedUser(item);
-            setmodalType("removeUser");
-          }}
+          // onDelete={(item) => {
+          //   setselectedUser(item);
+          //   setmodalType("removeUser");
+          // }}
           onEdit={(user) => {
             setselectedUser(user);
-            setmodalType("addUser");
+            setmodalType("editUser");
           }}
         />
 
         {
           {
+            editUser: (
+              <CommanModal
+                title={"Update User"}
+                isOpen={true}
+                onClose={modalClose}
+              >
+                <UpdateUser
+                  onClose={modalClose}
+                  newUser={(user) => {
+                    setallUsers([user, ...allUsers]);
+                  }}
+                  selectedUser={selectedUser}
+                />
+              </CommanModal>
+            ),
             addUser: (
               <CommanModal
-                title={"Add new user"}
+                title={"Add New User"}
                 isOpen={true}
                 onClose={modalClose}
               >

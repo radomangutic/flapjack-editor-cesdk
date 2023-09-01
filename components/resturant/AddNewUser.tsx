@@ -55,7 +55,11 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
         phone: value,
         phone_confirm: true,
       });
-      console.log("error", error);
+      if (error) {
+        setError(error?.message);
+        setisLoading(false);
+        return;
+      }
       console.log("data", data);
       const response = await supabase
         .from("profiles")
@@ -75,6 +79,7 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
     }
   };
   const handleSubmit = async () => {
+    setError("");
     if (!isValidPhoneNumber(value)) {
       setError("Invalid phone");
       return;

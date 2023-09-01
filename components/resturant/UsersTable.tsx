@@ -15,11 +15,17 @@ import { IUserDetails } from "../../interfaces";
 interface UsersTableProps {
   data: IUserDetails[];
 
-  onDelete: (user: IUserDetails) => void;
+  onDelete?: (user: IUserDetails) => void;
   onEdit?: (user: IUserDetails) => void;
+  hideAction?: boolean;
 }
 
-export function UsersTable({ data, onDelete, onEdit }: UsersTableProps) {
+export function UsersTable({
+  data,
+  onDelete,
+  onEdit,
+  hideAction = false,
+}: UsersTableProps) {
   const theme = useMantineTheme();
   const rows = data.map((item: IUserDetails) => (
     <tr key={item.id}>
@@ -49,28 +55,31 @@ export function UsersTable({ data, onDelete, onEdit }: UsersTableProps) {
           {item?.subscriptionActive ? "True" : "False"}
         </Text>
       </td>
-      <td>
-        <Group spacing={0} position="right">
-          {onEdit && (
-            <ActionIcon
-              onClick={() => {
-                onEdit(item);
-              }}
-            >
-              <IconPencil size="1rem" stroke={1.5} />
-            </ActionIcon>
-          )}
-
-          <ActionIcon
-            color="red"
-            onClick={() => {
-              onDelete(item);
-            }}
-          >
-            <IconTrash size="1rem" stroke={1.5} />
-          </ActionIcon>
-        </Group>
-      </td>
+      {!hideAction && (
+        <td>
+          <Group spacing={0} position="right">
+            {onEdit && (
+              <ActionIcon
+                onClick={() => {
+                  onEdit(item);
+                }}
+              >
+                <IconPencil size="1rem" stroke={1.5} />
+              </ActionIcon>
+            )}
+            {onDelete && (
+              <ActionIcon
+                color="red"
+                onClick={() => {
+                  onDelete(item);
+                }}
+              >
+                <IconTrash size="1rem" stroke={1.5} />
+              </ActionIcon>
+            )}
+          </Group>
+        </td>
+      )}
     </tr>
   ));
 
@@ -84,7 +93,7 @@ export function UsersTable({ data, onDelete, onEdit }: UsersTableProps) {
             <th>Role</th>
             <th>Phone</th>
             <th>Subscription</th>
-            <th />
+            {!hideAction && <th />}
           </tr>
         </thead>
         <tbody>{rows}</tbody>
