@@ -110,14 +110,17 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
         return;
       }
       console.log("data", data);
-      const response: any = await supabase
+       await supabase
         .from("profiles")
         .update({ email: email, phone: value })
         .eq("id", data.user?.id)
         .single();
-      console.log("response", response);
-
-      if (!error && response?.data) {
+        const response = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user?.id)
+        .single();
+      if (!error) {
         newUser(response?.data);
         onClose();
       }

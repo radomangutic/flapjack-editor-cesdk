@@ -88,7 +88,13 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
                 <UpdateUser
                   onClose={modalClose}
                   newUser={(user) => {
-                    setallUsers([user, ...allUsers]);
+                    const updateUserList = allUsers?.map((item) => {
+                      if (item?.id === user?.id) {
+                        return user;
+                      }
+                      return item;
+                    });
+                    setallUsers(updateUserList);
                   }}
                   selectedUser={selectedUser}
                 />
