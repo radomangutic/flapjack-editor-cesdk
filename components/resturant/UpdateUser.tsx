@@ -112,7 +112,7 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
       console.log("data", data);
        await supabase
         .from("profiles")
-        .update({ email: email, phone: value })
+        .update({ email: email, phone: value.slice(1) })
         .eq("id", data.user?.id)
         .single();
         const response = await supabase
@@ -160,23 +160,8 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
 
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
-      <Box>
-        <TextInput
-          label="Email address"
-          placeholder="Enter your email address"
-          value={email}
-          onChange={(e) => setemail(e.target.value)}
-          labelProps={{
-            style: { color: "grey", marginBottom: "10px" },
-          }}
-        />
-        {error?.email && (
-          <Text fz={"sm"} color={"red"}>
-            {error?.email}
-          </Text>
-        )}
-      </Box>
-      <Box mt={10}>
+    
+      <Box >
         <label
           className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
           style={{ color: "gray", marginBottom: "10px" }}
@@ -194,6 +179,22 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
         {error && (
           <Text fz={"sm"} color={"red"} mt={10}>
             {error?.phone}
+          </Text>
+        )}
+      </Box>
+      <Box mt={10}>
+        <TextInput
+          label="Email address"
+          placeholder="Enter your email address"
+          value={email}
+          onChange={(e) => setemail(e.target.value)}
+          labelProps={{
+            style: { color: "grey", marginBottom: "10px" },
+          }}
+        />
+        {error?.email && (
+          <Text fz={"sm"} color={"red"}>
+            {error?.email}
           </Text>
         )}
       </Box>

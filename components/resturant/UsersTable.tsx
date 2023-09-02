@@ -34,7 +34,11 @@ export function UsersTable({
           <Avatar size={30} radius="xl" />
         </Group>
       </td>
-
+      <td>
+        <Text fz="sm" c="dimmed">
+          {item.phone}
+        </Text>
+      </td>
       <td>
         <Anchor component="button" size="sm">
           {item.email}
@@ -45,16 +49,8 @@ export function UsersTable({
           {item.role}
         </Text>
       </td>
-      <td>
-        <Text fz="sm" c="dimmed">
-          {item.phone}
-        </Text>
-      </td>
-      <td>
-        <Text fz="sm" c="dimmed">
-          {item?.subscriptionActive ? "True" : "False"}
-        </Text>
-      </td>
+     
+      
       {!hideAction && (
         <td>
           <Group spacing={0} position="right">
@@ -89,10 +85,9 @@ export function UsersTable({
         <thead>
           <tr>
             <th>User</th>
+            <th>Phone</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Phone</th>
-            <th>Subscription</th>
             {!hideAction && <th />}
           </tr>
         </thead>

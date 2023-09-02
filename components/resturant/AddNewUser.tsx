@@ -137,22 +137,6 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
       <Box>
-        <TextInput
-          label="Email address"
-          placeholder="Enter your email address"
-          value={email}
-          onChange={(e) => setemail(e.target.value)}
-          labelProps={{
-            style: { color: "grey", marginBottom: "10px" },
-          }}
-        />
-        {error?.email && (
-          <Text fz={"sm"} color={"red"}>
-            {error?.email}
-          </Text>
-        )}
-      </Box>
-      <Box mt={10}>
         <label
           className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
           style={{ color: "gray", marginBottom: "10px" }}
@@ -170,6 +154,22 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
         {error && (
           <Text fz={"sm"} color={"red"} mt={10}>
             {error?.phone}
+          </Text>
+        )}
+      </Box>
+      <Box mt={10}>
+        <TextInput
+          label="Email address"
+          placeholder="Enter your email address"
+          value={email}
+          onChange={(e) => setemail(e.target.value)}
+          labelProps={{
+            style: { color: "grey", marginBottom: "10px" },
+          }}
+        />
+        {error?.email && (
+          <Text fz={"sm"} color={"red"}>
+            {error?.email}
           </Text>
         )}
       </Box>
