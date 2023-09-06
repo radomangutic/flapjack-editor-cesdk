@@ -41,7 +41,7 @@ const Editor = ({
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
-  elementsList: any;
+  elementsList?: any;
 }) => {
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
