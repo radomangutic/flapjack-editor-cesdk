@@ -36,31 +36,34 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
     .eq("id", context?.params?.id);
-
+let elementList:any
+if ( data) {
   const elements = await supabase
-    .from("ElementLibrary")
-    .select("*")
-    .eq("template_id", data[0]?.id);
-  const refactor = elements?.data?.map((item) => {
-    return {
-      id: item?.id?.toString(),
-      meta: {
-        uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-        blockType: "//ly.img.ubq/text",
-        thumbUri: "https://picsum.photos/200",
-        width: 100,
-        height: 10,
-        value: item?.element,
-        name: "dddddwestg",
-      },
-      context: {
-        sourceId: "textgroup",
-      },
-    };
-  });
+  .from("ElementLibrary")
+  .select("*")
+  .eq("template_id", data[0]?.id);
+ elementList = elements?.data?.map((item) => {
+  return {
+    id: item?.id?.toString(),
+    meta: {
+      uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
+      blockType: "//ly.img.ubq/text",
+      thumbUri: "https://picsum.photos/200",
+      width: 100,
+      height: 10,
+      value: item?.element,
+      name: "dddddwestg",
+    },
+    context: {
+      sourceId: "textgroup",
+    },
+  };
+});
+}
+ 
 
   return {
-    props: { data: data ? data[0] : null, elementsList: refactor }, // will be passed to the page component as props
+    props: { data: data ? data[0] : null, elementsList: elementList }, // will be passed to the page component as props
   };
 }
 
