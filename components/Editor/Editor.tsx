@@ -88,17 +88,18 @@ const Editor = ({
       // },
       ui: {
         elements: {
-          view: "advanced",
-          panels: {
-            inspector: {
-              show: true,
-              position: "right",
-            },
-            settings: true,
-          },
+          view: "default",
           dock: {
-            iconSize: "normal",
-            hideLabels: true,
+            groups: [
+              {
+                id: "ly.img.template",
+                entryIds: ["ly.img.template"],
+              },
+              { id: "ly.img.defaultGroup" },
+            ],
+          },
+          panels: {
+            settings: false,
           },
           blocks: {
             opacity: true,
@@ -129,21 +130,7 @@ const Editor = ({
               save: true,
             },
           },
-          libraries: {
-            replace: {
-              entries: (defaultEntries: any, context: any) => {
-                if (context.selectedBlocks.length !== 1) {
-                  return [];
-                }
-
-                const [selectedBlock] = context.selectedBlocks;
-                if (selectedBlock.blockType === "//ly.img.image") {
-                  return [...defaultEntries];
-                }
-
-                return [];
-              },
-            },
+          libraries: {           
             insert: {
               entries: (defaultEntries: any) => {
                 if (preview) {
@@ -161,15 +148,15 @@ const Editor = ({
                   // Shapes
                   defaultEntries[4],
                   {
-                    id: "monkey",
+                    id: "Custom component",
                     sourceIds: ["textgroup"],
-                    previewLength: 3,
-                    gridColumns: 3,
+                    previewLength: 2,
+                    gridColumns: 2,
                     previewBackgroundType: "cover",
                     gridBackgroundType: "cover",
                     icon: ({ theme, iconSize }: any) => {
                       return "https://img.icons8.com/?size=1x&id=99192&format=png";
-                    },
+                    },                   
                   },
                 ];
               },
@@ -177,22 +164,7 @@ const Editor = ({
           },
         },
       },
-      callbacks: {
-        log: (message: any, logLevel: any) => {
-          switch (logLevel) {
-            case "Info":
-              console.info(message);
-              break;
-            case "Warning":
-              console.warn(message);
-              break;
-            case "Error":
-              console.error(message);
-              break;
-            default:
-              console.log(message);
-          }
-        },
+      callbacks: {       
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
           setUserData((user: any) => {
