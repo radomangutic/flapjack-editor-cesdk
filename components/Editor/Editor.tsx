@@ -15,6 +15,8 @@ import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 import { TailSpin } from "react-loader-spinner";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+
 import {
   Box,
   Button,
@@ -35,11 +37,16 @@ interface fontsErrorsType {
 const Editor = ({
   template,
   preview,
+  elementsList,
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
+  elementsList: any;
 }) => {
   const cesdkContainer = useRef<any>(null);
+  const cesdkInstance = useRef<any>(null);
+  let cesdk: { dispose: () => void };
+  const supabase = useSupabaseClient();
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
   const [userData, setUserData] = useState<any>(getUser());
@@ -54,7 +61,7 @@ const Editor = ({
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
-
+  const [isDisableLibraryBtn, setisDisableLibraryBtn] = useState(true);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -75,20 +82,23 @@ const Editor = ({
           process.env.NEXT_PUBLIC_SUPABASE_URL +
           `/storage/v1/object/public/templates/${template?.content}`,
       }),
+      // baseURL: '/assets',
+      // core: {
+      //   baseURL: 'core/'
+      // },
       ui: {
         elements: {
-          view: "default",
-          dock: {
-            groups: [
-              {
-                id: "ly.img.template",
-                entryIds: ["ly.img.template"],
-              },
-              { id: "ly.img.defaultGroup" },
-            ],
-          },
+          view: "advanced",
           panels: {
-            settings: false,
+            inspector: {
+              show: true,
+              position: "right",
+            },
+            settings: true,
+          },
+          dock: {
+            iconSize: "normal",
+            hideLabels: true,
           },
           blocks: {
             opacity: true,
@@ -120,6 +130,20 @@ const Editor = ({
             },
           },
           libraries: {
+            replace: {
+              entries: (defaultEntries: any, context: any) => {
+                if (context.selectedBlocks.length !== 1) {
+                  return [];
+                }
+
+                const [selectedBlock] = context.selectedBlocks;
+                if (selectedBlock.blockType === "//ly.img.image") {
+                  return [...defaultEntries];
+                }
+
+                return [];
+              },
+            },
             insert: {
               entries: (defaultEntries: any) => {
                 if (preview) {
@@ -136,6 +160,17 @@ const Editor = ({
                   },
                   // Shapes
                   defaultEntries[4],
+                  {
+                    id: "monkey",
+                    sourceIds: ["textgroup"],
+                    previewLength: 3,
+                    gridColumns: 3,
+                    previewBackgroundType: "cover",
+                    gridBackgroundType: "cover",
+                    icon: ({ theme, iconSize }: any) => {
+                      return "https://img.icons8.com/?size=1x&id=99192&format=png";
+                    },
+                  },
                 ];
               },
             },
@@ -143,6 +178,21 @@ const Editor = ({
         },
       },
       callbacks: {
+        log: (message: any, logLevel: any) => {
+          switch (logLevel) {
+            case "Info":
+              console.info(message);
+              break;
+            case "Warning":
+              console.warn(message);
+              break;
+            case "Error":
+              console.error(message);
+              break;
+            default:
+              console.log(message);
+          }
+        },
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
           setUserData((user: any) => {
@@ -258,34 +308,80 @@ const Editor = ({
       },
     };
     if (cesdkContainer.current) {
-      fetchAssets().then((assetsData) => {
-        CreativeEditorSDK.init(cesdkContainer.current, config).then(
-          async (instance: any) => {
-            await instance.addDefaultAssetSources();
-            await instance.addDemoAssetSources();
-            setinput(input + 1);
-            setloadinEditor(false);
-            const getAssetSources = async () => {
-              if (assetsData.length) {
-                const assets = assetsData.map(translateToAssetResult);
-                assets.forEach((asset) => {
-                  instance.engine.asset.addAssetToSource(
-                    "ly.img.image.upload",
-                    asset
-                  );
-                });
+      CreativeEditorSDK.init(cesdkContainer.current, config).then(
+        async (instance: any) => {
+          instance.addDefaultAssetSources();
+          instance.addDemoAssetSources();
+          cesdk = instance;
+          cesdkInstance.current = instance;
+          const firstPage = instance.engine.block.findByType("page")[0];
+
+          const customSource = {
+            id: "textgroup",
+            async findAssets(queryData: any) {
+              console.log("queryData", queryData);
+              return Promise.resolve({
+                assets: elementsList,
+                total: 2,
+                currentPage: queryData.page,
+                nextPage: undefined,
+              });
+            },
+            async applyAsset(assetResult: any) {
+              try {
+                console.log("assetResult", assetResult);
+
+                const firstPage = instance.engine.block.findByType("page")[0];
+                const block = await instance.engine.block.loadFromString(
+                  assetResult?.meta?.value
+                );
+                instance.engine.block.setName(block[0], "ddddd");
+                await instance.engine.block.appendChild(firstPage, block[0]);
+                await instance.engine.block.setSelected(block[0], true);
+                await instance.engine.block.select(block[0]);
+              } catch (error) {
+                console.log("error===>", error);
               }
-            };
-            enablePreviewMode();
-            getAssetSources();
-          }
-        );
-      });
+            },
+            async applyAssetToBlock(assetResult: any, block: any) {
+              instance.engine.asset.defaultApplyAssetToBlock(
+                assetResult,
+                block
+              );
+            },
+          };
+          instance.engine.asset.addSource(customSource);
+          setinput(input + 1);
+          setloadinEditor(false);
+          fetchAssets().then(
+            async (assetsData) => await getAssetSources(assetsData)
+          );
+          const getAssetSources = async (assetsData: any[]) => {
+            if (assetsData.length) {
+              const assets = assetsData.map(translateToAssetResult);
+              assets.forEach((asset: any) => {
+                instance.engine.asset.addAssetToSource(
+                  "ly.img.image.upload",
+                  asset
+                );
+              });
+            }
+          };
+          enablePreviewMode();
+        }
+      );
     }
   };
   useEffect(() => {
     setup();
-  }, []);
+    return () => {
+      if (cesdk) {
+        cesdk.dispose();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cesdkContainer]);
+
   const enablePreviewMode = () => {
     var elementWithShadowRoot = document.querySelector(
       "#cesdkContainer #root-shadow "
@@ -314,6 +410,8 @@ const Editor = ({
     link.click();
   }
   const saveTemplate = (string: string) => {
+    console.log("===>", string?.length);
+
     setTimeout(() => {
       settemplateModal(true);
       setcontent(string);
@@ -473,6 +571,25 @@ const Editor = ({
     });
     return fonts;
   }
+  const selectedIds = cesdkInstance?.current?.engine?.block?.findAllSelected();
+
+  useEffect(() => {
+    console.log("selectedIds", selectedIds);
+
+    if (selectedIds?.length > 0) {
+      const blockType = cesdkInstance?.current?.engine?.block?.getType(
+        selectedIds[0]
+      );
+      if (blockType !== "//ly.img.ubq/page") {
+        console.log("blockType", blockType);
+
+        setisDisableLibraryBtn(false);
+      }
+    } else {
+      setisDisableLibraryBtn(true);
+    }
+  }, [selectedIds]);
+
   const handleUploadFont = async () => {
     try {
       if (user) {
@@ -505,9 +622,51 @@ const Editor = ({
       setloading(false);
     }
   };
+
+  const saveToLibrary = async () => {
+    if (template) {
+      const selectedIds =
+        cesdkInstance?.current.engine?.block?.findAllSelected();
+      const isGroupable =
+        cesdkInstance?.current.engine.block.isGroupable(selectedIds);
+
+      const group = cesdkInstance?.current?.engine.block.group(selectedIds);
+      const savedBlocks =
+        await cesdkInstance?.current.engine.block.saveToString(
+          isGroupable ? [group] : selectedIds
+        );
+
+      const { error, data } = await supabase
+        .from("ElementLibrary")
+        .insert({
+          element: savedBlocks,
+          template_id: template?.id,
+        })
+        .select();
+      console.log("error", error);
+      console.log("data", data);
+    } else {
+      const value = await cesdkInstance?.current.save();
+      if (user) {
+        saveTemplate(value);
+      } else {
+        openAuthDialog();
+      }
+    }
+  };
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
+      <Flex bg={"#F3F5F7"} justify={"flex-end"}>
+        <Button
+          my={"sm"}
+          mr={"sm"}
+          disabled={isDisableLibraryBtn}
+          onClick={saveToLibrary}
+        >
+          Save to Library
+        </Button>
+      </Flex>
       {loadinEditor && (
         <Box
           style={{

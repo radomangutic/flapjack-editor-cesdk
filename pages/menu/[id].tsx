@@ -5,21 +5,26 @@ import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 
-const Menu = ({ data }: { data: ITemplateDetails }) => {
+const Menu = ({
+  data,
+  elementsList,
+}: {
+  data: ITemplateDetails;
+  elementsList: any;
+}) => {
   const user = getUser();
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
     }
   }
-  
 
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
   return (
     <>
-      <Editor template={data} />
+      <Editor template={data} elementsList={elementsList} />
     </>
   );
 };
@@ -32,8 +37,30 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     )
     .eq("id", context?.params?.id);
 
+  const elements = await supabase
+    .from("ElementLibrary")
+    .select("*")
+    .eq("template_id", data[0]?.id);
+  const refactor = elements?.data?.map((item) => {
+    return {
+      id: item?.id?.toString(),
+      meta: {
+        uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
+        blockType: "//ly.img.ubq/text",
+        thumbUri: "https://picsum.photos/200",
+        width: 100,
+        height: 10,
+        value: item?.element,
+        name: "dddddwestg",
+      },
+      context: {
+        sourceId: "textgroup",
+      },
+    };
+  });
+
   return {
-    props: { data: data ? data[0] : null }, // will be passed to the page component as props
+    props: { data: data ? data[0] : null, elementsList: refactor }, // will be passed to the page component as props
   };
 }
 
