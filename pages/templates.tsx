@@ -140,6 +140,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                       onGlobal={globalTemplate}
                       navMenu={navMenu}
                       resturantsOptions={resturantsOptions}
+                      setTemplates={setTemplates}
                     />
                   ))}
                 </SimpleGrid>

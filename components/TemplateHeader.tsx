@@ -4,9 +4,7 @@ import {
   Button,
   Flex,
   Header,
-  Input,
   Menu,
-  Modal,
   Text,
 } from "@mantine/core";
 import { useRouter } from "next/router";
@@ -15,7 +13,6 @@ import {
   IconDownload,
   IconLogout,
   IconMail,
-  IconLocation,
 } from "@tabler/icons";
 
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -28,16 +25,13 @@ import {
   canCreateTemplate,
   useSetUser,
 } from "../hooks";
-import { useWarnIfUnsaved } from "../hooks/useWarnIfUnsavedChanges";
 import grapesjs from "grapesjs";
 import Router from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { ITemplate } from "../interfaces";
 import _ from "lodash";
 import { userCanEditFontAndColor } from "../helpers/userCanEditFontAndColor";
 import Link from "next/link";
-import { useDisclosure } from "@mantine/hooks";
-import { dbClient } from "../tests/helpers/database.helper";
 interface ITemplateHeaderProps {
   onTemplateDownload?: () => void;
   onTemplateSaveUpdate?: () => void;
@@ -65,9 +59,6 @@ const TemplateHeader = ({
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
-  const [opened, { open, close }] = useDisclosure(false);
-  const [location, setLocation] = useState("");
-  const [locations, setLocations] = useState<string[]>([]);
 
   if (typeof document !== "undefined") {
     const panelWrapper = document.querySelector<HTMLElement>(".gjs-pn-panels");
@@ -113,9 +104,6 @@ const TemplateHeader = ({
       openAuthDialog();
     } else {
       closeAuthDialog();
-    }
-    if (user?.role === "owner" && user?.restaurant?.location?.length) {
-      setLocations(user?.restaurant?.location);
     }
     const reload = sessionStorage.getItem("reload");
     if (
@@ -219,41 +207,7 @@ const TemplateHeader = ({
     setSizeValue(template?.content.assets[0]);
   }, [template]);
 
-  const handleAddLocation = async () => {
-    if (user?.restaurant?.id && location) {
-      const updatedLocations = [...locations, location];
-      const { data, error } = await dbClient
-        .from("restaurants")
-        .update({
-          location: updatedLocations,
-        })
-        .eq("id", user?.restaurant?.id);
-      if (!error) {
-        setLocations(updatedLocations);
-        setLocation("");
-      }
-    }
-  };
 
-  const handleDelete = async (locationToDelete: string) => {
-    const updatedLocations = locations.filter(
-      (location) => location !== locationToDelete
-    );
-    const response = await dbClient
-      .from("restaurants")
-      .update({
-        location: updatedLocations,
-      })
-      .eq("id", user?.restaurant?.id);
-    await dbClient
-      .from("templates")
-      .update({ location: null })
-      .eq("location", locationToDelete)
-      .eq("restaurant_id", user?.restaurant?.id);
-    if (!response.error) {
-      setLocations(updatedLocations);
-    }
-  };
   return (
     <Header height={64}>
       <Flex
@@ -468,11 +422,6 @@ const TemplateHeader = ({
                     Contact Us
                   </Menu.Item>
                 </a>
-                {user?.role === "owner" && (
-                  <Menu.Item icon={<IconLocation size={14} />} onClick={open}>
-                    Manage Locations
-                  </Menu.Item>
-                )}
                 <Menu.Item
                   icon={<IconLogout size={14} />}
                   onClick={() => {
@@ -500,24 +449,6 @@ const TemplateHeader = ({
           )}
         </Flex>
       </Flex>
-      <Modal opened={opened} onClose={close} title="Manage Locations" centered>
-        <Location locations={locations} handleDelete={handleDelete} />
-
-        <Box
-          mt={"xl"}
-          display={"flex"}
-          style={{ justifyContent: "space-between" }}
-        >
-          <Input
-            w={"300px"}
-            placeholder="Location Name"
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setLocation(e.target.value)
-            }
-          />
-          <Button onClick={handleAddLocation}>Add</Button>
-        </Box>
-      </Modal>
     </Header>
   );
 };

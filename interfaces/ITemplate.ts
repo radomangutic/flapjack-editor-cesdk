@@ -12,6 +12,7 @@ export interface ITemplateDetails extends ITemplate {
   createdBy: string;
   menuSize?: string;
   restaurant_id?: string;
+  location?: string;
 }
 
 export interface DeleteAssetsIDs {
