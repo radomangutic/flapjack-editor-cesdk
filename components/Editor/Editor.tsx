@@ -130,16 +130,20 @@ const Editor = ({
               save: true,
             },
           },
-          libraries: {           
+          libraries: {
             insert: {
               entries: (defaultEntries: any) => {
                 if (preview) {
                   // if preview don't show sidebar
                   return [];
                 }
+                console.log("ss", defaultEntries[4]);
                 return [
                   // Text
-                  defaultEntries[3],
+                  {
+                    ...defaultEntries[3],
+                    sourceIds: ["ly.img.text", "textgroup"],
+                  },
                   // Images
                   {
                     ...defaultEntries[2],
@@ -147,24 +151,24 @@ const Editor = ({
                   },
                   // Shapes
                   defaultEntries[4],
-                  {
-                    id: "Custom component",
-                    sourceIds: ["textgroup"],
-                    previewLength: 2,
-                    gridColumns: 2,
-                    previewBackgroundType: "cover",
-                    gridBackgroundType: "cover",
-                    icon: ({ theme, iconSize }: any) => {
-                      return "https://img.icons8.com/?size=1x&id=99192&format=png";
-                    },                   
-                  },
+                  // {
+                  //   id: "Custom component",
+                  //   sourceIds: ["textgroup"],
+                  //   previewLength: 2,
+                  //   gridColumns: 2,
+                  //   previewBackgroundType: "cover",
+                  //   gridBackgroundType: "cover",
+                  //   icon: ({ theme, iconSize }: any) => {
+                  //     return "https://img.icons8.com/?size=1x&id=99192&format=png";
+                  //   },
+                  // },
                 ];
               },
             },
           },
         },
       },
-      callbacks: {       
+      callbacks: {
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
           setUserData((user: any) => {
