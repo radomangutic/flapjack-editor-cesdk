@@ -12,7 +12,8 @@ import {
   IconChevronDown,
   IconDownload,
   IconLogout,
-  IconMail,IconSettings
+  IconMail,
+  IconSettings,
 } from "@tabler/icons";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
@@ -424,7 +425,7 @@ const TemplateHeader = ({
                     rel="noreferrer"
                   >
                     <Menu.Item icon={<IconSettings size={14} />}>
-                      Restaurant Settings
+                      Settings
                     </Menu.Item>
                   </Link>
                 )}

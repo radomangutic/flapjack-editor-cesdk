@@ -47,12 +47,7 @@ export function UsersTable({
         <Text fz="sm" c="dimmed">
           {item.phone}
         </Text>
-      </td>
-      <td>
-        <Text fz="sm" c="dimmed">
-          {item?.subscriptionActive ? "True" : "False"}
-        </Text>
-      </td>
+      </td>     
       <td>
         <Group spacing={0} position="right">
           <ActionIcon
@@ -78,7 +73,6 @@ export function UsersTable({
             <th>Email</th>
             <th>Role</th>
             <th>Phone</th>
-            <th>Subscription</th>
             <th />
           </tr>
         </thead>
