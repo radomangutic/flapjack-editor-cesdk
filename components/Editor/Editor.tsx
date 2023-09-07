@@ -143,6 +143,7 @@ const Editor = ({
                   {
                     ...defaultEntries[3],
                     sourceIds: ["ly.img.text", "textgroup"],
+                    id:'Text'
                   },
                   // Images
                   {
