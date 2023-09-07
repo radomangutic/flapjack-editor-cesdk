@@ -97,16 +97,17 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
         return;
       }
       console.log("data", data);
-      const response = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user?.id)
-        .single();
+
       const updateUser = await supabase
         .from("profiles")
         .update({
           restaurant_id: resturantId,
         })
+        .eq("id", data.user?.id)
+        .single();
+      const response = await supabase
+        .from("profiles")
+        .select("*")
         .eq("id", data.user?.id)
         .single();
       console.log("updateUser", updateUser);

@@ -75,13 +75,13 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
   const [error, setError] = useState<ILoginErrors>({});
   const [resturantId, setResturantId] = useState(selectedUser?.restaurant_id);
 
-  const [value, setValue] = useState<string>(`+${selectedUser?.phone}` ?? "");
+  const [value, setValue] = useState<string>(selectedUser?.phone?`+${selectedUser?.phone}` ?? "":"");
   const [email, setemail] = useState<string>(selectedUser?.email ?? "");
   let errorOnSubmit;
 
   const handleUpdateUser = async () => {
     if (!selectedUser) {
-      errorOnSubmit = { phone: "Something went wrong" };
+      errorOnSubmit = { apiError: "Something went wrong" };
       setError(errorOnSubmit);
       setisLoading(false);
       return;
@@ -119,6 +119,13 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
         .update({ email: email, phone: value.slice(1) })
         .eq("id", data.user?.id)
         .single();
+        const updateUser = await supabase
+        .from("profiles")
+        .update({
+          restaurant_id: resturantId,
+        })
+        .eq("id", data.user?.id)
+        .single();
       const response = await supabase
         .from("profiles")
         .select("*")
@@ -139,22 +146,13 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
 
   const handleSubmit = async () => {
     setError({});
-    if (!email) {
-      errorOnSubmit = { email: "Email required" };
-      setError(errorOnSubmit);
-      return;
-    }
-    if (!validateEmail(email)) {
+    
+    if (!validateEmail(email) && email) {
       errorOnSubmit = { email: "Invalid email" };
       setError(errorOnSubmit);
       return;
-    }
-    if (!value) {
-      errorOnSubmit = { phone: "Phone required" };
-      setError(errorOnSubmit);
-      return;
-    }
-    if (!isValidPhoneNumber(value)) {
+    }   
+    if (!isValidPhoneNumber(value) && value) {
       errorOnSubmit = { phone: "Invalid phone" };
       setError(errorOnSubmit);
       return;
