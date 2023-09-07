@@ -137,13 +137,11 @@ const Editor = ({
                   // if preview don't show sidebar
                   return [];
                 }
-                console.log("ss", defaultEntries[4]);
                 return [
                   // Text
                   {
                     ...defaultEntries[3],
                     sourceIds: ["ly.img.text", "textgroup"],
-                    id:'Text'
                   },
                   // Images
                   {
@@ -295,19 +293,17 @@ const Editor = ({
 
           const customSource = {
             id: "textgroup",
+             
             async findAssets(queryData: any) {
-              console.log("queryData", queryData);
               return Promise.resolve({
                 assets: elementsList,
-                total: 2,
+                total: elementsList.length,
                 currentPage: queryData.page,
                 nextPage: undefined,
               });
             },
             async applyAsset(assetResult: any) {
               try {
-                console.log("assetResult", assetResult);
-
                 const firstPage = instance.engine.block.findByType("page")[0];
                 const block = await instance.engine.block.loadFromString(
                   assetResult?.meta?.value
@@ -387,8 +383,6 @@ const Editor = ({
     link.click();
   }
   const saveTemplate = (string: string) => {
-    console.log("===>", string?.length);
-
     setTimeout(() => {
       settemplateModal(true);
       setcontent(string);
@@ -551,15 +545,11 @@ const Editor = ({
   const selectedIds = cesdkInstance?.current?.engine?.block?.findAllSelected();
 
   useEffect(() => {
-    console.log("selectedIds", selectedIds);
-
     if (selectedIds?.length > 0) {
       const blockType = cesdkInstance?.current?.engine?.block?.getType(
         selectedIds[0]
       );
       if (blockType !== "//ly.img.ubq/page") {
-        console.log("blockType", blockType);
-
         setisDisableLibraryBtn(false);
       }
     } else {
@@ -618,10 +608,9 @@ const Editor = ({
         .insert({
           element: savedBlocks,
           template_id: template?.id,
+          createdBy: user?.id,
         })
         .select();
-      console.log("error", error);
-      console.log("data", data);
     } else {
       const value = await cesdkInstance?.current.save();
       if (user) {

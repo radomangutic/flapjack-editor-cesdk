@@ -22,9 +22,10 @@ const Menu = ({
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
+  const elements =  user?.role === 'flapjack' ? elementsList : elementsList.filter((item:any) => item?.createdBy === user?.id)
   return (
     <>
-      <Editor template={data} elementsList={elementsList} />
+      <Editor template={data} elementsList={elements} />
     </>
   );
 };
@@ -41,10 +42,10 @@ if ( data) {
   const elements = await supabase
   .from("ElementLibrary")
   .select("*")
-  .eq("template_id", data[0]?.id);
  elementList = elements?.data?.map((item) => {
   return {
     id: item?.id?.toString(),
+    createdBy: item?.createdBy || null,
     meta: {
       uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
       blockType: "//ly.img.ubq/text",
