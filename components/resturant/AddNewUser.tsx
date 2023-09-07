@@ -13,13 +13,14 @@ import {
   Flex,
   Button,
   TextInput,
+  Select,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../../interfaces";
-import { useUser } from "../../hooks";
+import { fetchResturants, useUser } from "../../hooks";
 import { RestaurantType } from "../../interfaces/RestaurantType";
 import { dbClient } from "../../tests/helpers/database.helper";
 const useStyles = createStyles((theme) => ({
@@ -40,6 +41,7 @@ const useStyles = createStyles((theme) => ({
 interface ILoginErrors {
   email?: string;
   phone?: string;
+  apiError?: string;
 }
 const validateEmail = (email: string) => {
   return String(email)
@@ -69,9 +71,12 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
   const [error, setError] = useState<ILoginErrors>({});
-
+  const [resturantsOptions, setResturantsOptions] = useState([]);
   const [value, setValue] = useState<string>("");
   const [email, setemail] = useState<string>("");
+  const [resturantId, setResturantId] = useState();
+  console.log("resturantId", resturantId);
+
   let errorOnSubmit;
 
   const handleCreateUser = async () => {
@@ -85,7 +90,7 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
       });
       if (error) {
         errorOnSubmit = {
-          phone: error?.message,
+          apiError: error?.message,
         };
         setError(errorOnSubmit);
         setisLoading(false);
@@ -97,6 +102,15 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
         .select("*")
         .eq("id", data.user?.id)
         .single();
+      const updateUser = await supabase
+        .from("profiles")
+        .update({
+          restaurant_id: resturantId,
+        })
+        .eq("id", data.user?.id)
+        .single();
+      console.log("updateUser", updateUser);
+
       if (!error) {
         newUser(response.data);
         onClose();
@@ -133,6 +147,13 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
     }
     await handleCreateUser();
   };
+  useEffect(() => {
+    const getOptions = async () => {
+      const options: any = await fetchResturants();
+      setResturantsOptions(options);
+    };
+    getOptions();
+  }, []);
 
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
@@ -173,6 +194,25 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
           </Text>
         )}
       </Box>
+      <Box mt={10}>
+        <Select
+          label="Select a resturant"
+          placeholder="Select a resturant"
+          data={resturantsOptions}
+          searchable
+          onChange={(value: any) => setResturantId(value)}
+          maxDropdownHeight={400}
+          nothingFound="Resturant not found"
+          filter={(value: string, item: any) =>
+            item.label.toLowerCase().includes(value.toLowerCase().trim())
+          }
+        />
+      </Box>
+      {error?.apiError && (
+        <Text fz={"sm"} color={"red"} mt={10}>
+          {error?.apiError}
+        </Text>
+      )}
       <div
         style={{
           display: "flex",
@@ -183,7 +223,12 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
         <Button color="gray" onClick={onClose} mr={"10px"}>
           Cancel
         </Button>
-        <Button color="red" onClick={handleSubmit} loading={isLoading}>
+        <Button
+          color="red"
+          onClick={handleSubmit}
+          loading={isLoading}
+          disabled={!resturantId || !email || !value}
+        >
           Add
         </Button>
       </div>
