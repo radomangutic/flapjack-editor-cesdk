@@ -258,7 +258,9 @@ const Editor = ({
             if (template?.content) {
               await instance.engine.scene.loadFromURL(
                 process.env.NEXT_PUBLIC_SUPABASE_URL +
-                  `/storage/v1/object/public/templates/${template?.content}`
+                  `/storage/v1/object/public/templates/${
+                    template?.content
+                  }?t=${new Date().toISOString()}`
               );
             }
             const getAssetSources = async () => {

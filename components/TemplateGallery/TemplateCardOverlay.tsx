@@ -95,7 +95,7 @@ export default function TemplateCardOverlay({
 
   const handleDeleteTemplate = useCallback(async () => {
     if (!onHandleDeleteTemplate) return;
-    await onHandleDeleteTemplate(templateId, template?.content);
+    await onHandleDeleteTemplate(template);
     closeModal();
   }, [onHandleDeleteTemplate, templateId, closeModal]);
 
