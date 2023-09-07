@@ -13,13 +13,14 @@ import {
   Flex,
   Button,
   TextInput,
+  Select,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../../interfaces";
-import { useUser } from "../../hooks";
+import { fetchResturants, useUser } from "../../hooks";
 import { RestaurantType } from "../../interfaces/RestaurantType";
 import { dbClient } from "../../tests/helpers/database.helper";
 const useStyles = createStyles((theme) => ({
@@ -64,13 +65,15 @@ interface Props {
   onClose: () => void;
   newUser: (user: IUserDetails) => void;
   selectedUser: IUserDetails | null;
+  resturantsOptions:any
 }
-const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
+const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
   const [error, setError] = useState<ILoginErrors>({});
+  const [resturantId, setResturantId] = useState(selectedUser?.restaurant_id);
 
   const [value, setValue] = useState<string>(`+${selectedUser?.phone}` ?? "");
   const [email, setemail] = useState<string>(selectedUser?.email ?? "");
@@ -111,12 +114,12 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
         return;
       }
       console.log("data", data);
-       await supabase
+      await supabase
         .from("profiles")
         .update({ email: email, phone: value.slice(1) })
         .eq("id", data.user?.id)
         .single();
-        const response = await supabase
+      const response = await supabase
         .from("profiles")
         .select("*")
         .eq("id", data.user?.id)
@@ -159,10 +162,11 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
     await handleUpdateUser();
   };
 
+  console.log(selectedUser?.restaurant_id);
+
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
-    
-      <Box >
+      <Box>
         <label
           className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
           style={{ color: "gray", marginBottom: "10px" }}
@@ -199,11 +203,26 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
           </Text>
         )}
       </Box>
+      <Box mt={10}>
+        <Select
+          label="Select a resturant"
+          placeholder="Select a resturant"
+          data={resturantsOptions}
+          searchable
+          onChange={(value: any) => setResturantId(value)}
+          maxDropdownHeight={400}
+          nothingFound="Resturant not found"
+          filter={(value: string, item: any) =>
+            item.label.toLowerCase().includes(value.toLowerCase().trim())
+          }
+          value={resturantId}
+        />
+      </Box>
       {error?.apiError && (
-          <Text fz={"sm"} color={"red"} mt={10}>
-            {error?.apiError}
-          </Text>
-        )}
+        <Text fz={"sm"} color={"red"} mt={10}>
+          {error?.apiError}
+        </Text>
+      )}
       <div
         style={{
           display: "flex",

@@ -4,11 +4,11 @@ import { IUserDetails } from "../../interfaces";
 import { Button, Container, Flex, Paper, Text } from "@mantine/core";
 import { UsersTable } from "../../components/resturant/UsersTable";
 import CommanModal from "../../components/CommanModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RemoveUser from "../../components/resturant/RemoveUser";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
-import { useUser } from "../../hooks";
+import { fetchResturants, useUser } from "../../hooks";
 import AddNewUser from "../../components/resturant/AddNewUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import UpdateUser from "../../components/resturant/UpdateUser";
@@ -21,11 +21,20 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
   const [selectedUser, setselectedUser] = useState<IUserDetails | null>(null);
   const [allUsers, setallUsers] = useState<IUserDetails[]>(profiles);
   const [isLoading, setisLoading] = useState(false);
+  const [resturantsOptions, setResturantsOptions] = useState([]);
+  useEffect(() => {
+    const getOptions = async () => {
+      const options: any = await fetchResturants();
+      setResturantsOptions(options);
+    };
+    getOptions();
+  }, []);
 
   if (user?.role !== "flapjack") {
     return <PrivatePage />;
   }
 
+ 
   const onRemove = async () => {
     if (!selectedUser || !supabase) return;
     setisLoading(true);
@@ -52,6 +61,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
     setmodalType("empty");
     setselectedUser(null);
   };
+  
   return (
     <Paper bg={"white"} mih={"100vh"}>
       <Container size="xl" pt={10}>
@@ -67,6 +77,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
         </Flex>
         <UsersTable
           data={allUsers}
+          resturantsOptions={resturantsOptions}
           // onDelete={(item) => {
           //   setselectedUser(item);
           //   setmodalType("removeUser");
@@ -97,6 +108,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
                     setallUsers(updateUserList);
                   }}
                   selectedUser={selectedUser}
+                  resturantsOptions={resturantsOptions}
                 />
               </CommanModal>
             ),
@@ -111,6 +123,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
                   newUser={(user) => {
                     setallUsers([user, ...allUsers]);
                   }}
+                  resturantsOptions={resturantsOptions}
                 />
               </CommanModal>
             ),

@@ -64,14 +64,14 @@ function extractDoubleQuotedStrings(inputString: string): string {
 interface Props {
   onClose: () => void;
   newUser: (user: IUserDetails) => void;
+  resturantsOptions: any;
 }
-const AddNewUser = ({ onClose, newUser }: Props) => {
+const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
   const [error, setError] = useState<ILoginErrors>({});
-  const [resturantsOptions, setResturantsOptions] = useState([]);
   const [value, setValue] = useState<string>("");
   const [email, setemail] = useState<string>("");
   const [resturantId, setResturantId] = useState();
@@ -125,12 +125,12 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
 
   const handleSubmit = async () => {
     setError({});
-    
+
     if (!validateEmail(email) && email) {
       errorOnSubmit = { email: "Invalid email" };
       setError(errorOnSubmit);
       return;
-    }    
+    }
     if (!isValidPhoneNumber(value) && value) {
       errorOnSubmit = { phone: "Invalid phone" };
       setError(errorOnSubmit);
@@ -138,13 +138,7 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
     }
     await handleCreateUser();
   };
-  useEffect(() => {
-    const getOptions = async () => {
-      const options: any = await fetchResturants();
-      setResturantsOptions(options);
-    };
-    getOptions();
-  }, []);
+
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
       <Box>
