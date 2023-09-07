@@ -125,22 +125,13 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
 
   const handleSubmit = async () => {
     setError({});
-    if (!email) {
-      errorOnSubmit = { email: "Email required" };
-      setError(errorOnSubmit);
-      return;
-    }
-    if (!validateEmail(email)) {
+    
+    if (!validateEmail(email) && email) {
       errorOnSubmit = { email: "Invalid email" };
       setError(errorOnSubmit);
       return;
-    }
-    if (!value) {
-      errorOnSubmit = { phone: "Phone required" };
-      setError(errorOnSubmit);
-      return;
-    }
-    if (!isValidPhoneNumber(value)) {
+    }    
+    if (!isValidPhoneNumber(value) && value) {
       errorOnSubmit = { phone: "Invalid phone" };
       setError(errorOnSubmit);
       return;
