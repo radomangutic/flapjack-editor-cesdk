@@ -1,7 +1,7 @@
 import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { IconChevronDown, IconLogout, IconMail } from "@tabler/icons";
-import { useDialog, useSetUser, useUser } from "../hooks";
+import { IconChevronDown, IconLogout, IconMail,IconSettings } from "@tabler/icons";
+import { useDialog, useSetUser, useUser, } from "../hooks";
 import AuthDialog from "./AuthDialog";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -99,6 +99,13 @@ const AppHeader = () => {
 
             <Menu.Dropdown>
               <Menu.Label>Application</Menu.Label>
+              {session?.role === "flapjack" && (
+                  <Link href={`/dashboard`} target="_blank" rel="noreferrer">
+                    <Menu.Item icon={<IconSettings size={14} />}>
+                     Dashboard
+                    </Menu.Item>
+                  </Link>
+                )}
               <a
                 href="mailto:Howdy@Flapjack.co"
                 target="_blank"
