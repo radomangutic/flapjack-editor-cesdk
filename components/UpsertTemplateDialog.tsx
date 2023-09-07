@@ -67,37 +67,17 @@ const UpsertTemplateDialog = ({
       const file = new Blob([content], { type: "text/plain" });
 
       let contentUpload = "";
-      if (isUpdating && template?.content) {
-        await dbClient.storage.from("templates").remove([template?.content]);
-        const { data, error }: { data: any; error: any } =
-          await dbClient.storage.from("templates").upload(uuidv4(), file);
-        if (error) {
-          return;
-        } else {
-          contentUpload = data?.path;
-        }
-      } else {
-        const { data, error }: { data: any; error: any } =
-          await dbClient.storage.from("templates").upload(uuidv4(), file);
-        if (error) {
-          return;
-        } else {
-          contentUpload = data?.path;
-        }
-      }
       const userCanUpdate =
         user?.role === "flapjack" ||
-        (!template?.isGlobal && user?.subscriptionActive);
-      if (isUpdating && userCanUpdate) {
-        const { error } = await supabase
+        (!template?.isGlobal && user?.subscriptionActive) ||
+        user?.role === "owner";
+      if (isUpdating && template?.content && userCanUpdate) {
+        const { data, error } = await supabase.storage
           .from("templates")
-          .update({
-            name: values?.name,
-            description: values?.description,
-            content: contentUpload,
-            updatedAt: new Date(),
-          })
-          .eq("id", router.query.id);
+          .update(`${template?.content}`, file);
+        if (error) {
+          return;
+        }
         if (values?.coverImage) {
           const folderPath: string = `renderings/${router.query.id}`;
           const isEsist = await checkFileExists();
@@ -113,8 +93,16 @@ const UpsertTemplateDialog = ({
               .upload("coverImage", values?.coverImage);
           }
         }
-        if (error) throw error;
       } else {
+        const { data, error }: { data: any; error: any } =
+          await dbClient.storage.from("templates").upload(uuidv4(), file);
+        if (error) {
+          return;
+        } else {
+          contentUpload = data?.path;
+        }
+      }
+      if (!isUpdating) {
         const { error, data } = await supabase
           .from("templates")
           .insert({
