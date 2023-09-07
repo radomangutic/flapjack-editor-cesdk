@@ -40,6 +40,7 @@ const useStyles = createStyles((theme) => ({
 interface ILoginErrors {
   email?: string;
   phone?: string;
+  apiError?: string;
 }
 const validateEmail = (email: string) => {
   return String(email)
@@ -103,7 +104,7 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
             : "";
 
         errorOnSubmit = {
-          phone: getErrortype ? customMessage : error?.message,
+          apiError: getErrortype ? customMessage : error?.message,
         };
         setError(errorOnSubmit);
         setisLoading(false);
@@ -176,7 +177,7 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
           defaultCountry="US"
         />
 
-        {error && (
+        {error?.phone && (
           <Text fz={"sm"} color={"red"} mt={10}>
             {error?.phone}
           </Text>
@@ -198,6 +199,11 @@ const UpdateUser = ({ onClose, newUser, selectedUser }: Props) => {
           </Text>
         )}
       </Box>
+      {error?.apiError && (
+          <Text fz={"sm"} color={"red"} mt={10}>
+            {error?.apiError}
+          </Text>
+        )}
       <div
         style={{
           display: "flex",

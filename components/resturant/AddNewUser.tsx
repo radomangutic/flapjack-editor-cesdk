@@ -154,7 +154,6 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
     };
     getOptions();
   }, []);
-
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
       <Box>
@@ -227,7 +226,7 @@ const AddNewUser = ({ onClose, newUser }: Props) => {
           color="red"
           onClick={handleSubmit}
           loading={isLoading}
-          disabled={!resturantId || !email || !value}
+          disabled={!resturantId || (!email && !value)}
         >
           Add
         </Button>
