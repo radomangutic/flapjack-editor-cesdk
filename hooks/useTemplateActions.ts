@@ -31,6 +31,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
@@ -56,6 +58,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
@@ -120,6 +124,7 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
     }
   };
 
@@ -142,6 +147,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
   const refreshTemplate = async (id: number) => {
@@ -168,6 +175,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
