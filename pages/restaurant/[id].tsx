@@ -27,7 +27,7 @@ const ResturantManage = ({
   const [selectedUser, setselectedUser] = useState<IUserDetails | null>(null);
   const [allUsers, setallUsers] = useState<IUserDetails[]>(profiles);
   const [isLoading, setisLoading] = useState(false);
-  const [isUserTableSelect, setisUserTableSelect] = useState(false);
+  const [isUserTableSelect, setisUserTableSelect] = useState(true);
   if (user?.role !== "owner") {
     return <PrivatePage />;
   }
@@ -146,7 +146,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("restaurant_id", id);
+    .eq("restaurant_id", id).neq("role", "flapjack")
   const resturantDetail = await supabase
     .from("restaurants")
     .select("*")

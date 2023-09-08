@@ -63,7 +63,7 @@ export function UsersTable({
             {item.role}
           </Text>
         </td>
-
+        
         {!hideAction && (
           <td>
             <Group spacing={0} position="right">
@@ -92,7 +92,7 @@ export function UsersTable({
       </tr>
     );
   });
-
+  
   return (
     <ScrollArea>
       <Table verticalSpacing="sm">

@@ -424,7 +424,7 @@ const TemplateHeader = ({
                     rel="noreferrer"
                   >
                     <Menu.Item icon={<IconSettings size={14} />}>
-                      Restaurant Settings
+                      Settings
                     </Menu.Item>
                   </Link>
                 )}
