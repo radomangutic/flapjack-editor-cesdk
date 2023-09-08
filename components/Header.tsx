@@ -22,11 +22,7 @@ const AppHeader = () => {
       >
         <Box
           sx={{ cursor: "pointer" }}
-          onClick={() =>
-            window.history.length > 2
-              ? router.back()
-              : router.push("/templates")
-          }
+          onClick={() => router.push("/templates")}
         >
           <Flex align="center" style={{ cursor: "pointer" }}>
             <svg

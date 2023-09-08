@@ -5,7 +5,7 @@ import TemplateCardOverlay from "./TemplateCardOverlay";
 import { useUser } from "../../hooks";
 
 export type RemoveTemplate =
-  | ((id: number, content: string) => Promise<void>)
+  | ((template: ITemplateDetails) => Promise<void>)
   | undefined;
 export type DuplicateTemplate =
   | ((
