@@ -145,6 +145,9 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       }
       const { data, error } = await dbClient.auth.signInWithOtp({
         email: value,
+        options: {
+          emailRedirectTo:  window.location.origin,
+        },
       });
       if (error) {
         errorOnSubmit = { email: error.message || "Something went wrong" };
