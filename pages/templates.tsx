@@ -118,7 +118,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .order("templateOrder", { ascending: true });
 
   let { data: folders } = await supabase.storage.from("renderings").list();
-  // console.log("thumbnails===>", folders);
 
   let thumbnails: any = {};
   folders?.forEach(async (folder) => {

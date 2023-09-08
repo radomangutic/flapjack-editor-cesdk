@@ -140,7 +140,6 @@ export default ResturantManage;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { id } = context.query;
-  console.log("dddd", id);
 
   const supabase = createServerSupabaseClient(context);
   // Fetch user profiles from Supabase where id matches

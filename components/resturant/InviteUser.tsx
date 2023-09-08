@@ -58,18 +58,15 @@ const InviteUserDesign = ({ onClose, resturantDetail }: Props) => {
           restaurantId: resturantDetail?.id,
         }),
       });
-      console.log("response===>", response);
       setisLoading(false)
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message);
         onClose();
       } else {
         console.error("Failed to send invitation");
       }
     } catch (error: any) {
-      console.log("An error occurred", error);
       setisLoading(false)
 
       setError(error?.message);

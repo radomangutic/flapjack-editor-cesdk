@@ -75,7 +75,10 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
   const [value, setValue] = useState<string>("");
   const [email, setemail] = useState<string>("");
   const [resturantId, setResturantId] = useState();
-  console.log("resturantId", resturantId);
+  const [userRole, setuserRole] = useState({
+    label: "owner",
+    value: "1",
+  });
 
   let errorOnSubmit;
 
@@ -96,12 +99,12 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
         setisLoading(false);
         return;
       }
-      console.log("data", data);
 
       const updateUser = await supabase
         .from("profiles")
         .update({
           restaurant_id: resturantId,
+          role: userRole?.label,
         })
         .eq("id", data.user?.id)
         .single();
@@ -110,7 +113,6 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
         .select("*")
         .eq("id", data.user?.id)
         .single();
-      console.log("updateUser", updateUser);
 
       if (!error) {
         newUser(response.data);
@@ -118,7 +120,6 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
       }
       setisLoading(false);
     } catch (error: any) {
-      console.log("An error occurred", error);
       setisLoading(false);
       setError(error?.message);
     }
@@ -126,20 +127,38 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
 
   const handleSubmit = async () => {
     setError({});
-
+    if (!value) {
+      errorOnSubmit = { phone: "Phone number required" };
+      setError(errorOnSubmit);
+      return;
+    }
+    if (!isValidPhoneNumber(value)) {
+      errorOnSubmit = { phone: "Invalid phone" };
+      setError(errorOnSubmit);
+      return;
+    }
     if (!validateEmail(email) && email) {
       errorOnSubmit = { email: "Invalid email" };
       setError(errorOnSubmit);
       return;
     }
-    if (!isValidPhoneNumber(value) && value) {
-      errorOnSubmit = { phone: "Invalid phone" };
-      setError(errorOnSubmit);
-      return;
-    }
+
     await handleCreateUser();
   };
-
+  const roleData = [
+    {
+      label: "owner",
+      value: "1",
+    },
+    {
+      label: "user",
+      value: "2",
+    },
+    {
+      label: "flapjack",
+      value: "3",
+    },
+  ];
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
       <Box>
@@ -193,6 +212,26 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
           }
         />
       </Box>
+      <Box mt={10}>
+        <Select
+          label="Select user role"
+          placeholder="Select user role"
+          data={roleData}
+          searchable
+          onChange={(value: any) => {
+            const findValue = roleData?.find((i) => i?.value === value);
+            if (findValue) {
+              setuserRole(findValue);
+            }
+          }}
+          maxDropdownHeight={400}
+          nothingFound="Resturant not found"
+          filter={(value: string, item: any) =>
+            item.label.toLowerCase().includes(value.toLowerCase().trim())
+          }
+          value={userRole?.value}
+        />
+      </Box>
       {error?.apiError && (
         <Text fz={"sm"} color={"red"} mt={10}>
           {error?.apiError}
@@ -212,7 +251,7 @@ const AddNewUser = ({ onClose, newUser, resturantsOptions }: Props) => {
           color="red"
           onClick={handleSubmit}
           loading={isLoading}
-          disabled={!resturantId || (!email && !value)}
+          disabled={!resturantId || !value}
         >
           Add
         </Button>

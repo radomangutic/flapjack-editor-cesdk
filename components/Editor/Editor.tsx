@@ -457,7 +457,6 @@ const Editor = ({ template }: { template: ITemplateDetails | null }) => {
       setloading(false);
     }
   };
-  console.log(templateModal);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />

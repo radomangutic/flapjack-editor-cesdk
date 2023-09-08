@@ -183,7 +183,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       const { data, error } = await dbClient.auth.signInWithOtp({
         phone: value,
       });
-      console.log("data", data);
 
       if (error) {
         errorOnSubmit = { phone: error.message || "Something went wrong" };
@@ -203,7 +202,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       token: otp,
       type: "sms",
     });
-    console.log("data", data);
 
     if (error) {
       setError({ phone: "Invalid Otp" });

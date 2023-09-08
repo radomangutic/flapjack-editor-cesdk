@@ -102,7 +102,6 @@ export const useTemplateActions = (
             updatedAt: new Date(),
           })
           .select();
-        console.log("duplicateData", storageLink, coppyError);
         if (duplicateError) throw duplicateError;
         const { data: imagesData, error: imagesError } = await supabase.storage
           .from("renderings")

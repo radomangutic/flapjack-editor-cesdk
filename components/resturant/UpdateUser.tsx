@@ -65,19 +65,43 @@ interface Props {
   onClose: () => void;
   newUser: (user: IUserDetails) => void;
   selectedUser: IUserDetails | null;
-  resturantsOptions:any
+  resturantsOptions: any;
 }
-const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props) => {
+const roleData = [
+  {
+    label: "owner",
+    value: "1",
+  },
+  {
+    label: "user",
+    value: "2",
+  },
+  {
+    label: "flapjack",
+    value: "3",
+  },
+];
+const UpdateUser = ({
+  onClose,
+  newUser,
+  selectedUser,
+  resturantsOptions,
+}: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
-  const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
   const user = useUser();
   const [error, setError] = useState<ILoginErrors>({});
   const [resturantId, setResturantId] = useState(selectedUser?.restaurant_id);
+  const [userRole, setuserRole] = useState<any>(
+    roleData?.find((i) => i?.label === selectedUser?.role)
+  );
+  const [value, setValue] = useState<string>(
+    selectedUser?.phone ? `+${selectedUser?.phone}` ?? "" : ""
+  );
 
-  const [value, setValue] = useState<string>(selectedUser?.phone?`+${selectedUser?.phone}` ?? "":"");
   const [email, setemail] = useState<string>(selectedUser?.email ?? "");
   let errorOnSubmit;
+
 
   const handleUpdateUser = async () => {
     if (!selectedUser) {
@@ -113,16 +137,13 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
         setisLoading(false);
         return;
       }
-      console.log("data", data);
       await supabase
         .from("profiles")
-        .update({ email: email, phone: value.slice(1) })
-        .eq("id", data.user?.id)
-        .single();
-        const updateUser = await supabase
-        .from("profiles")
         .update({
+          email: email,
+          phone: value.slice(1),
           restaurant_id: resturantId,
+          role: userRole?.label,
         })
         .eq("id", data.user?.id)
         .single();
@@ -137,7 +158,6 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
       }
       setisLoading(false);
     } catch (error: any) {
-      console.log("An error occurred", error);
       setisLoading(false);
 
       setError(error?.message);
@@ -146,21 +166,24 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
 
   const handleSubmit = async () => {
     setError({});
-    
-    if (!validateEmail(email) && email) {
-      errorOnSubmit = { email: "Invalid email" };
+    if (!value) {
+      errorOnSubmit = { phone: "Phone number required" };
       setError(errorOnSubmit);
       return;
-    }   
+    }
     if (!isValidPhoneNumber(value) && value) {
       errorOnSubmit = { phone: "Invalid phone" };
       setError(errorOnSubmit);
       return;
     }
+    if (!validateEmail(email) && email) {
+      errorOnSubmit = { email: "Invalid email" };
+      setError(errorOnSubmit);
+      return;
+    }
+
     await handleUpdateUser();
   };
-
-  console.log(selectedUser?.restaurant_id);
 
   return (
     <Paper m="auto" my={4} p={4} style={{ maxWidth: "500px" }}>
@@ -214,6 +237,26 @@ const UpdateUser = ({ onClose, newUser, selectedUser,resturantsOptions }: Props)
             item.label.toLowerCase().includes(value.toLowerCase().trim())
           }
           value={resturantId}
+        />
+      </Box>
+      <Box mt={10}>
+        <Select
+          label="Select user role"
+          placeholder="Select user role"
+          data={roleData}
+          searchable
+          onChange={(value: any) => {
+            const findValue = roleData?.find((i) => i?.value === value);
+            if (findValue) {
+              setuserRole(findValue);
+            }
+          }}
+          maxDropdownHeight={400}
+          nothingFound="Resturant not found"
+          filter={(value: string, item: any) =>
+            item.label.toLowerCase().includes(value.toLowerCase().trim())
+          }
+          value={userRole?.value}
         />
       </Box>
       {error?.apiError && (
