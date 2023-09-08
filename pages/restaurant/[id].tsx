@@ -89,9 +89,11 @@ const ResturantManage = ({
               </Button>
             </Flex>
             <UsersTable
-              setselectedUser={setselectedUser}
               data={allUsers}
-              setmodalType={setmodalType}
+              onDelete={(item) => {
+                setselectedUser(item);
+                setmodalType("removeUser");
+              }}
             />
           </>
         ) : (

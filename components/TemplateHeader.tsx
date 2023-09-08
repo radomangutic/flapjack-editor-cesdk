@@ -96,6 +96,7 @@ const TemplateHeader = ({
   const activeClassFun = (value: string) => {
     // @ts-ignore
     navMenu && setNavMenu(value);
+    localStorage.setItem("activeTab", value);
   };
 
   let editorEmpty = false;
@@ -290,7 +291,6 @@ const TemplateHeader = ({
                 } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
-                  router.push("/templates?myMenu");
                   activeClassFun("myMenu");
                 }}
               >
@@ -329,7 +329,6 @@ const TemplateHeader = ({
                   fz="sm"
                   ml="sm"
                   onClick={() => {
-                    router.push("/templates");
                     activeClassFun("templates");
                   }}
                 >
@@ -429,7 +428,13 @@ const TemplateHeader = ({
                     </Menu.Item>
                   </Link>
                 )}
-
+                {user?.role === "flapjack" && (
+                  <Link href={`/dashboard`} target="_blank" rel="noreferrer">
+                    <Menu.Item icon={<IconSettings size={14} />}>
+                     Dashboard
+                    </Menu.Item>
+                  </Link>
+                )}
                 <a
                   href="mailto:Howdy@Flapjack.co"
                   target="_blank"

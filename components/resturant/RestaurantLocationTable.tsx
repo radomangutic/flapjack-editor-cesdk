@@ -85,7 +85,6 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
       setlocations(newLocation);
       return response.data || null;
     } catch (error: any) {
-      console.log("Error updating restaurant location:", error.message);
       return null;
     }
   }
@@ -122,7 +121,6 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
         .update({ location: isEditLocation })
         .eq("location", selectedLocation)
         .eq("restaurant_id", data?.id);
-      console.log("resonse,resonse", resonse);
       if (resonse) {
         setlocations(resonse?.location);
       }
@@ -135,7 +133,6 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
         ...locations,
         selectedLocation,
       ]);
-      console.log("resonse,resonse", resonse);
       if (resonse) {
         setlocations(resonse?.location);
       }
