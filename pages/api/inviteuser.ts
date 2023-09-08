@@ -7,10 +7,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { phone, restaurantName,restaurantId } = JSON.parse(req.body);
+  const { phone, restaurantName, restaurantId } = JSON.parse(req.body);
   try {
-    const messageBody = `📲 ${restaurantName} Invite 📲\nHello,\nYou've been invited to join ${restaurantName}! Click the link below to get started:\n${process.env.SITE_DOMAIN}/templates?phone=${phone}&id=${restaurantId}\nIf you didn't request this invitation, please ignore this message.\nBest regards,\n${restaurantName}`;
-    console.log(messageBody)
+    const messageBody = `You've been invited to edit menus on Flapjack for ${restaurantName}. Please create an account with this link: \n${process.env.SITE_DOMAIN}/templates?phone=${phone}&id=${restaurantId}\n to join your team!`;
+
+    console.log(messageBody);
     const message = await client.messages.create({
       body: messageBody,
       from: process.env.TWILLO_PHONE,
