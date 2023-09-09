@@ -254,24 +254,6 @@ const Editor = ({
           async (instance: any) => {
             instance.addDefaultAssetSources();
             instance.addDemoAssetSources();
-            instance.engine.asset.addAssetToSource("ly.img.text", {
-              id: "ocean-waves-1",
-              label: {
-                en: "relaxing ocean waves",
-                es: "olas del mar relajantes",
-                
-              },
-              tags: {
-                en: ["ocean", "waves", "soothing", "slow"],
-                es: ["mar", "olas", "calmante", "lento"],
-              },
-              meta: {
-                fontScale: 5,
-                fontWeight: [700, 800, 900, 600, 500],
-                blockType: "//ly.img.ubq/text",
-              },
-            });
-
             setinput(input + 1);
             if (template?.content) {
               await instance.engine.scene.loadFromURL(
