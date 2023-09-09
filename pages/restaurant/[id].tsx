@@ -89,7 +89,7 @@ const ResturantManage = ({
               </Button>
             </Flex>
             <UsersTable
-              data={allUsers?.filter((item)=>item?.id !== user?.id)}
+              data={allUsers}
               onDelete={(item) => {
                 setselectedUser(item);
                 setmodalType("removeUser");
