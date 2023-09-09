@@ -58,10 +58,12 @@ const InviteUserDesign = ({ onClose, resturantDetail, allUsers }: Props) => {
         setError("Invalid phone");
         return;
       }
-      const userAlreadyMember = allUsers?.find((user) => user?.phone === value?.slice(1));
+      const userAlreadyMember = allUsers?.find(
+        (user) => user?.phone === value?.slice(1)
+      );
       if (userAlreadyMember) {
         setError("User already a member of your restaurant");
-        return
+        return;
       }
       setisLoading(true);
       const checkUserExist = await supabase
@@ -79,15 +81,12 @@ const InviteUserDesign = ({ onClose, resturantDetail, allUsers }: Props) => {
           .eq("id", isUserExist?.id)
           .single();
       }
-
-      console.log("response", checkUserExist?.data);
-
       const response = await fetch("/api/inviteuser", {
         method: "POST",
         body: JSON.stringify({
           phone: value,
           restaurantName: resturantDetail?.name,
-          restaurantId: resturantDetail?.id,
+          restaurantId: isUserExist ? null : resturantDetail?.id,
           isUserExist: isUserExist ? true : false,
         }),
       });
@@ -96,13 +95,11 @@ const InviteUserDesign = ({ onClose, resturantDetail, allUsers }: Props) => {
       if (response.ok) {
         const data = await response.json();
         onClose();
-      } else {
-        console.error("Failed to send invitation");
-      }
+      } 
     } catch (error: any) {
       setisLoading(false);
-
       setError(error?.message);
+      throw error
     }
   };
   const handleSubmit = async () => {
