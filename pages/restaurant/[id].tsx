@@ -89,7 +89,7 @@ const ResturantManage = ({
               </Button>
             </Flex>
             <UsersTable
-              data={allUsers}
+              data={allUsers?.filter((item)=>item?.id !== user?.id)}
               onDelete={(item) => {
                 setselectedUser(item);
                 setmodalType("removeUser");
@@ -111,6 +111,8 @@ const ResturantManage = ({
                 <InviteUserDesign
                   resturantDetail={resturantDetail}
                   onClose={() => setmodalType("empty")}
+                allUsers={allUsers}
+
                 />
               </CommanModal>
             ),
