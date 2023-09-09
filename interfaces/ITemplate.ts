@@ -9,6 +9,7 @@ export interface ITemplate {
 
 export interface ITemplateDetails extends ITemplate {
   id: number;
+  tags?: string[];
   isGlobal: boolean;
   createdBy: string;
   menuSize?: string;
