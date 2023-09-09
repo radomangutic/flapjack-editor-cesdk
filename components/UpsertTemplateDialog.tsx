@@ -12,7 +12,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { useUser } from "../hooks";
+import { templateArchive, useUser } from "../hooks";
 import { ITemplate } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
@@ -72,6 +72,7 @@ const UpsertTemplateDialog = ({
         (!template?.isGlobal && user?.subscriptionActive) ||
         user?.role === "owner";
       if (isUpdating && template?.content && userCanUpdate) {
+        await templateArchive(template);
         const { data, error } = await supabase.storage
           .from("templates")
           .update(`${template?.content}`, file);
@@ -145,8 +146,6 @@ const UpsertTemplateDialog = ({
   };
   const checkFileExists = async () => {
     const response = await fetch(filUrl);
-    console.log('response',response);
-    
     return response?.status === 200;
   };
   useEffect(() => {

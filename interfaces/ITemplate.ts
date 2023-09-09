@@ -3,11 +3,12 @@ export interface ITemplate {
   description: string;
   content: any;
   isGlobal: boolean;
+  id: number;
+  createdBy: string;
 }
 
 export interface ITemplateDetails extends ITemplate {
   id: number;
-  tags: string[];
   isGlobal: boolean;
   createdBy: string;
   menuSize?: string;
