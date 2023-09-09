@@ -98,10 +98,10 @@ const UpsertFontDialog = ({
     },
     validate: {
       name: (value: string) => (value ? null : "Required"),
-      titleFont: (value: string) => (value ? null : "Required"),
-      menuFont: (value: string) => (value ? null : "Required"),
-      headerFont: (value: string) => (value ? null : "Required"),
-      bodyFont: (value: string) => (value ? null : "Required"),
+      titleFont: (value: any) => (value ? null : "Required"),
+      menuFont: (value: any) => (value ? null : "Required"),
+      headerFont: (value: any) => (value ? null : "Required"),
+      bodyFont: (value: any) => (value ? null : "Required"),
     },
   });
 
