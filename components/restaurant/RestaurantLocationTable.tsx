@@ -17,7 +17,7 @@ import { IconPencil, IconTrash } from "@tabler/icons";
 import { IUserDetails } from "../../interfaces";
 import { RestaurantType } from "../../interfaces/RestaurantType";
 import { useState } from "react";
-import CommanModal from "../CommanModal";
+import CommanModal from "../CommonModal";
 import RemoveUser from "./RemoveUser";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { dbClient } from "../../tests/helpers/database.helper";
