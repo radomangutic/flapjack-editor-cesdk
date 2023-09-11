@@ -61,6 +61,7 @@ const Editor = ({
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
+  const [libraryElementsList, setlibraryElementsList] = useState(elementsList);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -294,8 +295,8 @@ const Editor = ({
 
             async findAssets(queryData: any) {
               return Promise.resolve({
-                assets: elementsList,
-                total: elementsList.length,
+                assets: libraryElementsList,
+                total: libraryElementsList.length,
                 currentPage: queryData.page,
                 nextPage: undefined,
               });
@@ -351,7 +352,7 @@ const Editor = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cesdkContainer]);
+  }, [cesdkContainer,libraryElementsList]);
 
   const enablePreviewMode = () => {
     var elementWithShadowRoot = document.querySelector(
@@ -397,6 +398,14 @@ const Editor = ({
       var count = shadowRoot?.querySelector(
         `${leftPanel} div div `
       )?.childElementCount;
+      const sideBarPanel =
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div div div div button";
+      var sideBarPanelList = shadowRoot?.querySelector(
+        `${sideBarPanel}`
+      ) as HTMLElement;
+      if (sideBarPanelList) {
+        sideBarPanelList.style.backgroundSize = "contain";
+      }
       if (count === 2) {
         var element = shadowRoot?.querySelector(
           `${leftPanel} div div section `
@@ -657,6 +666,29 @@ const Editor = ({
               thumbnail: response?.data?.path,
             })
             .eq("id", data?.id);
+          const imagePath = `${
+            process.env.NEXT_PUBLIC_SUPABASE_URL
+          }/storage/v1/object/public/elementsThumbnail/${
+            response?.data?.path
+          }?${Date.now()}`;
+          const newItem = {
+            id: data?.id?.toString(),
+            createdBy: user?.id || null,
+            meta: {
+              uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
+              blockType: "//ly.img.ubq/text",
+              thumbUri: imagePath,
+              width: 100,
+              height: 10,
+              value: savedBlocks,
+              name: "dddddwestg",
+            },
+            context: {
+              sourceId: "textgroup",
+            },
+          };
+          setlibraryElementsList([...libraryElementsList, newItem]);
+          console.log("newItem", newItem);
         }
       } else {
         const value = await cesdkInstance?.current.save();
