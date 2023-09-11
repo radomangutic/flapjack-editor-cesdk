@@ -52,7 +52,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       }/storage/v1/object/public/elementsThumbnail/${
         item.thumbnail
       }?${i}${Date.now()}`;
-      console.log(imagePath);
       
       return {
         id: item?.id?.toString(),

@@ -650,8 +650,8 @@ const Editor = ({
         const saveAbleId = isGroupable ? [group] : selectedIds;
         const savedBlocks =
           await cesdkInstance?.current.engine.block.saveToString(saveAbleId);
-        const mimeType = "image/jpeg";
-        const options = { jpegQuality: Number(1) };
+        const mimeType = "image/png";
+        const options = { pngCompressionLevel: 0 };
         const blob = await cesdkInstance?.current.engine.block.export(
           saveAbleId[0],
           mimeType,
