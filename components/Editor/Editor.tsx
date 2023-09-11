@@ -616,36 +616,58 @@ const Editor = ({
   };
 
   const saveToLibrary = async () => {
-    if (template) {
-      const selectedIds =
-        cesdkInstance?.current.engine?.block?.findAllSelected();
-      const isGroupable =
-        cesdkInstance?.current.engine.block.isGroupable(selectedIds) &&
-        selectedIds?.lenght > 1;
+    try {
+      if (template) {
+        const selectedIds =
+          cesdkInstance?.current.engine?.block?.findAllSelected();
+        const isGroupable =
+          cesdkInstance?.current.engine.block.isGroupable(selectedIds) &&
+          selectedIds?.lenght > 1;
 
-      const group = isGroupable
-        ? cesdkInstance?.current?.engine.block.group(selectedIds)
-        : false;
-      const savedBlocks =
-        await cesdkInstance?.current.engine.block.saveToString(
-          isGroupable ? [group] : selectedIds
+        const group = isGroupable
+          ? cesdkInstance?.current?.engine.block.group(selectedIds)
+          : false;
+        const saveAbleId = isGroupable ? [group] : selectedIds;
+        const savedBlocks =
+          await cesdkInstance?.current.engine.block.saveToString(saveAbleId);
+        const mimeType = "image/jpeg";
+        const options = { jpegQuality: Number(1) };
+        const blob = await cesdkInstance?.current.engine.block.export(
+          saveAbleId[0],
+          mimeType,
+          options
         );
-
-      const { error, data } = await supabase
-        .from("ElementLibrary")
-        .insert({
-          element: savedBlocks,
-          template_id: template?.id,
-          createdBy: user?.id,
-        })
-        .select();
-    } else {
-      const value = await cesdkInstance?.current.save();
-      if (user) {
-        saveTemplate(value);
+        const { error, data } = await supabase
+          .from("ElementLibrary")
+          .insert({
+            element: savedBlocks,
+            template_id: template?.id,
+            createdBy: user?.id,
+            thumbnail: "",
+          })
+          .select()
+          .single();
+        if (data) {
+          const response = await dbClient.storage
+            .from("elementsThumbnail")
+            .upload(uuidv4(), blob);
+          await supabase
+            .from("ElementLibrary")
+            .update({
+              thumbnail: response?.data?.path,
+            })
+            .eq("id", data?.id);
+        }
       } else {
-        openAuthDialog();
+        const value = await cesdkInstance?.current.save();
+        if (user) {
+          saveTemplate(value);
+        } else {
+          openAuthDialog();
+        }
       }
+    } catch (error) {
+      console.log("error", error);
     }
   };
   return (
