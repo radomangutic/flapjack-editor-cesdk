@@ -16,6 +16,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
 import { useSetUser, useUser } from "../hooks";
+import { useRouter } from "next/router";
 
 interface IAuthDialogProps {
   opened: boolean;
@@ -92,8 +93,14 @@ const SalesContent = () => {
 };
 
 const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
+  const router = useRouter();
+  const userPhoneByUrl = router?.query?.phone;
+  const restaurantId = router?.query?.id;
+
   const setUser = useSetUser();
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(
+    userPhoneByUrl ? `+${userPhoneByUrl}` : ""
+  );
   const [isSendLoginEmail, setIsSendLoginEmail] = useState("");
   const [loginWithEmail, setLoginWithEmail] = useState(false);
   const [otpScreen, setOtpScreen] = useState(false);
@@ -145,6 +152,9 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       }
       const { data, error } = await dbClient.auth.signInWithOtp({
         email: value,
+        options: {
+          emailRedirectTo:  window.location.origin,
+        },
       });
       if (error) {
         errorOnSubmit = { email: error.message || "Something went wrong" };
@@ -176,6 +186,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       const { data, error } = await dbClient.auth.signInWithOtp({
         phone: value,
       });
+
       if (error) {
         errorOnSubmit = { phone: error.message || "Something went wrong" };
         setError(errorOnSubmit);
@@ -197,6 +208,15 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
 
     if (error) {
       setError({ phone: "Invalid Otp" });
+    }
+    if (restaurantId) {
+      await dbClient
+        .from("profiles")
+        .update({
+          restaurant_id: restaurantId,
+        })
+        .eq("id", data?.user?.id);
+      router.push("/templates");
     }
 
     setUser?.(data?.user);

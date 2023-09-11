@@ -13,27 +13,21 @@ export const useTemplateActions = (
   const supabase = useSupabaseClient();
   const router = useRouter();
   const user = useUser();
-  const deleteTemplate = async (id: number, content: string) => {
+  const deleteTemplate = async (template: ITemplateDetails) => {
     try {
-      if (id) {
-        const relatedFonts: Array<DeleteAssetsIDs> | null =
-          await fetchRelatedAssetIds(id, "fonts");
-        const relatedImages: Array<DeleteAssetsIDs> | null =
-          await fetchRelatedAssetIds(id, "assets");
-        await deleteRelatedAssetsFiles(relatedFonts, "fonts");
-        await deleteRelatedAssetsFiles(relatedImages, "templateImages");
-        await deleteRelatedAssets(relatedImages, "assets");
-        await deleteRelatedAssets(relatedFonts, "fonts");
-        await dbClient.storage.from("templates").remove([content]);
+      if (template) {
+        const { error: archiveError } = await supabase
+          .from("archive_templates")
+          .insert(template)
+          .select();
+        if (archiveError) throw archiveError; // if error it will return error
         const { error, status } = await dbClient
           .from("templates")
           .delete()
-          .eq("id", id);
-        if (error) throw error;
-        if (status === 204) {
-          let filteredItem = templates.filter((template) => template.id !== id);
-          await setTemplates(filteredItem);
-        }
+          .eq("id", template?.id);
+        if (error) throw error; // if error it will return error
+        let filteredItem = templates.filter((doc) => doc.id !== template?.id);
+        setTemplates(filteredItem);
       }
     } catch (err) {
       console.error(err);
@@ -184,13 +178,13 @@ export const useTemplateActions = (
       .eq("template_id", templateId);
 
     if (error) {
-      return null
+      return null;
     }
 
     return data;
   };
   const deleteRelatedAssets = async (
-    assetIds: Array<DeleteAssetsIDs>  | null,
+    assetIds: Array<DeleteAssetsIDs> | null,
     table: string
   ) => {
     if (assetIds) {
@@ -208,7 +202,7 @@ export const useTemplateActions = (
     }
   };
   const deleteRelatedAssetsFiles = async (
-    assetIds: Array<DeleteAssetsIDs>  | null,
+    assetIds: Array<DeleteAssetsIDs> | null,
     table: string
   ) => {
     if (assetIds) {
