@@ -61,7 +61,6 @@ const Editor = ({
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
-  const [libraryElementsList, setlibraryElementsList] = useState(elementsList);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -295,8 +294,8 @@ const Editor = ({
 
             async findAssets(queryData: any) {
               return Promise.resolve({
-                assets: libraryElementsList,
-                total: libraryElementsList.length,
+                assets: elementsList,
+                total: elementsList.length,
                 currentPage: queryData.page,
                 nextPage: undefined,
               });
@@ -352,7 +351,7 @@ const Editor = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cesdkContainer,libraryElementsList]);
+  }, [cesdkContainer]);
 
   const enablePreviewMode = () => {
     var elementWithShadowRoot = document.querySelector(
@@ -399,13 +398,25 @@ const Editor = ({
         `${leftPanel} div div `
       )?.childElementCount;
       const sideBarPanel =
-        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div div div div button";
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div div";
       var sideBarPanelList = shadowRoot?.querySelector(
         `${sideBarPanel}`
-      ) as HTMLElement;
+      )?.childElementCount;
       if (sideBarPanelList) {
-        sideBarPanelList.style.backgroundSize = "contain";
+        var removaAbleList = shadowRoot?.querySelector(`${sideBarPanel}`);
+        if (removaAbleList) {
+          for (let index = 0; index < sideBarPanelList; index++) {
+            const child = removaAbleList?.children;
+            const element = child[index];
+            const button = element?.children[0]?.children[0] as HTMLElement;
+
+            if (button) {
+              button.style.backgroundSize = "contain";
+            }
+          }
+        }
       }
+
       if (count === 2) {
         var element = shadowRoot?.querySelector(
           `${leftPanel} div div section `
@@ -686,9 +697,7 @@ const Editor = ({
             context: {
               sourceId: "textgroup",
             },
-          };
-          setlibraryElementsList([...libraryElementsList, newItem]);
-          console.log("newItem", newItem);
+          };          
         }
       } else {
         const value = await cesdkInstance?.current.save();
