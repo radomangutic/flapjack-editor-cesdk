@@ -141,7 +141,7 @@ export const fetchResturants = async (): Promise<any[]> => {
       const reseturantOptions = restaurantsData.map((item) => {
         return {
           label: item?.name,
-          value: item.id,
+          value: item.id?.toString(),
         };
       });
       restaurants = reseturantOptions;
