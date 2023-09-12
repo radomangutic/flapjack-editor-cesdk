@@ -140,8 +140,6 @@ const Editor = ({
                   // Text
                   {
                     ...defaultEntries[3],
-                    sourceIds: ["ly.img.text", "Custom component"],
-                    id: "Text",
                   },
                   // Images
                   {
@@ -150,17 +148,17 @@ const Editor = ({
                   },
                   // Shapes
                   defaultEntries[4],
-                  // {
-                  //   id: "Custom component",
-                  //   sourceIds: ["Custom component"],
-                  //   previewLength: 2,
-                  //   gridColumns: 2,
-                  //   previewBackgroundType: "cover",
-                  //   gridBackgroundType: "cover",
-                  //   icon: ({ theme, iconSize }: any) => {
-                  //     return "https://img.icons8.com/?size=1x&id=99192&format=png";
-                  //   },
-                  // },
+                  {
+                    id: "Custom component",
+                    sourceIds: ["Custom component"],
+                    previewLength: 2,
+                    gridColumns: 2,
+                    previewBackgroundType: "contain",
+                    gridBackgroundType: "cover",
+                    icon: ({ theme, iconSize }: any) => {
+                      return "https://img.icons8.com/?size=1x&id=99192&format=png";
+                    },
+                  },
                 ];
               },
             },
