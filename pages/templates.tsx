@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TemplateHeader from "../components/TemplateHeader";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import TemplateCard from "../components/TemplateGallery/TemplateCard";
-import { Container, SimpleGrid, Text } from "@mantine/core";
+import { Container, SimpleGrid, Skeleton, Text } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../interfaces/ITemplate";
 import {
@@ -10,15 +10,17 @@ import {
   useTemplateActions,
   fetchTemplates,
   fetchResturants,
+  getUser,
 } from "../hooks";
 import { useRouter } from "next/router";
 
 const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
+  const loadingArray = new Array(10).fill(0);
   const router = useRouter();
-  const user = useUser();
+  const user = getUser();
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
   const [navMenu, setNavMenu] = useState("templates");
-  const [loading, setloading] = useState(false);
+  const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
@@ -51,7 +53,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     };
     getOptions();
     fetchData();
-  }, [user, user?.id]);
+  }, [user?.id]);
 
   const templateData = templates?.filter((template) => {
     if (navMenu === "templates") {
@@ -108,7 +110,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const ungroupedMenus = templateData?.filter(
     (template) => !!!template?.restaurant_id
   );
-  if (user?.role === "flapjack" && resturantsOptions.length) {
+  if (
+    user?.role === "flapjack" &&
+    resturantsOptions.length &&
+    navMenu === "templates"
+  ) {
     return (
       <>
         <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
@@ -117,7 +123,24 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
           </Text>
           {loading ? (
-            <h1 style={{ textAlign: "center" }}>Loading...</h1>
+            <>
+              <SimpleGrid
+                cols={3}
+                breakpoints={[
+                  { maxWidth: 1120, cols: 3, spacing: "md" },
+                  { maxWidth: 991, cols: 2, spacing: "sm" },
+                  { maxWidth: 600, cols: 1, spacing: "sm" },
+                ]}
+              >
+                {loadingArray.map((item, i) => (
+                  <>
+                    <Skeleton key={i} visible={true} height={333}>
+                      Lorem ipsum dolor sit amet...
+                    </Skeleton>
+                  </>
+                ))}
+              </SimpleGrid>
+            </>
           ) : (
             <>
               {resturantsOptions.map((item: any, i) => {
@@ -133,13 +156,16 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
 
                 return (
                   <div key={i}>
-                    <Text style={{ fontSize: "26px" }} fw={'inherit'} my={"md"}>
+                    <Text
+                      style={{ fontSize: "26px" }}
+                      fw={"inherit"}
+                    >
                       {item?.label}
                     </Text>
 
                     {menus.map((item: any, i) => (
                       <div key={i}>
-                        <Text fz={"xl"} fw={'inherit'} my={"md"}>
+                        <Text fz={"xl"} fw={"inherit"} my={"md"}>
                           {item?.location}
                         </Text>
                         <SimpleGrid
@@ -149,6 +175,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             { maxWidth: 991, cols: 2, spacing: "sm" },
                             { maxWidth: 600, cols: 1, spacing: "sm" },
                           ]}
+                          sx={{ marginBottom: "80px" }}
                         >
                           {item?.menus?.length ? (
                             item?.menus.map((template: any, i: number) => (
@@ -178,7 +205,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             </>
           )}
           <div>
-            <Text style={{ fontSize: "26px" }} fw={'inherit'} my={"md"}>
+            <Text style={{ fontSize: "26px" }} fw={"inherit"} my={"md"}>
               Menu without restaurant
             </Text>
             <SimpleGrid
@@ -218,7 +245,24 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
           {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
         </Text>
         {loading ? (
-          <h1 style={{ textAlign: "center" }}>Loading...</h1>
+          <>
+            <SimpleGrid
+              cols={3}
+              breakpoints={[
+                { maxWidth: 1120, cols: 3, spacing: "md" },
+                { maxWidth: 991, cols: 2, spacing: "sm" },
+                { maxWidth: 600, cols: 1, spacing: "sm" },
+              ]}
+            >
+              {loadingArray.map((item, i) => (
+                <>
+                  <Skeleton key={i} visible={true} height={333}>
+                    Lorem ipsum dolor sit amet...
+                  </Skeleton>
+                </>
+              ))}
+            </SimpleGrid>
+          </>
         ) : user?.restaurant?.location?.length ? (
           <>
             {groupedMenus.map((item: any, i) => (
@@ -233,6 +277,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     { maxWidth: 991, cols: 2, spacing: "sm" },
                     { maxWidth: 600, cols: 1, spacing: "sm" },
                   ]}
+                  sx={{ marginBottom: "80px" }}
                 >
                   {item?.menus.map((template: any, i: number) => (
                     <TemplateCard
