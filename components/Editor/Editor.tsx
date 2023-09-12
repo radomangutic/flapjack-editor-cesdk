@@ -129,7 +129,7 @@ const Editor = ({
               save: true,
             },
           },
-          libraries: {
+          libraries: {           
             insert: {
               entries: (defaultEntries: any) => {
                 if (preview) {
@@ -140,6 +140,8 @@ const Editor = ({
                   // Text
                   {
                     ...defaultEntries[3],
+                    sourceIds: ["ly.img.text", "Custom component"],
+                    id: "Text",
                   },
                   // Images
                   {
@@ -148,17 +150,17 @@ const Editor = ({
                   },
                   // Shapes
                   defaultEntries[4],
-                  {
-                    id: "Custom component",
-                    sourceIds: ["textgroup"],
-                    previewLength: 2,
-                    gridColumns: 2,
-                    previewBackgroundType: "cover",
-                    gridBackgroundType: "cover",
-                    icon: ({ theme, iconSize }: any) => {
-                      return "https://img.icons8.com/?size=1x&id=99192&format=png";
-                    },
-                  },
+                  // {
+                  //   id: "Custom component",
+                  //   sourceIds: ["Custom component"],
+                  //   previewLength: 2,
+                  //   gridColumns: 2,
+                  //   previewBackgroundType: "cover",
+                  //   gridBackgroundType: "cover",
+                  //   icon: ({ theme, iconSize }: any) => {
+                  //     return "https://img.icons8.com/?size=1x&id=99192&format=png";
+                  //   },
+                  // },
                 ];
               },
             },
@@ -290,8 +292,8 @@ const Editor = ({
           const firstPage = instance.engine.block.findByType("page")[0];
 
           const customSource = {
-            id: "textgroup",
-
+            id: "Custom component",
+            previewBackgroundType: "contain",
             async findAssets(queryData: any) {
               return Promise.resolve({
                 assets: elementsList,
@@ -657,48 +659,43 @@ const Editor = ({
           mimeType,
           options
         );
+        const response = await dbClient.storage
+          .from("elementsThumbnail")
+          .upload(uuidv4(), blob);
+        if (!response?.data?.path) {
+          return;
+        }
         const { error, data } = await supabase
           .from("ElementLibrary")
           .insert({
             element: savedBlocks,
             template_id: template?.id,
             createdBy: user?.id,
-            thumbnail: "",
+            thumbnail: response?.data?.path,
           })
           .select()
           .single();
-        if (data) {
-          const response = await dbClient.storage
-            .from("elementsThumbnail")
-            .upload(uuidv4(), blob);
-          await supabase
-            .from("ElementLibrary")
-            .update({
-              thumbnail: response?.data?.path,
-            })
-            .eq("id", data?.id);
-          const imagePath = `${
-            process.env.NEXT_PUBLIC_SUPABASE_URL
-          }/storage/v1/object/public/elementsThumbnail/${
-            response?.data?.path
-          }?${Date.now()}`;
-          const newItem = {
-            id: data?.id?.toString(),
-            createdBy: user?.id || null,
-            meta: {
-              uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-              blockType: "//ly.img.ubq/text",
-              thumbUri: imagePath,
-              width: 100,
-              height: 10,
-              value: savedBlocks,
-              name: "dddddwestg",
-            },
-            context: {
-              sourceId: "textgroup",
-            },
-          };          
-        }
+        // const imagePath = `${
+        //   process.env.NEXT_PUBLIC_SUPABASE_URL
+        // }/storage/v1/object/public/elementsThumbnail/${
+        //   response?.data?.path
+        // }?${Date.now()}`;
+        // const newItem = {
+        //   id: data?.id?.toString(),
+        //   createdBy: user?.id || null,
+        //   meta: {
+        //     uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
+        //     blockType: "//ly.img.ubq/text",
+        //     thumbUri: imagePath,
+        //     width: 100,
+        //     height: 10,
+        //     value: savedBlocks,
+        //     name: "dddddwestg",
+        //   },
+        //   context: {
+        //     sourceId: "Custom component",
+        //   },
+        // };
       } else {
         const value = await cesdkInstance?.current.save();
         if (user) {

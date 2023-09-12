@@ -66,7 +66,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           name: "dddddwestg",
         },
         context: {
-          sourceId: "textgroup",
+          sourceId: "Custom component",
         },
       };
     });
