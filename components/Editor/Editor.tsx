@@ -16,7 +16,7 @@ import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 import { TailSpin } from "react-loader-spinner";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
-
+import {  toast } from 'react-toastify';
 import {
   Box,
   Button,
@@ -675,6 +675,7 @@ const Editor = ({
           })
           .select()
           .single();
+          toast.success("Component has been saved!");
         // const imagePath = `${
         //   process.env.NEXT_PUBLIC_SUPABASE_URL
         // }/storage/v1/object/public/elementsThumbnail/${
