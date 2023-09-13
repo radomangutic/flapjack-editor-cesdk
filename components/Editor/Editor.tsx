@@ -630,7 +630,7 @@ const Editor = ({
   };
 
   const saveToLibrary = async () => {
-    try {
+   try {
       setlibraryLoading(true);
       if (template) {
         const selectedIds =
@@ -729,6 +729,16 @@ const Editor = ({
           },
         };
         await cesdkInstance?.current.engine.asset.addSource(customSource);
+        var elementWithShadowRoot = document.querySelector(
+          "#cesdkContainer #root-shadow "
+        );  
+        var shadowRoot = elementWithShadowRoot?.shadowRoot;
+        const sideBarPanel =
+        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY div";
+      var sideBarPanelLibrary = shadowRoot?.querySelector(
+        `${sideBarPanel}`
+      )?.children[1]?.children[3] as HTMLElement;
+      sideBarPanelLibrary?.click()
       } else {
         const value = await cesdkInstance?.current.save();
         if (user) {
