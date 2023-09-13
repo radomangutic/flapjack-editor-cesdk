@@ -668,7 +668,6 @@ const Editor = ({
           })
           .select()
           .single();
-        toast.success("Component has been saved!");
         const imagePath = `${
           process.env.NEXT_PUBLIC_SUPABASE_URL
         }/storage/v1/object/public/elementsThumbnail/${
@@ -747,6 +746,8 @@ const Editor = ({
           openAuthDialog();
         }
       }
+      toast.success("Component has been saved!");
+
     } catch (error) {
       console.log("error", error);
     } finally {

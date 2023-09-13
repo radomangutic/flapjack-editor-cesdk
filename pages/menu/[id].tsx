@@ -44,7 +44,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let elementList: any;
 
   if (data) {
-    const elements = await supabase.from("ElementLibrary").select("*");
+    const elements = await supabase.from("ElementLibrary").select("*").order("created_at", { ascending: false });;
 
     elementList = elements?.data?.map((item, i) => {
       const imagePath = `${
