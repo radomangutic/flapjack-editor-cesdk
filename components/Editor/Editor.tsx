@@ -62,6 +62,7 @@ const Editor = ({
   const [fonts, setFonts] = useState<any>([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
   const [libraryLoading, setlibraryLoading] = useState(false);
+  const [libraryElements, setlibraryElements] = useState(elementsList);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -295,8 +296,8 @@ const Editor = ({
             previewBackgroundType: "contain",
             async findAssets(queryData: any) {
               return Promise.resolve({
-                assets: elementsList,
-                total: elementsList.length,
+                assets: libraryElements,
+                total: libraryElements.length,
                 currentPage: queryData.page,
                 nextPage: undefined,
               });
@@ -668,27 +669,69 @@ const Editor = ({
           .select()
           .single();
         toast.success("Component has been saved!");
-        // const imagePath = `${
-        //   process.env.NEXT_PUBLIC_SUPABASE_URL
-        // }/storage/v1/object/public/elementsThumbnail/${
-        //   response?.data?.path
-        // }?${Date.now()}`;
-        // const newItem = {
-        //   id: data?.id?.toString(),
-        //   createdBy: user?.id || null,
-        //   meta: {
-        //     uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-        //     blockType: "//ly.img.ubq/text",
-        //     thumbUri: imagePath,
-        //     width: 100,
-        //     height: 10,
-        //     value: savedBlocks,
-        //     name: "dddddwestg",
-        //   },
-        //   context: {
-        //     sourceId: "Custom component",
-        //   },
-        // };
+        const imagePath = `${
+          process.env.NEXT_PUBLIC_SUPABASE_URL
+        }/storage/v1/object/public/elementsThumbnail/${
+          response?.data?.path
+        }?${Date.now()}`;
+        const newItem = {
+          id: data?.id?.toString(),
+          createdBy: user?.id || null,
+          meta: {
+            uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
+            blockType: "//ly.img.ubq/text",
+            thumbUri: imagePath,
+            width: 100,
+            height: 10,
+            value: savedBlocks,
+            name: "dddddwestg",
+          },
+          context: {
+            sourceId: "Custom component",
+          },
+        };
+        const newList = [...libraryElements, newItem];
+        setlibraryElements(newList);
+        const fetchList = await cesdkInstance?.current.engine.asset?.findAssets('Custom component')
+        console.log("fetchList", fetchList);
+        console.log("newItem", newItem);
+
+        await cesdkInstance?.current.engine.asset.removeSource(
+          "Custom component"
+        );
+        const customSource = {
+          id: "Custom component",
+          previewBackgroundType: "contain",
+          async findAssets(queryData: any) {
+            return Promise.resolve({
+              assets: newList,
+              total: newList.length,
+              currentPage: queryData.page,
+              nextPage: undefined,
+            });
+          },
+          async applyAsset(assetResult: any) {
+            try {
+              const firstPage = cesdkInstance?.current.engine.block.findByType("page")[0];
+              const block = await cesdkInstance?.current.engine.block.loadFromString(
+                assetResult?.meta?.value
+              );
+              cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
+              await cesdkInstance?.current.engine.block.appendChild(firstPage, block[0]);
+              await cesdkInstance?.current.engine.block.setSelected(block[0], true);
+              await cesdkInstance?.current.engine.block.select(block[0]);
+            } catch (error) {
+              throw error;
+            }
+          },
+          async applyAssetToBlock(assetResult: any, block: any) {
+            cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
+              assetResult,
+              block
+            );
+          },
+        };
+        await cesdkInstance?.current.engine.asset.addSource(customSource);
       } else {
         const value = await cesdkInstance?.current.save();
         if (user) {
