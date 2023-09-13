@@ -690,11 +690,8 @@ const Editor = ({
             sourceId: "Custom component",
           },
         };
-        const newList = [...libraryElements, newItem];
-        setlibraryElements(newList);
-        const fetchList = await cesdkInstance?.current.engine.asset?.findAssets('Custom component')
-        console.log("fetchList", fetchList);
-        console.log("newItem", newItem);
+        const newList = [newItem,...libraryElements ];
+        setlibraryElements(newList);  
 
         await cesdkInstance?.current.engine.asset.removeSource(
           "Custom component"
