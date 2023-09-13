@@ -153,7 +153,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       const { data, error } = await dbClient.auth.signInWithOtp({
         email: value,
         options: {
-          emailRedirectTo:  window.location.origin,
+          emailRedirectTo: window.location.origin,
         },
       });
       if (error) {
@@ -327,6 +327,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
             <>
               <Box>
                 <TextInput
+                  id="email"
                   label="Email address"
                   placeholder="Enter your email address"
                   value={value}

@@ -2,9 +2,12 @@ import { test, expect } from "@playwright/test";
 
 test("Login with phone", async ({ page }) => {
   await page.goto("http://localhost:3000/templates");
-  await page.getByPlaceholder("Enter your phone number").click();
-  await page
-    .getByPlaceholder("Enter your phone number")
+  await  page
+  .locator(".PhoneInputInput")
+  .first().click();
+  await  page
+  .locator(".PhoneInputInput")
+  .first()
     .fill(`1208568${getRandomChar("0123456789")}`);
   await page.getByRole("button", { name: "Log in with Phone" }).click();
   await expect(page.getByRole("button", { name: "Verify Otp" })).toBeVisible();
@@ -13,9 +16,10 @@ test("Login with phone", async ({ page }) => {
 test("Login with email", async ({ page }) => {
   await page.goto("http://localhost:3000/templates");
   await page.getByRole("button", { name: "Log in with Email" }).click();
-  await page.getByPlaceholder("Enter your email address").click();
+  await page.locator("#email").first().click();
   await page
-    .getByPlaceholder("Enter your email address")
+    .locator("#email")
+    .first()
     .fill(
       `test${getRandomChar("abcdefghijklmnopqrstuvwxyz0123456789")}@email.com`
     );
