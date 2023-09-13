@@ -161,6 +161,7 @@ const Editor = ({
           });
         },
         onUpload: async (file: any) => {
+        try {
           let isAbleToExport = true;
           const data: any = await new Promise((resolve, reject) => {
             setUserData(async (user: any) => {
@@ -204,6 +205,9 @@ const Editor = ({
               },
             }
           );
+        } catch (error) {
+          throw error
+        }
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;

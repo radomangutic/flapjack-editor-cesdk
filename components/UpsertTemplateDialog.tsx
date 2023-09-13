@@ -125,8 +125,8 @@ const UpsertTemplateDialog = ({
         }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      throw err;
     } finally {
       setloader(false);
 
@@ -145,8 +145,8 @@ const UpsertTemplateDialog = ({
   };
   const checkFileExists = async () => {
     const response = await fetch(filUrl);
-    console.log('response',response);
-    
+    console.log("response", response);
+
     return response?.status === 200;
   };
   useEffect(() => {
