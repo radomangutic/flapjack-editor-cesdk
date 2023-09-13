@@ -264,7 +264,10 @@ export const templateArchive = async (template: ITemplateDetails) => {
     let archiveTemplateData = archiveTemplate?.[0];
     if (archiveTemplateData) {
       if (archiveTemplateData?.content?.length <= 4) {
-        const content = [...archiveTemplateData.content, newLocation];
+        const content = [
+          ...archiveTemplateData.content,
+          { content: newLocation, time: new Date() },
+        ];
         await dbClient
           .from("archive_templates")
           .update({ content })
@@ -276,7 +279,7 @@ export const templateArchive = async (template: ITemplateDetails) => {
           .remove([archiveTemplateData.content?.[0]]);
         if (error) throw error;
         content.shift();
-        content.push(newLocation);
+        content.push({ content: newLocation, time: new Date() });
         await dbClient
           .from("archive_templates")
           .update({ content })
@@ -285,7 +288,10 @@ export const templateArchive = async (template: ITemplateDetails) => {
     } else {
       const { error: archiveError } = await dbClient
         .from("archive_templates")
-        .insert({ ...template, content: [newLocation] })
+        .insert({
+          ...template,
+          content: [{ content: newLocation, time: new Date() }],
+        })
         .select();
       if (archiveError) throw archiveError; // if error it will return erro
     }
