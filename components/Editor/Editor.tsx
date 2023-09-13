@@ -156,7 +156,7 @@ const Editor = ({
                     previewLength: 2,
                     gridColumns: 2,
                     previewBackgroundType: "contain",
-                    gridBackgroundType: "cover",
+                    gridBackgroundType: "contain",
                     icon: ({ theme, iconSize }: any) => {
                       return "https://img.icons8.com/?size=1x&id=99192&format=png";
                     },
@@ -294,6 +294,8 @@ const Editor = ({
           const customSource = {
             id: "Custom component",
             previewBackgroundType: "contain",
+            gridBackgroundType: "contain",
+
             async findAssets(queryData: any) {
               return Promise.resolve({
                 assets: libraryElements,
@@ -698,6 +700,8 @@ const Editor = ({
         const customSource = {
           id: "Custom component",
           previewBackgroundType: "contain",
+          gridBackgroundType: "contain",
+
           async findAssets(queryData: any) {
             return Promise.resolve({
               assets: newList,

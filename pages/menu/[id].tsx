@@ -44,15 +44,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let elementList: any;
 
   if (data) {
-    const elements = await supabase.from("ElementLibrary").select("*").order("created_at", { ascending: false });;
-
+    const elements = await supabase
+      .from("ElementLibrary")
+      .select("*")
+      .order("created_at", { ascending: false });
     elementList = elements?.data?.map((item, i) => {
       const imagePath = `${
         process.env.NEXT_PUBLIC_SUPABASE_URL
       }/storage/v1/object/public/elementsThumbnail/${
         item.thumbnail
       }?${i}${Date.now()}`;
-      
+
       return {
         id: item?.id?.toString(),
         createdBy: item?.createdBy || null,
