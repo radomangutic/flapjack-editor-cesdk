@@ -16,7 +16,7 @@ import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 import { TailSpin } from "react-loader-spinner";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import {  toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import {
   Box,
   Button,
@@ -61,6 +61,7 @@ const Editor = ({
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
+  const [libraryLoading, setlibraryLoading] = useState(false);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -129,7 +130,7 @@ const Editor = ({
               save: true,
             },
           },
-          libraries: {           
+          libraries: {
             insert: {
               entries: (defaultEntries: any) => {
                 if (preview) {
@@ -486,37 +487,29 @@ const Editor = ({
       if (placeholderRemoveChild) {
         for (var i = 0; i < placeholderRemoveChild.length; i++) {
           var placeholderChild = placeholderRemoveChild[i];
-          if (placeholderChild?.textContent?.includes("Placeholder")) {
+          if (
+            placeholderChild?.textContent?.includes("Placeholder") ||
+            placeholderChild?.textContent?.includes("Save to Library") ||
+            placeholderChild?.textContent?.includes("Loading...")
+          ) {
             // Create the new element with the provided HTML structure
             var newElement = document.createElement("div");
             newElement.innerHTML = `
               <div class="UBQ_CanvasAction__block--gWWG6" style="border-right: 1px solid hsla(210, 30%, 10%, 0.12);">
-                <button type="button" name="placeholdersettings-configure_placeholder" class="UBQ_Button__block--C5ITk UBQ_Button__ubq-variant_Regular--jD_nG UBQ_PlaceholderSettings__placeholderPopoverButton--xyvUW UBQ_PlaceholderSettings__hidden--REFX4" disabled="" aria-label="Change Placeholder settings" aria-controls="UBQ__popover-content-group-42" aria-haspopup="true" aria-expanded="false" aria-pressed="false" data-cy="placeholdersettings-configure_placeholder" data-loading="false" data-active="false">
+             <button type="button" name="placeholdersettings-create_placeholder" class="UBQ_Button__block--C5ITk UBQ_Button__ubq-variant_Plain--tlabL" aria-pressed="false" data-cy="placeholdersettings-create_placeholder" data-loading="false" data-active="false">
                   <span>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                       <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
                       <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
                     </svg>
-                    <span>Test</span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M7.62244 10.5869L4.24978 6.83435C3.96052 6.51251 4.18893 6.00012 4.62166 6.00012H11.3763C11.8093 6.00012 12.0376 6.51318 11.7477 6.83486L8.36573 10.5874C8.16696 10.8079 7.82091 10.8077 7.62244 10.5869Z" fill="currentColor" fill-opacity="0.9"></path>
-                    </svg>
-                  </span>
-                </button>
-                <button type="button" name="placeholdersettings-create_placeholder" class="UBQ_Button__block--C5ITk UBQ_Button__ubq-variant_Plain--tlabL" aria-pressed="false" data-cy="placeholdersettings-create_placeholder" data-loading="false" data-active="false">
-                  <span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
-                      <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
-                    </svg>
-                    <span>Save to Library</span>
+                    <span>${
+                      libraryLoading ? "Loading..." : "Save to Library"
+                    }</span>
                   </span>
                 </button>
               </div>
             `;
             newElement.addEventListener("click", saveToLibrary);
-            // Replace the Placeholder element with the newElement
-
             const blockType = cesdkInstance?.current?.engine?.block?.getType(
               selectedIds[0]
             );
@@ -567,7 +560,7 @@ const Editor = ({
     setTimeout(() => {
       removeElement();
     }, 20);
-  }, [input]);
+  }, [input, libraryLoading]);
   function translateToAssetResult(image: any) {
     return {
       id: image.id.toString(),
@@ -637,6 +630,7 @@ const Editor = ({
 
   const saveToLibrary = async () => {
     try {
+      setlibraryLoading(true);
       if (template) {
         const selectedIds =
           cesdkInstance?.current.engine?.block?.findAllSelected();
@@ -673,7 +667,7 @@ const Editor = ({
           })
           .select()
           .single();
-          toast.success("Component has been saved!");
+        toast.success("Component has been saved!");
         // const imagePath = `${
         //   process.env.NEXT_PUBLIC_SUPABASE_URL
         // }/storage/v1/object/public/elementsThumbnail/${
@@ -705,6 +699,8 @@ const Editor = ({
       }
     } catch (error) {
       console.log("error", error);
+    } finally {
+      setlibraryLoading(false);
     }
   };
   return (
