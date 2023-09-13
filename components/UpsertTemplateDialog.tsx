@@ -126,8 +126,8 @@ const UpsertTemplateDialog = ({
         }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      throw err;
     } finally {
       setloader(false);
 
