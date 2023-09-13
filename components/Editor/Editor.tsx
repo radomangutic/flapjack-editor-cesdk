@@ -14,10 +14,12 @@ import { v4 as uuidv4 } from "uuid";
 import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
+import { TailSpin } from "react-loader-spinner";
 import {
   Box,
   Button,
   FileInput,
+  Flex,
   Group,
   Modal,
   Text,
@@ -47,6 +49,7 @@ const Editor = ({
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const [opened, { open, close }] = useDisclosure(false);
   const [loading, setloading] = useState(false);
+  const [loadinEditor, setloadinEditor] = useState(true);
   const [font, setFont] = useState();
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
@@ -63,9 +66,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
+      logger: () => {},
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
+      ...(template?.content && {
+        initialSceneURL:
+          process.env.NEXT_PUBLIC_SUPABASE_URL +
+          `/storage/v1/object/public/templates/${template?.content}`,
+      }),
       ui: {
         elements: {
           view: "default",
@@ -256,17 +265,10 @@ const Editor = ({
       fetchAssets().then((assetsData) => {
         CreativeEditorSDK.init(cesdkContainer.current, config).then(
           async (instance: any) => {
-            instance.addDefaultAssetSources();
-            instance.addDemoAssetSources();
+            await instance.addDefaultAssetSources();
+            await instance.addDemoAssetSources();
             setinput(input + 1);
-            if (template?.content) {
-              await instance.engine.scene.loadFromURL(
-                process.env.NEXT_PUBLIC_SUPABASE_URL +
-                  `/storage/v1/object/public/templates/${
-                    template?.content
-                  }?t=${new Date().toISOString()}`
-              );
-            }
+            setloadinEditor(false);
             const getAssetSources = async () => {
               if (assetsData.length) {
                 const assets = assetsData.map(translateToAssetResult);
@@ -510,6 +512,42 @@ const Editor = ({
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
+      {loadinEditor && (
+        <Box
+          style={{
+            backgroundColor: "#D6DBE1",
+            height: "calc(100vh - 70px)",
+            position: "absolute",
+            zIndex: 1000,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <Flex align={"center"} gap={21}>
+            <Box>
+              <TailSpin
+                height="50"
+                width="50"
+                color="black"
+                ariaLabel="tail-spin-loading"
+                radius="1"
+                wrapperStyle={{}}
+                wrapperClass=""
+                visible={true}
+              />
+            </Box>
+            <Box>
+              <Text fz={"lg"} color="black" style={{ fontWeight: "bold" }}>
+                Loading Editor
+              </Text>
+              <Text color="black">Just a few seconds</Text>
+            </Box>
+          </Flex>
+        </Box>
+      )}
 
       <div
         style={{

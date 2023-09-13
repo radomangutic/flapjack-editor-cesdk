@@ -1,12 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Flex,
-  Header,
-  Menu,
-  Select,
-  Text,
-} from "@mantine/core";
+import { Avatar, Button, Flex, Header, Menu, Text } from "@mantine/core";
 import { useRouter } from "next/router";
 import {
   IconChevronDown,
@@ -25,9 +17,6 @@ import {
   canCreateTemplate,
   useSetUser,
 } from "../hooks";
-import { useWarnIfUnsaved } from "../hooks/useWarnIfUnsavedChanges";
-import grapesjs from "grapesjs";
-import Router from "next/router";
 import { useEffect, useState } from "react";
 import { ITemplate } from "../interfaces";
 import _ from "lodash";
@@ -38,7 +27,6 @@ interface ITemplateHeaderProps {
   onTemplateSaveUpdate?: () => void;
   setNavMenu?: (value: string) => void;
   navMenu?: string;
-  editor?: grapesjs.Editor;
   template?: ITemplate | null;
   upsertTemplate?: boolean;
 }
@@ -48,7 +36,6 @@ const TemplateHeader = ({
   onTemplateSaveUpdate,
   setNavMenu,
   navMenu,
-  editor,
   template,
   upsertTemplate,
 }: ITemplateHeaderProps) => {
@@ -74,11 +61,6 @@ const TemplateHeader = ({
         const RIGHT_SPACE = "200px";
         scrollableWrapper.style.width = `calc(100% - ${LEFT_SPACE} - ${RIGHT_SPACE})`;
       }
-
-      // Without updating, the hover border and toolbox are misaligned with the item
-      scrollableWrapper.addEventListener("scroll", () => {
-        editor?.refresh();
-      });
     }
     if (panelWrapper != null && canvasWrapper !== null) {
       if (user?.role === "flapjack") {
@@ -99,119 +81,18 @@ const TemplateHeader = ({
     localStorage.setItem("activeTab", value);
   };
 
-  let editorEmpty = false;
   useEffect(() => {
     if (!getUser() && !user) {
       openAuthDialog();
     } else {
       closeAuthDialog();
     }
-    const reload = sessionStorage.getItem("reload");
-    if (
-      typeof window !== "undefined" &&
-      window.location.pathname === "/templates" &&
-      reload
-    ) {
-      // REMOVE SESSION RELOAD
-      sessionStorage.removeItem("reload");
-      editorEmpty = false;
-    }
-    //  IS EDITOR NOT BLANK
-
-    if (window !== undefined) {
-      Router.beforePopState(() => {
-        let result = true;
-        if (!!editor?.getWrapper().getEl().querySelector(".section")) {
-          result = window.confirm(
-            "You have unsaved changes. Are you sure you want to leave the page? All changes will be lost."
-          );
-          if (!result) {
-            window.history.pushState("/templates", "");
-            Router.push("/template");
-          } else {
-            editor?.DomComponents.clear();
-          }
-        }
-        return result;
-      });
-    }
-    return () => {
-      if (window) {
-        window.onbeforeunload = null;
-        editor?.DomComponents.clear();
-      }
-      Router.beforePopState(() => {
-        return true;
-      });
-    };
   }, [user]);
 
-  let isConfirm = false;
-  Router.events.on("routeChangeStart", () => {
-    // ADD SESSION RELOAD
-    const reload = sessionStorage.getItem("reload");
-    editorEmpty =
-      !reload &&
-      window.location.pathname === "/template" &&
-      !!editor?.getWrapper().getEl().querySelector(".section");
-    if (
-      (editor &&
-        template?.content !== undefined &&
-        editor?.getProjectData() &&
-        window.location.pathname !== "/template" &&
-        !_.isEqual(template?.content.pages, editor?.getProjectData().pages) &&
-        !reload &&
-        window.location.pathname !== "/templates") ||
-      editorEmpty
-    ) {
-      sessionStorage.setItem("reload", "true");
-    }
-    // REMOVE PREVIOUS FROM FRESH EDITOR
-    if (isConfirm && window.location.pathname === "/template") {
-      editor?.DomComponents.clear();
-    }
-  });
-  // check before unload function
-  const checkUnloadEvent = (e: any) => {
-    const reload = sessionStorage.getItem("reload");
-    if (authDialog || upsertTemplate) {
-      e.preventDefault();
-    } else if (
-      editor &&
-      template?.content &&
-      editor?.getProjectData() &&
-      window.location.pathname !== "/template" &&
-      !_.isEqual(template?.content.pages, editor?.getProjectData().pages) &&
-      !reload &&
-      window.location.pathname !== "/templates"
-    ) {
-      sessionStorage.setItem("reload", "true");
-      e.returnValue = "Changes you made may not be saved.";
-      sessionStorage.removeItem("reload");
-    }
-  };
-
-  useEffect(() => {
-    // Call function before load
-    if (typeof window !== "undefined") {
-      window.addEventListener("beforeunload", checkUnloadEvent);
-    }
-    // Remove  event after once function called /* clean up */
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("beforeunload", checkUnloadEvent);
-      }
-    };
-  });
-  // canvas size function
   useEffect(() => {
     setSizeValue(template?.content.assets[0]);
   }, [template]);
 
-  const handleSizeChange = (value: string) => {
-    editor?.setDevice(value);
-    setSizeValue(value);
-  };
   return (
     <Header height={64}>
       <Flex

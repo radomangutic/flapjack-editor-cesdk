@@ -94,7 +94,7 @@ export const useTemplateActions = (
             name,
             description,
             content: newLocation,
-            isGlobal: false,
+            isGlobal: user?.role === "flapjack" ? true : false,
             restaurant_id: user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),

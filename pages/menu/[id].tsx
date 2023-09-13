@@ -5,16 +5,17 @@ import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 
-const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
+const Menu = ({ data }: { data: ITemplateDetails }) => {
   const user = getUser();
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
     }
   }
-  if (!data) {
-    return <PrivatePage  text="The dog ate this menu!" />;
+  
 
+  if (!data) {
+    return <PrivatePage text="The dog ate this menu!" />;
   }
   return (
     <>
@@ -31,26 +32,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     )
     .eq("id", context?.params?.id);
 
-  const { data: images, error } = await supabase.storage
-    .from("renderings")
-    .list(`${context?.params?.id}`, {
-      limit: 6,
-      offset: 0,
-      sortBy: { column: "name", order: "asc" },
-    });
-  let imageUrls: string[] = [];
-  if (images?.length) {
-    images.forEach(async (image, i) => {
-      const {
-        data: { publicUrl: imageUrl },
-      } = await supabase.storage
-        .from("renderings")
-        .getPublicUrl(`${context?.params?.id}/${image.name}`);
-      imageUrls.push(imageUrl);
-    });
-  }
   return {
-    props: { data: data ? data[0] : null, images: imageUrls }, // will be passed to the page component as props
+    props: { data: data ? data[0] : null }, // will be passed to the page component as props
   };
 }
 
