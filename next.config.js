@@ -26,6 +26,9 @@ const nextConfig = {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     REACT_APP_LICENSE: process.env.REACT_APP_LICENSE
   },
+  compiler: {
+    removeConsole: true,
+  }
 }
 
 module.exports = nextConfig

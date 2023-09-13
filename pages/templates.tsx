@@ -156,10 +156,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
 
                 return (
                   <div key={i}>
-                    <Text
-                      style={{ fontSize: "26px" }}
-                      fw={"inherit"}
-                    >
+                    <Text style={{ fontSize: "26px" }} fw={"inherit"}>
                       {item?.label}
                     </Text>
 
@@ -182,7 +179,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                               <TemplateCard
                                 key={i}
                                 template={template}
-                                thumbnail={thumbnails?.[template.id]}
+                                thumbnail={`${
+                                  process.env.NEXT_PUBLIC_SUPABASE_URL
+                                }/storage/v1/object/public/renderings/${
+                                  template.id
+                                }/coverImage?${i}${Date.now()}`}
                                 onRemove={deleteTemplate}
                                 onRename={renameTemplate}
                                 onDuplicate={duplicateTemplate}
@@ -220,7 +221,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 <TemplateCard
                   key={i}
                   template={template}
-                  thumbnail={thumbnails?.[template.id]}
+                  thumbnail={`${
+                    process.env.NEXT_PUBLIC_SUPABASE_URL
+                  }/storage/v1/object/public/renderings/${
+                    template.id
+                  }/coverImage?${i}${Date.now()}`}
                   onRemove={deleteTemplate}
                   onRename={renameTemplate}
                   onDuplicate={duplicateTemplate}
@@ -283,7 +288,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     <TemplateCard
                       key={i}
                       template={template}
-                      thumbnail={thumbnails?.[template.id]}
+                      thumbnail={`${
+                        process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${
+                        template.id
+                      }/coverImage?${i}${Date.now()}`}
                       onRemove={deleteTemplate}
                       onRename={renameTemplate}
                       onDuplicate={duplicateTemplate}
@@ -311,7 +320,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               <TemplateCard
                 key={i}
                 template={template}
-                thumbnail={thumbnails?.[template.id]}
+                thumbnail={`${
+                  process.env.NEXT_PUBLIC_SUPABASE_URL
+                }/storage/v1/object/public/renderings/${
+                  template.id
+                }/coverImage?${i}${Date.now()}`}
                 onRemove={deleteTemplate}
                 onRename={renameTemplate}
                 onDuplicate={duplicateTemplate}
