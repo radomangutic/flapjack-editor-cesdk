@@ -7,6 +7,7 @@ import {
   IconMail,
   IconSettings,
 } from "@tabler/icons";
+
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
 import {
