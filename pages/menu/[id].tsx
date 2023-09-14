@@ -25,7 +25,11 @@ const Menu = ({
   const elements =
     user?.role === "flapjack"
       ? elementsList
-      : elementsList.filter((item: any) => item?.createdBy === user?.id);
+      : elementsList.filter(
+          (item: any) =>
+            item?.createdBy === user?.id &&
+            item?.restaurant_id === user?.restaurant_id
+        );
   return (
     <>
       <Editor template={data} elementsList={elements} />

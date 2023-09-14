@@ -34,6 +34,9 @@ interface fontsErrorsType {
   file?: string;
   submit?: string;
 }
+const customComponent = {
+  recent: "Recent",
+};
 const Editor = ({
   template,
   preview,
@@ -63,13 +66,56 @@ const Editor = ({
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
   const [libraryLoading, setlibraryLoading] = useState(false);
   const [libraryElements, setlibraryElements] = useState(elementsList);
+  const [usedComponenets, setusedComponenets] = useState<any>([]);
   useEffect(() => {
     setUserData(user);
     if (user) {
       closeAuthDialog();
     }
   }, [user]);
-
+  function getConfigOfRecentComponent(eleList: any) {
+    // most recent custom library component
+    const recentcustomSource = {
+      id: customComponent?.recent,
+      title: "Recent",
+      label: "Recent",
+      previewBackgroundType: "contain",
+      async findAssets(queryData: any) {
+        return Promise.resolve({
+          assets: eleList,
+          total: eleList.length,
+          currentPage: queryData.page,
+          nextPage: undefined,
+        });
+      },
+      async applyAsset(assetResult: any) {
+        try {
+          const firstPage =
+            cesdkInstance?.current.engine.block.findByType("page")[0];
+          const block =
+            await cesdkInstance?.current.engine.block.loadFromString(
+              assetResult?.meta?.value
+            );
+          cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
+          await cesdkInstance?.current.engine.block.appendChild(
+            firstPage,
+            block[0]
+          );
+          await cesdkInstance?.current.engine.block.setSelected(block[0], true);
+          await cesdkInstance?.current.engine.block.select(block[0]);
+        } catch (error) {
+          throw error;
+        }
+      },
+      async applyAssetToBlock(assetResult: any, block: any) {
+        cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
+          assetResult,
+          block
+        );
+      },
+    };
+    return recentcustomSource;
+  }
   const setup = async () => {
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
@@ -152,7 +198,7 @@ const Editor = ({
                   defaultEntries[4],
                   {
                     id: "Custom component",
-                    sourceIds: ["Custom component"],
+                    sourceIds: [customComponent?.recent, "Custom component"],
                     previewLength: 2,
                     gridColumns: 2,
                     previewBackgroundType: "contain",
@@ -290,7 +336,7 @@ const Editor = ({
           cesdk = instance;
           cesdkInstance.current = instance;
           const firstPage = instance.engine.block.findByType("page")[0];
-
+          // Custom library component
           const customSource = {
             id: "Custom component",
             previewBackgroundType: "contain",
@@ -314,7 +360,33 @@ const Editor = ({
                 await instance.engine.block.appendChild(firstPage, block[0]);
                 await instance.engine.block.setSelected(block[0], true);
                 await instance.engine.block.select(block[0]);
+                const isSourceExist = instance.engine.asset
+                  .findAllSources()
+                  ?.includes(customComponent?.recent);
+                if (isSourceExist) {
+                  const findList = await instance.engine.asset.findAssets(
+                    customComponent?.recent
+                  );
+                  const isAlreadyExist = findList?.assets?.find(
+                    (i: any) => i?.id === assetResult?.id
+                  );
+                  if (!isAlreadyExist) {
+                    const newList = [assetResult, ...findList?.assets];
+                    await instance.engine.asset.removeSource(
+                      customComponent?.recent
+                    );
+                    await instance.engine.asset.addSource(
+                      getConfigOfRecentComponent(newList)
+                    );
+                  }
+                } else {
+                  await instance.engine.asset.addSource(
+                    getConfigOfRecentComponent([assetResult])
+                  );
+                }
               } catch (error) {
+                console.log("error", error);
+
                 throw error;
               }
             },
@@ -326,6 +398,7 @@ const Editor = ({
             },
           };
           instance.engine.asset.addSource(customSource);
+
           setinput(input + 1);
           setloadinEditor(false);
           fetchAssets().then(
@@ -632,7 +705,7 @@ const Editor = ({
   };
 
   const saveToLibrary = async () => {
-   try {
+    try {
       setlibraryLoading(true);
       if (template) {
         const selectedIds =
@@ -667,6 +740,7 @@ const Editor = ({
             template_id: template?.id,
             createdBy: user?.id,
             thumbnail: response?.data?.path,
+            restaurant_id: user?.restaurant_id,
           })
           .select()
           .single();
@@ -691,8 +765,8 @@ const Editor = ({
             sourceId: "Custom component",
           },
         };
-        const newList = [newItem,...libraryElements ];
-        setlibraryElements(newList);  
+        const newList = [newItem, ...libraryElements];
+        setlibraryElements(newList);
 
         await cesdkInstance?.current.engine.asset.removeSource(
           "Custom component"
@@ -712,14 +786,46 @@ const Editor = ({
           },
           async applyAsset(assetResult: any) {
             try {
-              const firstPage = cesdkInstance?.current.engine.block.findByType("page")[0];
-              const block = await cesdkInstance?.current.engine.block.loadFromString(
-                assetResult?.meta?.value
-              );
+              const firstPage =
+                cesdkInstance?.current.engine.block.findByType("page")[0];
+              const block =
+                await cesdkInstance?.current.engine.block.loadFromString(
+                  assetResult?.meta?.value
+                );
               cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
-              await cesdkInstance?.current.engine.block.appendChild(firstPage, block[0]);
-              await cesdkInstance?.current.engine.block.setSelected(block[0], true);
+              await cesdkInstance?.current.engine.block.appendChild(
+                firstPage,
+                block[0]
+              );
+              await cesdkInstance?.current.engine.block.setSelected(
+                block[0],
+                true
+              );
               await cesdkInstance?.current.engine.block.select(block[0]);
+              const isSourceExist = cesdkInstance?.current.engine.asset
+              .findAllSources()
+              ?.includes(customComponent?.recent);
+            if (isSourceExist) {
+              const findList = await cesdkInstance?.current.engine.asset.findAssets(
+                customComponent?.recent
+              );
+              const isAlreadyExist = findList?.assets?.find(
+                (i: any) => i?.id === assetResult?.id
+              );
+              if (!isAlreadyExist) {
+                const newList = [assetResult, ...findList?.assets];
+                await cesdkInstance?.current.engine.asset.removeSource(
+                  customComponent?.recent
+                );
+                await cesdkInstance?.current.engine.asset.addSource(
+                  getConfigOfRecentComponent(newList)
+                );
+              }
+            } else {
+              await cesdkInstance?.current.engine.asset.addSource(
+                getConfigOfRecentComponent([assetResult])
+              );
+            }
             } catch (error) {
               throw error;
             }
@@ -734,14 +840,13 @@ const Editor = ({
         await cesdkInstance?.current.engine.asset.addSource(customSource);
         var elementWithShadowRoot = document.querySelector(
           "#cesdkContainer #root-shadow "
-        );  
+        );
         var shadowRoot = elementWithShadowRoot?.shadowRoot;
         const sideBarPanel =
-        "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY div";
-      var sideBarPanelLibrary = shadowRoot?.querySelector(
-        `${sideBarPanel}`
-      )?.children[1]?.children[3] as HTMLElement;
-      sideBarPanelLibrary?.click()
+          "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY div";
+        var sideBarPanelLibrary = shadowRoot?.querySelector(`${sideBarPanel}`)
+          ?.children[1]?.children[3] as HTMLElement;
+        sideBarPanelLibrary?.click();
       } else {
         const value = await cesdkInstance?.current.save();
         if (user) {
@@ -751,7 +856,6 @@ const Editor = ({
         }
       }
       toast.success("Component has been saved!");
-
     } catch (error) {
       console.log("error", error);
     } finally {
