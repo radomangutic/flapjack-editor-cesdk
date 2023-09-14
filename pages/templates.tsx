@@ -133,11 +133,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 ]}
               >
                 {loadingArray.map((item, i) => (
-                  <>
-                    <Skeleton key={i} visible={true} height={333}>
-                      Lorem ipsum dolor sit amet...
-                    </Skeleton>
-                  </>
+                  <Skeleton key={i} visible={true} height={333}></Skeleton>
                 ))}
               </SimpleGrid>
             </>
@@ -260,11 +256,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               ]}
             >
               {loadingArray.map((item, i) => (
-                <>
-                  <Skeleton key={i} visible={true} height={333}>
-                    Lorem ipsum dolor sit amet...
-                  </Skeleton>
-                </>
+                <Skeleton key={i} visible={true} height={333}></Skeleton>
               ))}
             </SimpleGrid>
           </>
