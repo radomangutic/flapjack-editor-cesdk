@@ -192,7 +192,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         const { data, error } = await dbClient.auth.signInWithOtp({
           phone: value,
         });
-
         if (error) {
           errorOnSubmit = { phone: error.message || "Something went wrong" };
           setError(errorOnSubmit);
@@ -201,7 +200,8 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         handleTimerStart();
         setOtpScreen(true);
       }
-    } catch (error) {
+    } catch (error: any) {
+      throw error
     } finally {
       seturlAuthLoading(false);
     }
@@ -215,30 +215,36 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   async function verifyOtp() {
-    if (otp.length > 6) {
-      setError({ phone: "Invalid OTP" });
-    }
-    const { data, error } = await dbClient.auth.verifyOtp({
-      phone: value,
-      token: otp,
-      type: "sms",
-    });
+    try {
+      if (otp.length > 6) {
+        setError({ phone: "Invalid OTP" });
+      }
+      const { data, error } = await dbClient.auth.verifyOtp({
+        phone: value,
+        token: otp,
+        type: "sms",
+      });
 
-    if (error) {
-      setError({ phone: "Invalid Otp" });
-    }
-    if (restaurantId) {
-      await dbClient
-        .from("profiles")
-        .update({
-          restaurant_id: restaurantId,
-        })
-        .eq("id", data?.user?.id);
-      router.push("/templates");
-    }
+      if (error) {
+        setError({ phone: "Invalid Otp" });
+      }
 
-    setUser?.(data?.user);
-    onClose();
+      if (restaurantId) {
+        await dbClient
+          .from("profiles")
+          .update({
+            restaurant_id: restaurantId,
+          })
+          .eq("id", data?.user?.id);
+        router.push("/templates");
+      }
+  
+      setUser?.(data?.user);
+      onClose();
+    } catch (error: any) {
+      throw error
+    }
+    
   }
 
   const validateEmail = (email: string) => {

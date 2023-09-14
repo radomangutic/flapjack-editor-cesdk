@@ -248,3 +248,54 @@ export const canCreateTemplate = (user: IUserDetails | null) => {
       user?.role === "owner")
   );
 };
+
+export const templateArchive = async (template: ITemplateDetails) => {
+  try {
+    const { data: archiveTemplate } = await dbClient
+      .from("archive_templates")
+      .select("*")
+      .eq("id", template?.id);
+    const newLocation = uuidv4();
+    const { error: coppyError }: { data: any; error: any } =
+      await dbClient.storage
+        .from("templates")
+        .copy(template.content, newLocation);
+    if (coppyError) throw coppyError;
+    let archiveTemplateData = archiveTemplate?.[0];
+    if (archiveTemplateData) {
+      if (archiveTemplateData?.content?.length <= 4) {
+        const content = [
+          ...archiveTemplateData.content,
+          { content: newLocation, time: new Date() },
+        ];
+        await dbClient
+          .from("archive_templates")
+          .update({ content })
+          .eq("id", template?.id);
+      } else {
+        const content = archiveTemplateData.content;
+        const { error } = await dbClient.storage
+          .from("templates")
+          .remove([archiveTemplateData.content?.[0]]);
+        if (error) throw error;
+        content.shift();
+        content.push({ content: newLocation, time: new Date() });
+        await dbClient
+          .from("archive_templates")
+          .update({ content })
+          .eq("id", template?.id);
+      }
+    } else {
+      const { error: archiveError } = await dbClient
+        .from("archive_templates")
+        .insert({
+          ...template,
+          content: [{ content: newLocation, time: new Date() }],
+        })
+        .select();
+      if (archiveError) throw archiveError; // if error it will return erro
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
