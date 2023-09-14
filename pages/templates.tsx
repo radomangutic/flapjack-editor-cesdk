@@ -48,6 +48,14 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
+      if (user?.role !== "flapjack") {
+        templatesList.sort(
+          (a, b) =>
+            new Date(b.updatedAt as any).getTime() -
+            new Date(a.updatedAt as any).getTime()
+        );
+      }
+
       setTemplates(templatesList);
       setloading(false);
     };
@@ -138,7 +146,14 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
               Templates
             </Text>
-
+            <Text mb={"xl"}>
+              The templates tab contains all published global templates. To put
+              a menu here follow these instructions. When in the drafts tab,
+              hover over a menu, then click the triple dot button. Click make
+              “Publish global.” These menus are considered production and
+              therefore should only be edited by approved users.
+              <b>Do NOT modify these for QA or testing purposes.</b>
+            </Text>
             <SimpleGrid
               cols={3}
               breakpoints={[
@@ -181,7 +196,17 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
               Drafts
             </Text>
-
+            <Text mb={"xl"}>
+              The Drafts tab is for all “in progress” menus. These are menus
+              that are being worked on or haven&apos;t been published to
+              globally to “templates” or delivered to “Customer Menus.”
+              <b>
+                {" "}
+                Please use the dev restaurant menus only for QA and Testing.
+              </b>{" "}
+              Menus in the flapjack restaurant are in progress and should not be
+              modified.
+            </Text>
             <SimpleGrid
               cols={3}
               breakpoints={[
@@ -225,6 +250,18 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
         <Container size="xl" px="xl" pt={16}>
           <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
             Customer Menus
+          </Text>
+          <Text mb={"xl"}>
+            The “Customer Menus” tab is a tab to show us the current status of
+            delivered menus. To move menus here, go to the drafts tab, hover
+            over a menu, click the triple dot button. Click “Transfer menu”.
+            Select the restaurant the menu belongs to.
+            <b>
+              These menus are to be considered production, so please do NOT edit
+              these. Changes here will be visible to the customer immediately.
+              If you see any issues with these menus, please report it to the
+              #deploy-qa slack channel.
+            </b>
           </Text>
 
           {resturantsOptions.map((item: any, i) => {
