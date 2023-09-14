@@ -2,16 +2,16 @@ import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
 import { IUserDetails } from "../../interfaces";
 import { Button, Container, Flex, Paper, Text } from "@mantine/core";
-import { UsersTable } from "../../components/resturant/UsersTable";
-import CommanModal from "../../components/CommanModal";
+import { UsersTable } from "../../components/restaurant/UsersTable";
+import CommanModal from "../../components/CommonModal";
 import { useState } from "react";
-import InviteUserDesign from "../../components/resturant/InviteUser";
-import RemoveUser from "../../components/resturant/RemoveUser";
+import InviteUserDesign from "../../components/restaurant/InviteUser";
+import RemoveUser from "../../components/restaurant/RemoveUser";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
 import { useUser } from "../../hooks";
 import { RestaurantType } from "../../interfaces/RestaurantType";
-import { RestaurantLocationTable } from "../../components/resturant/RestaurantLocationTable";
+import { RestaurantLocationTable } from "../../components/restaurant/RestaurantLocationTable";
 
 export type ModalType = "inviteUser" | "empty" | "removeUser";
 const ResturantManage = ({
@@ -111,6 +111,8 @@ const ResturantManage = ({
                 <InviteUserDesign
                   resturantDetail={resturantDetail}
                   onClose={() => setmodalType("empty")}
+                allUsers={allUsers}
+
                 />
               </CommanModal>
             ),

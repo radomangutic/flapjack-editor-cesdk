@@ -38,8 +38,9 @@ const useStyles = createStyles((theme) => ({
 interface Props {
   onClose: () => void;
   resturantDetail: RestaurantType;
+  allUsers: IUserDetails[];
 }
-const InviteUserDesign = ({ onClose, resturantDetail }: Props) => {
+const InviteUserDesign = ({ onClose, resturantDetail, allUsers }: Props) => {
   const { supabaseClient: supabase } = useSessionContext();
   const { classes } = useStyles();
   const [isLoading, setisLoading] = useState(false);
@@ -49,27 +50,56 @@ const InviteUserDesign = ({ onClose, resturantDetail }: Props) => {
 
   const handleInviteUser = async () => {
     try {
-      setisLoading(true)
+      if (!value) {
+        setError("Phone number required");
+        return;
+      }
+      if (!isValidPhoneNumber(value) && value) {
+        setError("Invalid phone");
+        return;
+      }
+      const userAlreadyMember = allUsers?.find(
+        (user) => user?.phone === value?.slice(1)
+      );
+      if (userAlreadyMember) {
+        setError("User already a member of your restaurant");
+        return;
+      }
+      setisLoading(true);
+      const checkUserExist = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("phone", value?.slice(1))
+        .single();
+      const isUserExist = checkUserExist?.data;
+      if (isUserExist) {
+        await supabase
+          .from("profiles")
+          .update({
+            restaurant_id: resturantDetail?.id,
+          })
+          .eq("id", isUserExist?.id)
+          .single();
+      }
       const response = await fetch("/api/inviteuser", {
         method: "POST",
         body: JSON.stringify({
           phone: value,
           restaurantName: resturantDetail?.name,
-          restaurantId: resturantDetail?.id,
+          restaurantId: isUserExist ? null : resturantDetail?.id,
+          isUserExist: isUserExist ? true : false,
         }),
       });
-      setisLoading(false)
+      setisLoading(false);
 
       if (response.ok) {
         const data = await response.json();
         onClose();
-      } else {
-        console.error("Failed to send invitation");
-      }
+      } 
     } catch (error: any) {
-      setisLoading(false)
-
+      setisLoading(false);
       setError(error?.message);
+      throw error
     }
   };
   const handleSubmit = async () => {

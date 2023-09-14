@@ -27,7 +27,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -44,7 +44,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .or(`restaurant_id.eq.${restaurant_id},isGlobal.eq.true`)
         .order("templateOrder", { ascending: true });
@@ -59,7 +59,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id"
+          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -141,7 +141,8 @@ export const fetchResturants = async (): Promise<any[]> => {
       const reseturantOptions = restaurantsData.map((item) => {
         return {
           label: item?.name,
-          value: item.id?.toString(),
+          value: item.id,
+          location: item?.location,
         };
       });
       restaurants = reseturantOptions;
@@ -152,13 +153,15 @@ export const fetchResturants = async (): Promise<any[]> => {
 };
 export const transferTemplate = async (
   templateId: number,
-  restaurant_id: number
+  restaurant_id: string,
+  location: string
 ) => {
   try {
     const { error } = await dbClient
       .from("templates")
       .update({
         restaurant_id,
+        location,
       })
       .eq("id", templateId);
     if (error) throw error;
@@ -247,4 +250,55 @@ export const canCreateTemplate = (user: IUserDetails | null) => {
       user.role === "flapjack" ||
       user?.role === "owner")
   );
+};
+
+export const templateArchive = async (template: ITemplateDetails) => {
+  try {
+    const { data: archiveTemplate } = await dbClient
+      .from("archive_templates")
+      .select("*")
+      .eq("id", template?.id);
+    const newLocation = uuidv4();
+    const { error: coppyError }: { data: any; error: any } =
+      await dbClient.storage
+        .from("templates")
+        .copy(template.content, newLocation);
+    if (coppyError) throw coppyError;
+    let archiveTemplateData = archiveTemplate?.[0];
+    if (archiveTemplateData) {
+      if (archiveTemplateData?.content?.length <= 4) {
+        const content = [
+          ...archiveTemplateData.content,
+          { content: newLocation, time: new Date() },
+        ];
+        await dbClient
+          .from("archive_templates")
+          .update({ content })
+          .eq("id", template?.id);
+      } else {
+        const content = archiveTemplateData.content;
+        const { error } = await dbClient.storage
+          .from("templates")
+          .remove([archiveTemplateData.content?.[0]]);
+        if (error) throw error;
+        content.shift();
+        content.push({ content: newLocation, time: new Date() });
+        await dbClient
+          .from("archive_templates")
+          .update({ content })
+          .eq("id", template?.id);
+      }
+    } else {
+      const { error: archiveError } = await dbClient
+        .from("archive_templates")
+        .insert({
+          ...template,
+          content: [{ content: newLocation, time: new Date() }],
+        })
+        .select();
+      if (archiveError) throw archiveError; // if error it will return erro
+    }
+  } catch (err) {
+    console.error(err);
+  }
 };

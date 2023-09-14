@@ -22,6 +22,7 @@ import {
 import TemplateCardModal, { TemplateCardModalProps } from "./TemplateCardModal";
 import { useDisclosure } from "@mantine/hooks";
 import { Group, Avatar, Text } from "@mantine/core";
+import { dbClient } from "../../tests/helpers/database.helper";
 
 interface TemplateCardOverlayProps {
   showOverlay: boolean;
@@ -33,6 +34,7 @@ interface TemplateCardOverlayProps {
   onHandleGlobal: GlobalTemplate;
   navMenu: string;
   resturantsOptions: any;
+  setTemplates: any;
 }
 
 export default function TemplateCardOverlay({
@@ -45,6 +47,7 @@ export default function TemplateCardOverlay({
   onHandleGlobal,
   navMenu,
   resturantsOptions,
+  setTemplates,
 }: TemplateCardOverlayProps) {
   const {
     id: templateId,
@@ -66,10 +69,25 @@ export default function TemplateCardOverlay({
   const [menuIsOpened, setMenuIsOpened] = useState(false);
   const [modalIsOpened, setModalIsOpened] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resturantId, setResturantId] = useState();
+  const [locationChanged, setLocationChanged] = useState(template?.location || "");
+  const [resturantId, setResturantId] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
+  const [
+    isModalOpen,
+    { open: openChangeLocationModal, close: closeChangeLocationModal },
+  ] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
+  const userLocation = user?.restaurant?.location.map((item: string) => {
+    return {
+      label: item,
+      value: item,
+    };
+  });
+  console.log(userLocation);
+  const [locations, setLocations] = useState([]);
+  const [location, setLocation] = useState("");
+  const [error, setError] = useState("");
 
   const handleOpenMenu = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,24 +144,67 @@ export default function TemplateCardOverlay({
   const handleTransfer = async () => {
     try {
       if (resturantId) {
+        if (locations.length && !location) {
+          setError("Please select a resturant location");
+          return;
+        }
+        setError("");
         setLoading(true);
-        await transferTemplate(template?.id, resturantId);
+        await transferTemplate(template?.id, resturantId, location);
+        setLocation("");
+        setLocations([]);
+        setResturantId("");
+        close();
+      } else {
+        setError("Please select a resturant");
       }
     } catch (error) {
       throw error;
     } finally {
       setLoading(false);
-      close();
+    }
+  };
+
+  const changeLocation = async () => {
+    try {
+      if (!locationChanged || !userLocation.length) {
+        setError("Please select a resturant location");
+        return;
+      }
+      setLoading(true)
+      const { error } = await dbClient
+        .from("templates")
+        .update({ location: locationChanged })
+        .eq("id", templateId);
+      if (error) {
+        throw error;
+      }
+      setLoading(false);
+      closeChangeLocationModal();
+      setTemplates((prev: any) => {
+        const newTemplates = prev.map((template: any) => {
+          if (template.id === templateId) {
+            return {
+              ...template,
+              location: locationChanged,
+            };
+          }
+          return template;
+        });
+        return newTemplates;
+      });
+      setLocationChanged("");
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   if (!showOverlay) return null;
 
   return (
-    <Overlay
-      color="black"
-      zIndex={3}
-    >
+    <Overlay color="black" zIndex={3}>
       {canUpdate && (
         <Menu
           position="bottom-end"
@@ -191,6 +252,11 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
+            {user?.role === "owner" && navMenu === "myMenu" && (
+              <Menu.Item onClick={openChangeLocationModal}>
+                Change Location
+              </Menu.Item>
+            )}
             <Menu.Item onClick={openModal}>Rename</Menu.Item>
             <Menu.Item onClick={openModal}>Delete</Menu.Item>
           </Menu.Dropdown>
@@ -208,7 +274,7 @@ export default function TemplateCardOverlay({
         templateDescription={templateDescription}
       />
 
-      <Flex justify="center" h={'100%'} align={'center'}>
+      <Flex justify="center" h={"100%"} align={"center"}>
         <Button
           variant="outline"
           color="dark.1"
@@ -230,16 +296,80 @@ export default function TemplateCardOverlay({
           placeholder="Select a resturant"
           data={resturantsOptions}
           searchable
-          onChange={(value: any) => setResturantId(value)}
+          onChange={(value: string) => {
+            let locationExist = resturantsOptions?.filter(
+              (item: any) => item?.value === value
+            );
+            let location = locationExist[0]?.location;
+            if (location?.length) {
+              const locationMap = location.map((item: string) => {
+                return {
+                  label: item,
+                  value: item,
+                };
+              });
+              setLocations(locationMap);
+            }
+            setResturantId(value);
+          }}
           maxDropdownHeight={400}
           nothingFound="Resturant not found"
           filter={(value: string, item: any) =>
             item.label.toLowerCase().includes(value.toLowerCase().trim())
           }
         />
+        {locations.length ? (
+          <Select
+            label="Select a resturant location"
+            placeholder="Select a resturant location"
+            data={locations}
+            value={location}
+            onChange={(value: string) => {
+              setLocation(value);
+            }}
+          />
+        ) : (
+          <></>
+        )}
+        {error ? (
+          <Text fz={"sm"} c="red">
+            {error}
+          </Text>
+        ) : (
+          <></>
+        )}
         <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>
           <Button disabled={loading} onClick={handleTransfer}>
+            {loading ? "Transfering " : "Transfer"}
+          </Button>
+        </Group>
+      </Modal>
+      <Modal
+        opened={isModalOpen}
+        onClose={closeChangeLocationModal}
+        title="Change Location"
+        centered
+      >
+        <Select
+          label="Select a location"
+          placeholder="Select a location"
+          data={userLocation}
+          value={locationChanged}
+          onChange={(value: string) => setLocationChanged(value)}
+          maxDropdownHeight={400}
+          nothingFound="Please add a location first"
+        />
+        {error ? (
+          <Text fz={"sm"} c="red">
+            {error}
+          </Text>
+        ) : (
+          <></>
+        )}
+        <Group position="right" mt={"md"}>
+          <Button onClick={closeChangeLocationModal}>Cancle</Button>
+          <Button disabled={loading} onClick={changeLocation}>
             {loading ? "Transfering " : "Transfer"}
           </Button>
         </Group>
