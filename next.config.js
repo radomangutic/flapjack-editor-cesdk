@@ -27,7 +27,7 @@ const nextConfig = {
     REACT_APP_LICENSE: process.env.REACT_APP_LICENSE
   },
   compiler: {
-    removeConsole: false,
+    removeConsole: true,
   }
 }
 

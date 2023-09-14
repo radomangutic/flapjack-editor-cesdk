@@ -865,7 +865,6 @@ const Editor = ({
     }
   };
   const changeCustomComponentTitle = () => {
-    console.log("run");
 
     var elementWithShadowRoot = document.querySelector(
       "#cesdkContainer #root-shadow "
