@@ -463,6 +463,7 @@ const Editor = ({
       setcontent(string);
     }, 100);
   };
+
   useEffect(() => {
     const removeElement = () => {
       var elementWithShadowRoot = document.querySelector(
@@ -803,29 +804,30 @@ const Editor = ({
               );
               await cesdkInstance?.current.engine.block.select(block[0]);
               const isSourceExist = cesdkInstance?.current.engine.asset
-              .findAllSources()
-              ?.includes(customComponent?.recent);
-            if (isSourceExist) {
-              const findList = await cesdkInstance?.current.engine.asset.findAssets(
-                customComponent?.recent
-              );
-              const isAlreadyExist = findList?.assets?.find(
-                (i: any) => i?.id === assetResult?.id
-              );
-              if (!isAlreadyExist) {
-                const newList = [assetResult, ...findList?.assets];
-                await cesdkInstance?.current.engine.asset.removeSource(
-                  customComponent?.recent
+                .findAllSources()
+                ?.includes(customComponent?.recent);
+              if (isSourceExist) {
+                const findList =
+                  await cesdkInstance?.current.engine.asset.findAssets(
+                    customComponent?.recent
+                  );
+                const isAlreadyExist = findList?.assets?.find(
+                  (i: any) => i?.id === assetResult?.id
                 );
+                if (!isAlreadyExist) {
+                  const newList = [assetResult, ...findList?.assets];
+                  await cesdkInstance?.current.engine.asset.removeSource(
+                    customComponent?.recent
+                  );
+                  await cesdkInstance?.current.engine.asset.addSource(
+                    getConfigOfRecentComponent(newList)
+                  );
+                }
+              } else {
                 await cesdkInstance?.current.engine.asset.addSource(
-                  getConfigOfRecentComponent(newList)
+                  getConfigOfRecentComponent([assetResult])
                 );
               }
-            } else {
-              await cesdkInstance?.current.engine.asset.addSource(
-                getConfigOfRecentComponent([assetResult])
-              );
-            }
             } catch (error) {
               throw error;
             }
@@ -862,6 +864,43 @@ const Editor = ({
       setlibraryLoading(false);
     }
   };
+  const changeCustomComponentTitle = () => {
+    console.log("run");
+
+    var elementWithShadowRoot = document.querySelector(
+      "#cesdkContainer #root-shadow "
+    );
+    var shadowRoot = elementWithShadowRoot?.shadowRoot;
+    const leftPanel =
+      "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div ";
+
+    var listChildren = shadowRoot?.querySelector(`${leftPanel}`)
+      ?.children as HTMLCollection;
+    if (listChildren?.length > 0) {
+      for (let index = 0; index < listChildren.length; index++) {
+        const element = listChildren[index];
+        const targetElement = element?.children[0]?.children[0]?.children[0];
+        if (targetElement && targetElement?.textContent !== "") {
+          targetElement.textContent = index === 0 ? "Recent" : "Custom";
+        }
+      }
+    }
+    var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
+    const childText = opendElement?.children[2];
+    if (childText?.textContent === "Custom component/Recent") {
+      childText.textContent = "Recent";
+    }
+    if (childText?.textContent === "Custom component/Custom component") {
+      childText.textContent = "Custom";
+    }
+  };
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      changeCustomComponentTitle();
+    }, 100);
+
+    return () => clearInterval(intervalId);
+  }, []);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
