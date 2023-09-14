@@ -129,98 +129,104 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   };
 
   async function handleLogin() {
-    let errorOnSubmit = {};
-    if (loginWithEmail) {
-      if (!value) {
-        errorOnSubmit = { email: "Email required" };
-        setError(errorOnSubmit);
-        return;
-      }
-      if (!validateEmail(value)) {
-        errorOnSubmit = { email: "Invalid email" };
-        setError(errorOnSubmit);
-        return;
-      }
-      setError({});
-      const { data: whiteListUser, error: errorOnGetting } = await dbClient
-        .from("whitelist_users")
-        .select("*")
-        .eq("email", value)
-        .single();
-      if (whiteListUser && !errorOnGetting) {
-        window.location.href = "https://app.flapjack.co";
-      }
-      const { data, error } = await dbClient.auth.signInWithOtp({
-        email: value,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
-      });
-      if (error) {
-        errorOnSubmit = { email: error.message || "Something went wrong" };
-        setError(errorOnSubmit);
-        return;
-      }
-      setIsSendLoginEmail("Please check your email");
-    } else {
-      if (!value) {
-        errorOnSubmit = { phone: "Phone required" };
-        setError(errorOnSubmit);
-        return;
-      }
-      if (!isValidPhoneNumber(value)) {
-        errorOnSubmit = { phone: "Invalid phone" };
-        setError(errorOnSubmit);
-        return;
-      }
-      setError({});
-      const { data: whiteListUserPhone, error: errorOnGettingPhone } =
-        await dbClient
+    try {
+      let errorOnSubmit = {};
+      if (loginWithEmail) {
+        if (!value) {
+          errorOnSubmit = { email: "Email required" };
+          setError(errorOnSubmit);
+          return;
+        }
+        if (!validateEmail(value)) {
+          errorOnSubmit = { email: "Invalid email" };
+          setError(errorOnSubmit);
+          return;
+        }
+        setError({});
+        const { data: whiteListUser, error: errorOnGetting } = await dbClient
           .from("whitelist_users")
           .select("*")
-          .eq("phone", value)
+          .eq("email", value)
           .single();
-      if (whiteListUserPhone && !errorOnGettingPhone) {
-        window.location.href = "https://app.flapjack.co";
+        if (whiteListUser && !errorOnGetting) {
+          window.location.href = "https://app.flapjack.co";
+        }
+        const { data, error } = await dbClient.auth.signInWithOtp({
+          email: value,
+        });
+        if (error) {
+          errorOnSubmit = { email: error.message || "Something went wrong" };
+          setError(errorOnSubmit);
+          return;
+        }
+        setIsSendLoginEmail("Please check your email");
+      } else {
+        if (!value) {
+          errorOnSubmit = { phone: "Phone required" };
+          setError(errorOnSubmit);
+          return;
+        }
+        if (!isValidPhoneNumber(value)) {
+          errorOnSubmit = { phone: "Invalid phone" };
+          setError(errorOnSubmit);
+          return;
+        }
+        setError({});
+        const { data: whiteListUserPhone, error: errorOnGettingPhone } =
+          await dbClient
+            .from("whitelist_users")
+            .select("*")
+            .eq("phone", value)
+            .single();
+        if (whiteListUserPhone && !errorOnGettingPhone) {
+          window.location.href = "https://app.flapjack.co";
+        }
+        const { data, error } = await dbClient.auth.signInWithOtp({
+          phone: value,
+        });
+        if (error) {
+          errorOnSubmit = { phone: error.message || "Something went wrong" };
+          setError(errorOnSubmit);
+          return;
+        }
+        handleTimerStart();
+        setOtpScreen(true);
       }
-      const { data, error } = await dbClient.auth.signInWithOtp({
-        phone: value,
-      });
-
-      if (error) {
-        errorOnSubmit = { phone: error.message || "Something went wrong" };
-        setError(errorOnSubmit);
-        return;
-      }
-      handleTimerStart();
-      setOtpScreen(true);
+    } catch (error: any) {
+      throw error
     }
   }
   async function verifyOtp() {
-    if (otp.length > 6) {
-      setError({ phone: "Invalid OTP" });
-    }
-    const { data, error } = await dbClient.auth.verifyOtp({
-      phone: value,
-      token: otp,
-      type: "sms",
-    });
+    try {
+      if (otp.length > 6) {
+        setError({ phone: "Invalid OTP" });
+      }
+      const { data, error } = await dbClient.auth.verifyOtp({
+        phone: value,
+        token: otp,
+        type: "sms",
+      });
 
-    if (error) {
-      setError({ phone: "Invalid Otp" });
-    }
-    if (restaurantId) {
-      await dbClient
-        .from("profiles")
-        .update({
-          restaurant_id: restaurantId,
-        })
-        .eq("id", data?.user?.id);
-      router.push("/templates");
-    }
+      if (error) {
+        setError({ phone: "Invalid Otp" });
+      }
 
-    setUser?.(data?.user);
-    onClose();
+      if (restaurantId) {
+        await dbClient
+          .from("profiles")
+          .update({
+            restaurant_id: restaurantId,
+          })
+          .eq("id", data?.user?.id);
+        router.push("/templates");
+      }
+  
+      setUser?.(data?.user);
+      onClose();
+    } catch (error: any) {
+      throw error
+    }
+    
   }
 
   const validateEmail = (email: string) => {
