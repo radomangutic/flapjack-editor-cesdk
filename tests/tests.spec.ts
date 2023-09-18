@@ -32,12 +32,11 @@ test("Login with phone", async ({ page }) => {
 //   const response = await responsePromise;
 //   expect(response.status()).toBe(200);
 // });
-// test("Save menu", async ({ page }) => {
-//   test.slow();
-//   await page.goto("http://localhost:3000/menu/preview/226");
-//   await page.getByLabel("Export Images").click();
-//   await expect(page.locator(".loginWithEmailButton").first()).toBeVisible();
-// });
+test("Save menu", async ({ page }) => {
+  await page.goto("http://localhost:3000/menu/preview/225");
+  await page.getByLabel("Export Images").click();
+  await expect(page.locator(".loginWithEmailButton").first()).toBeVisible();
+});
 
 test("Create menu", async ({ page }) => {
   await page.goto("http://localhost:3000/template");
