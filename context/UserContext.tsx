@@ -51,7 +51,7 @@ const UserContextProvider = (props: Props) => {
         .select("*")
         .eq("id", user?.id)
         .single()
-        .then(({ data, error }) => {
+        .then(async ({ data, error }) => {
           if (error) {
             setUserDetails({
               ...user,
@@ -61,6 +61,14 @@ const UserContextProvider = (props: Props) => {
               restaurant_id: "",
             });
             return;
+          }
+          if (data?.restaurant_id) {
+            const { data: restaurantData } = await supabase
+              .from("restaurants")
+              .select("*")
+              .eq("id", data?.restaurant_id)
+              .single();
+            data.restaurant = restaurantData;
           }
           setUserDetails({
             ...user,

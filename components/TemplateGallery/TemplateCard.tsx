@@ -35,6 +35,7 @@ type TemplateCardProps = {
   onGlobal?: GlobalTemplate;
   navMenu: string;
   resturantsOptions: any;
+  setTemplates: any;
 };
 
 const TemplateCard = ({
@@ -46,7 +47,10 @@ const TemplateCard = ({
   onGlobal,
   navMenu,
   resturantsOptions,
+  setTemplates,
 }: TemplateCardProps) => {
+  const user = useUser();
+
   const [showOverlay, setShowOverlay] = useState(false);
   const openOverlay = useCallback(() => {
     if (
@@ -64,10 +68,9 @@ const TemplateCard = ({
     } else {
       setShowOverlay(false);
     }
-  }, [navMenu]);
+  }, [navMenu, user]);
 
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
-  const user = useUser();
 
   return (
     <Card
@@ -92,6 +95,7 @@ const TemplateCard = ({
           onHandleGlobal={onGlobal}
           navMenu={navMenu}
           resturantsOptions={resturantsOptions}
+          setTemplates={setTemplates}
         />
 
         <Image src={thumbnail} height={235} alt="Norway" />

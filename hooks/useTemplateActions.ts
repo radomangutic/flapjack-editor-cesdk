@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { ITemplateDetails, DeleteAssetsIDs } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
-import { useUser } from "./useUser";
+import { templateArchive, useUser } from "./useUser";
 
 export const useTemplateActions = (
   templates: ITemplateDetails[],
@@ -16,11 +16,7 @@ export const useTemplateActions = (
   const deleteTemplate = async (template: ITemplateDetails) => {
     try {
       if (template) {
-        const { error: archiveError } = await supabase
-          .from("archive_templates")
-          .insert(template)
-          .select();
-        if (archiveError) throw archiveError; // if error it will return error
+       await templateArchive(template)
         const { error, status } = await dbClient
           .from("templates")
           .delete()
@@ -31,6 +27,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
@@ -56,6 +54,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
@@ -90,7 +90,7 @@ export const useTemplateActions = (
             name,
             description,
             content: newLocation,
-            isGlobal: false,
+            isGlobal: user?.role === "flapjack" ? true : false,
             restaurant_id: user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
@@ -120,6 +120,7 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
     }
   };
 
@@ -142,6 +143,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
   const refreshTemplate = async (id: number) => {
@@ -168,6 +171,8 @@ export const useTemplateActions = (
       }
     } catch (err) {
       console.error(err);
+      throw err
+
     }
   };
 
