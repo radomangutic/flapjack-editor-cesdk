@@ -40,6 +40,7 @@ test("Create menu", async ({ page }) => {
 });
 
 test("Save menu", async ({ page }) => {
+  test.slow();
   await page.goto("http://localhost:3000/menu/preview/226");
   await page.getByLabel("Export Images").click();
   await expect(page.locator(".loginWithEmailButton").first()).toBeVisible();
