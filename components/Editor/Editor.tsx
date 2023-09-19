@@ -204,7 +204,7 @@ const Editor = ({
                     previewBackgroundType: "contain",
                     gridBackgroundType: "contain",
                     icon: ({ theme, iconSize }: any) => {
-                      return "https://img.icons8.com/?size=1x&id=99192&format=png";
+                      return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
                     },
                   },
                 ];
@@ -232,53 +232,53 @@ const Editor = ({
           });
         },
         onUpload: async (file: any) => {
-        try {
-          let isAbleToExport = true;
-          const data: any = await new Promise((resolve, reject) => {
-            setUserData(async (user: any) => {
-              if (isAbleToExport) {
-                isAbleToExport = false;
-                if (user) {
-                  const content = uuidv4();
-                  const { data, error }: { data: any; error: any } =
-                    await dbClient.storage
-                      .from("templateImages")
-                      .upload(content, file);
-                  if (error) {
-                    throw error;
+          try {
+            let isAbleToExport = true;
+            const data: any = await new Promise((resolve, reject) => {
+              setUserData(async (user: any) => {
+                if (isAbleToExport) {
+                  isAbleToExport = false;
+                  if (user) {
+                    const content = uuidv4();
+                    const { data, error }: { data: any; error: any } =
+                      await dbClient.storage
+                        .from("templateImages")
+                        .upload(content, file);
+                    if (error) {
+                      throw error;
+                    }
+                    const userData = localStorage.getItem("userData");
+                    const user = userData && JSON.parse(userData);
+                    await dbClient.from("assets").insert({
+                      content,
+                      createdBy: user?.id,
+                      restaurant_id: user?.restaurant_id,
+                      template_id: template?.id,
+                    });
+                    setTimeout(() => {
+                      isAbleToExport = true;
+                    }, 1000);
+                    resolve(data);
+                  } else {
+                    reject("Please login to continue");
                   }
-                  const userData = localStorage.getItem("userData");
-                  const user = userData && JSON.parse(userData);
-                  await dbClient.from("assets").insert({
-                    content,
-                    createdBy: user?.id,
-                    restaurant_id: user?.restaurant_id,
-                    template_id: template?.id,
-                  });
-                  setTimeout(() => {
-                    isAbleToExport = true;
-                  }, 1000);
-                  resolve(data);
-                } else {
-                  reject("Please login to continue");
                 }
-              }
-              return user;
+                return user;
+              });
             });
-          });
-          return (
-            data && {
-              id: uuidv4(), // A unique ID identifying the uploaded image
-              name: file?.name || "upload",
-              meta: {
-                uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-              },
-            }
-          );
-        } catch (error) {
-          throw error
-        }
+            return (
+              data && {
+                id: uuidv4(), // A unique ID identifying the uploaded image
+                name: file?.name || "upload",
+                meta: {
+                  uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                },
+              }
+            );
+          } catch (error) {
+            throw error;
+          }
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
@@ -869,7 +869,6 @@ const Editor = ({
     }
   };
   const changeCustomComponentTitle = () => {
-
     var elementWithShadowRoot = document.querySelector(
       "#cesdkContainer #root-shadow "
     );
@@ -883,18 +882,13 @@ const Editor = ({
       for (let index = 0; index < listChildren.length; index++) {
         const element = listChildren[index];
         const targetElement = element?.children[0]?.children[0]?.children[0];
-        if (targetElement && targetElement?.textContent !== "") {
+        if (
+          targetElement &&
+          targetElement?.textContent?.includes("Custom component")
+        ) {
           targetElement.textContent = index === 0 ? "Recent" : "Custom";
         }
       }
-    }
-    var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
-    const childText = opendElement?.children[2];
-    if (childText?.textContent === "Custom component/Recent") {
-      childText.textContent = "Recent";
-    }
-    if (childText?.textContent === "Custom component/Custom component") {
-      childText.textContent = "Custom";
     }
   };
   useEffect(() => {
