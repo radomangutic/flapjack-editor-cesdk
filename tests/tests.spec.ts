@@ -15,23 +15,23 @@ test("Login with phone", async ({ page }) => {
   expect(response.status()).toBe(200);
 });
 
-// test("Login with email", async ({ page }) => {
-//   await page.goto("http://localhost:3000/templates");
-//   await page.locator(".loginWithEmailButton").first().click();
-//   await page.locator("#mantine-r1").first().click();
-//   await page
-//     .locator("#mantine-r1")
-//     .first()
-//     .fill(
-//       `test${getRandomChar("abcdefghijklmnopqrstuvwxyz0123456789")}@email.com`
-//     );
-//   const responsePromise = page.waitForResponse(
-//     "https://wmdpmyvxnuwqtdivtjij.supabase.co/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3000"
-//   );
-//   await page.locator(".loginWithEmailButton").first().click();
-//   const response = await responsePromise;
-//   expect(response.status()).toBe(200);
-// });
+test("Login with email", async ({ page }) => {
+  await page.goto("http://localhost:3000/templates");
+  await page.locator(".loginWithEmailButton").first().click();
+  await page.locator("#mantine-r1").first().click();
+  await page
+    .locator("#mantine-r1")
+    .first()
+    .fill(
+      `test${getRandomChar("abcdefghijklmnopqrstuvwxyz0123456789")}@email.com`
+    );
+  const responsePromise = page.waitForResponse(
+    "https://wmdpmyvxnuwqtdivtjij.supabase.co/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3000"
+  );
+  await page.locator(".loginWithEmailButton").first().click();
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+});
 
 test("Create menu", async ({ page }) => {
   await page.goto("http://localhost:3000/template");
