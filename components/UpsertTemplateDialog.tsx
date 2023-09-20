@@ -76,6 +76,14 @@ const UpsertTemplateDialog = ({
         const { data, error } = await supabase.storage
           .from("templates")
           .update(`${template?.content}`, file);
+        await supabase
+          .from("templates")
+          .update({
+            name: values?.name,
+            description: values?.description,
+            updatedAt: new Date(),
+          })
+          .eq("id", template?.id);
         if (error) {
           return;
         }
