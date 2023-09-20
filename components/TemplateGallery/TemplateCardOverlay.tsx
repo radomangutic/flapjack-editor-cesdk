@@ -80,7 +80,7 @@ export default function TemplateCardOverlay({
   ] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
-  const userLocation = user?.restaurant?.location.map((item: string) => {
+  const userLocation = user?.restaurant?.location?.map((item: string) => {
     return {
       label: item,
       value: item,

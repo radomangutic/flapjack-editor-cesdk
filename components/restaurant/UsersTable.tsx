@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { IconPencil, IconTrash } from "@tabler/icons";
 import { IUserDetails } from "../../interfaces";
+import { useUser } from "../../hooks";
 
 interface UsersTableProps {
   data: IUserDetails[];
@@ -28,11 +29,14 @@ export function UsersTable({
   hideAction = false,
   resturantsOptions,
 }: UsersTableProps) {
+  const user = useUser();
+
   const theme = useMantineTheme();
   const rows = data.map((item: IUserDetails) => {
     const getRestaurant = resturantsOptions?.find(
       (i: any) => i?.value === item?.restaurant_id
     );
+    
     return (
       <tr key={item.id}>
         <td>
@@ -63,7 +67,7 @@ export function UsersTable({
             {item.role}
           </Text>
         </td>
-        
+
         {!hideAction && (
           <td>
             <Group spacing={0} position="right">
@@ -78,9 +82,11 @@ export function UsersTable({
               )}
               {onDelete && (
                 <ActionIcon
-                  color="red"
+                  color={item?.id === user?.id ? "gray" : "red"}
                   onClick={() => {
-                    onDelete(item);
+                    if (item?.id !== user?.id) {
+                      onDelete(item);
+                    }
                   }}
                 >
                   <IconTrash size="1rem" stroke={1.5} />
@@ -92,7 +98,7 @@ export function UsersTable({
       </tr>
     );
   });
-  
+
   return (
     <ScrollArea>
       <Table verticalSpacing="sm">

@@ -49,6 +49,8 @@ const TemplateCard = ({
   resturantsOptions,
   setTemplates,
 }: TemplateCardProps) => {
+  const user = useUser();
+
   const [showOverlay, setShowOverlay] = useState(false);
   const openOverlay = useCallback(() => {
     if (
@@ -68,10 +70,9 @@ const TemplateCard = ({
     } else {
       setShowOverlay(false);
     }
-  }, [navMenu]);
+  }, [navMenu, user]);
 
   const closeOverlay = useCallback(() => setShowOverlay(false), []);
-  const user = useUser();
 
   return (
     <Card

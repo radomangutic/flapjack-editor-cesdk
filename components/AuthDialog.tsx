@@ -10,13 +10,14 @@ import {
 } from "@mantine/core";
 import Image from "next/image";
 import theme from "../config/theme";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dbClient } from "../tests/helpers/database.helper";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
 import { useSetUser, useUser } from "../hooks";
 import { useRouter } from "next/router";
+import { decryptData } from "../helpers/enryption";
 
 interface IAuthDialogProps {
   opened: boolean;
@@ -94,9 +95,13 @@ const SalesContent = () => {
 
 const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const router = useRouter();
-  const userPhoneByUrl = router?.query?.phone;
-  const restaurantId = router?.query?.id;
+  const secretKey = router?.query?.key;
+  const decryptedData = decryptData(secretKey);
+  console.log("decryptedData", decryptedData);
 
+  const restaurantId = decryptedData?.restaurantId;
+  const userPhoneByUrl = decryptedData?.phone;
+  console.log(userPhoneByUrl);
   const setUser = useSetUser();
   const [value, setValue] = useState(
     userPhoneByUrl ? `+${userPhoneByUrl}` : ""
@@ -108,7 +113,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [error, setError] = useState<ILoginErrors>({});
   const inventoryTime = 60;
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
-
+  const [urlAuthLoading, seturlAuthLoading] = useState(false);
   const inventoryTimerRef = useRef<number | null>(null);
 
   const handleTimerStart = () => {
@@ -128,7 +133,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
     inventoryTimerRef.current = null;
   };
 
-  async function handleLogin() {
+  async function handleLogin(value: string) {
     try {
       let errorOnSubmit = {};
       if (loginWithEmail) {
@@ -153,6 +158,9 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         }
         const { data, error } = await dbClient.auth.signInWithOtp({
           email: value,
+          options: {
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (error) {
           errorOnSubmit = { email: error.message || "Something went wrong" };
@@ -194,8 +202,18 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       }
     } catch (error: any) {
       throw error
+    } finally {
+      seturlAuthLoading(false);
     }
   }
+  useEffect(() => {
+    if (decryptedData) {
+      setValue(decryptedData?.phone);
+      seturlAuthLoading(true);
+      handleLogin(decryptedData?.phone);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   async function verifyOtp() {
     try {
       if (otp.length > 6) {
@@ -329,110 +347,138 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
               flapjack
             </Text>
           </Flex>
-          {loginWithEmail ? (
-            <>
-              <Box>
-                <TextInput
-                  label="Email address"
-                  placeholder="Enter your email address"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  labelProps={{
-                    style: { color: "grey", marginBottom: "10px" },
-                  }}
-                />
-                {isSendLoginEmail && (
-                  <Text fz={"sm"} color={"gray"}>
-                    {isSendLoginEmail}
-                  </Text>
-                )}
-                {error?.email && (
-                  <Text fz={"sm"} color={"red"}>
-                    {error?.email}
-                  </Text>
-                )}
-              </Box>
-              <Button color="orange" fullWidth onClick={handleLogin} my={10}>
-                Log in with Email
-              </Button>
-              <Button
-                color="blue"
-                variant="subtle"
-                fullWidth
-                onClick={() => setLoginWithEmail(false)}
-              >
-                Log in with Phone
-              </Button>
-            </>
-          ) : otpScreen ? (
-            <>
-              <Flex justify={"center"} align={"center"} wrap={"wrap"}>
-                <OtpInput
-                  value={otp}
-                  onChange={setOtp}
-                  numInputs={6}
-                  renderSeparator={<span></span>}
-                  renderInput={(props) => (
-                    <input {...props} className="optInput" />
-                  )}
-                />
-              </Flex>
-              <Box>
-                {error?.phone && (
-                  <Text fz={"sm"} color={"red"}>
-                    {error?.phone}
-                  </Text>
-                )}
-              </Box>
-              <Button color="orange" fullWidth onClick={verifyOtp} my={10}>
-                Verify Otp
-              </Button>
-              <Button
-                disabled={inventoryTimer !== 0}
-                color="blue"
-                variant="subtle"
-                fullWidth
-                onClick={handleLogin}
-              >
-                {`Resend Otp ${inventoryTimer !== 0 ? inventoryTimer : ""}`}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Box>
-                <label
-                  className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
-                  style={{ color: "gray", marginBottom: "10px" }}
-                >
-                  Phone
-                </label>
-                <PhoneInput
-                  placeholder="Enter your phone number"
-                  value={value}
-                  onChange={(phone: string) => setValue(phone)}
-                  className="input-phone"
-                  defaultCountry="US"
-                />
+          <Box>
+            {urlAuthLoading ? (
+              <Text align="center" mb={10}>
+                Loading...
+              </Text>
+            ) : (
+              <>
+                {loginWithEmail ? (
+                  <>
+                    <Box>
+                      <TextInput
+                        label="Email address"
+                        placeholder="Enter your email address"
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        labelProps={{
+                          style: { color: "grey", marginBottom: "10px" },
+                        }}
+                      />
+                      {isSendLoginEmail && (
+                        <Text fz={"sm"} color={"gray"}>
+                          {isSendLoginEmail}
+                        </Text>
+                      )}
+                      {error?.email && (
+                        <Text fz={"sm"} color={"red"}>
+                          {error?.email}
+                        </Text>
+                      )}
+                    </Box>
+                    <Button
+                      color="orange"
+                      fullWidth
+                      onClick={() => handleLogin(value)}
+                      my={10}
+                    >
+                      Log in with Email
+                    </Button>
+                    <Button
+                      color="blue"
+                      variant="subtle"
+                      fullWidth
+                      onClick={() => setLoginWithEmail(false)}
+                    >
+                      Log in with Phone
+                    </Button>
+                  </>
+                ) : otpScreen ? (
+                  <>
+                    <Flex justify={"center"} align={"center"} wrap={"wrap"}>
+                      <OtpInput
+                        value={otp}
+                        onChange={setOtp}
+                        numInputs={6}
+                        renderSeparator={<span></span>}
+                        renderInput={(props) => (
+                          <input {...props} className="optInput" />
+                        )}
+                      />
+                    </Flex>
+                    <Box>
+                      {error?.phone && (
+                        <Text fz={"sm"} color={"red"}>
+                          {error?.phone}
+                        </Text>
+                      )}
+                    </Box>
+                    <Button
+                      color="orange"
+                      fullWidth
+                      onClick={verifyOtp}
+                      my={10}
+                    >
+                      Verify Otp
+                    </Button>
+                    <Button
+                      disabled={inventoryTimer !== 0}
+                      color="blue"
+                      variant="subtle"
+                      fullWidth
+                      onClick={() => handleLogin(value)}
+                    >
+                      {`Resend Otp ${
+                        inventoryTimer !== 0 ? inventoryTimer : ""
+                      }`}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Box>
+                      <label
+                        className="mantine-InputWrapper-label mantine-TextInput-label mantine-ittua2"
+                        style={{ color: "gray", marginBottom: "10px" }}
+                      >
+                        Phone
+                      </label>
+                      <PhoneInput
+                        placeholder="Enter your phone number"
+                        value={value}
+                        onChange={(phone: string) => setValue(phone)}
+                        className="input-phone"
+                        defaultCountry="US"
+                      />
 
-                {error?.phone && (
-                  <Text fz={"sm"} color={"red"}>
-                    {error?.phone}
-                  </Text>
+                      {error?.phone && (
+                        <Text fz={"sm"} color={"red"}>
+                          {error?.phone}
+                        </Text>
+                      )}
+                    </Box>
+                    <Button
+                      color="orange"
+                      fullWidth
+                      onClick={() => handleLogin(value)}
+                      my={10}
+                    >
+                      Log in with Phone
+                    </Button>
+                    <Button
+                      color="blue"
+                      variant="subtle"
+                      fullWidth
+                      onClick={() => setLoginWithEmail(true)}
+                    >
+                      Log in with Email
+                    </Button>
+                  </>
                 )}
-              </Box>
-              <Button color="orange" fullWidth onClick={handleLogin} my={10}>
-                Log in with Phone
-              </Button>
-              <Button
-                color="blue"
-                variant="subtle"
-                fullWidth
-                onClick={() => setLoginWithEmail(true)}
-              >
-                Log in with Email
-              </Button>
-            </>
-          )}
+              </>
+            )}
+          </Box>
+
           <Text fz="6pt" ta="center" color={theme.colors.dark[0]} lh="12px">
             By providing us with your information you are consenting to the
             collection and use of vour information in accordance with our{" "}
