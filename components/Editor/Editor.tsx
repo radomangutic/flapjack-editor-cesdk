@@ -3,6 +3,7 @@ import CreativeEditorSDK from "@cesdk/cesdk-js";
 import {
   fetchAssets,
   fetchFonts,
+  fetchResturants,
   getUser,
   uploadCustomFont,
   useUser,
@@ -53,6 +54,7 @@ const Editor = ({
   const [font, setFont] = useState();
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
+  const [restaurantsOptions, setRestaurantsOptions] = useState([])
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
 
   useEffect(() => {
@@ -288,6 +290,11 @@ const Editor = ({
     }
   };
   useEffect(() => {
+    const getOptions = async () => {
+      const options: any = await fetchResturants();
+      setRestaurantsOptions(options);
+    };
+    getOptions();
     setup();
   }, []);
   const enablePreviewMode = () => {
@@ -592,6 +599,7 @@ const Editor = ({
         template={template}
         onClose={() => settemplateModal(false)}
         content={content}
+        restaurantsOptions={restaurantsOptions}
       />
       {preview && (
         <Text

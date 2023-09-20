@@ -258,7 +258,7 @@ export default function TemplateCardOverlay({
           <Menu.Dropdown>
             {user?.role === "flapjack" && (
               <Menu.Item onClick={handleGlobal}>
-                {template.isGlobal ? "Make Private" : "Publish Global"}
+                {template.isGlobal ? "Unpublish Menu" : "Publish Menu"}
               </Menu.Item>
             )}
             {user?.role === "flapjack" && (

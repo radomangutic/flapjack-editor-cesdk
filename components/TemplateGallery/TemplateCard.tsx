@@ -36,6 +36,7 @@ type TemplateCardProps = {
   navMenu: string;
   resturantsOptions: any;
   setTemplates: any;
+  badge?: boolean;
 };
 
 const TemplateCard = ({
@@ -48,6 +49,7 @@ const TemplateCard = ({
   navMenu,
   resturantsOptions,
   setTemplates,
+  badge,
 }: TemplateCardProps) => {
   const user = useUser();
 
@@ -101,15 +103,15 @@ const TemplateCard = ({
         />
 
         <Image src={thumbnail} height={235} alt="Norway" />
-        {template?.menuSize && (
+        {badge && (
           <Badge
-            color="orange"
+            color={template?.isGlobal ? "green" : "orange"}
             variant="filled"
             pos="absolute"
             bottom={15}
-            left={15}
+            right={15}
           >
-            {template.menuSize}
+            {template?.isGlobal ? 'Live' : 'Draft'}
           </Badge>
         )}
       </Card.Section>

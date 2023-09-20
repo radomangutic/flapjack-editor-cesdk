@@ -163,62 +163,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               ]}
             >
               {templates
-                ?.filter((item: ITemplateDetails) => !!item?.isGlobal)
-                ?.map((template: any, i: number) => (
-                  <TemplateCard
-                    key={i}
-                    template={template}
-                    thumbnail={`${
-                      process.env.NEXT_PUBLIC_SUPABASE_URL
-                    }/storage/v1/object/public/renderings/${
-                      template.id
-                    }/coverImage?${i}${Date.now()}`}
-                    onRemove={deleteTemplate}
-                    onRename={renameTemplate}
-                    onDuplicate={duplicateTemplate}
-                    //@ts-ignore
-                    onGlobal={globalTemplate}
-                    navMenu={navMenu}
-                    resturantsOptions={resturantsOptions}
-                    setTemplates={setTemplates}
-                  />
-                ))}
-            </SimpleGrid>
-          </Container>
-        </>
-      );
-    }
-    if (navMenu === "myMenu") {
-      return (
-        <>
-          <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
-          <Container size="xl" px="xl" pt={16}>
-            <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
-              Drafts
-            </Text>
-            <Text mb={"xl"}>
-              The Drafts tab is for all “in progress” menus. These are menus
-              that are being worked on or haven&apos;t been published to
-              globally to “templates” or delivered to “Customer Menus.”
-              <b>
-                {" "}
-                Please use the dev restaurant menus only for QA and Testing.
-              </b>{" "}
-              Menus in the flapjack restaurant are in progress and should not be
-              modified.
-            </Text>
-            <SimpleGrid
-              cols={3}
-              breakpoints={[
-                { maxWidth: 1120, cols: 3, spacing: "md" },
-                { maxWidth: 991, cols: 2, spacing: "sm" },
-                { maxWidth: 600, cols: 1, spacing: "sm" },
-              ]}
-            >
-              {templates
                 ?.filter(
                   (item: ITemplateDetails) =>
-                    !item?.isGlobal && !item?.restaurant_id
+                    !!item?.isGlobal || !!!item?.restaurant_id
                 )
                 ?.map((template: any, i: number) => (
                   <TemplateCard
@@ -237,6 +184,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     navMenu={navMenu}
                     resturantsOptions={resturantsOptions}
                     setTemplates={setTemplates}
+                    badge
                   />
                 ))}
             </SimpleGrid>

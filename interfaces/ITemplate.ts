@@ -5,6 +5,8 @@ export interface ITemplate {
   isGlobal: boolean;
   id: number;
   createdBy: string;
+  restaurant_id?: string;
+  location?: string;
 }
 
 export interface ITemplateDetails extends ITemplate {
