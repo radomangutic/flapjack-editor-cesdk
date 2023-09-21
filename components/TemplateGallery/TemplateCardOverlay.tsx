@@ -82,11 +82,11 @@ export default function TemplateCardOverlay({
     useState<TemplateCardModalProps["type"]>("delete");
   const userLocation = user?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-        return {
-          label: item,
-          value: item,
-        };
-      })
+      return {
+        label: item,
+        value: item,
+      };
+    })
     : [];
   console.log(userLocation);
   const [locations, setLocations] = useState([]);
@@ -343,7 +343,7 @@ export default function TemplateCardOverlay({
           <></>
         )}
         <Group position="right" mt={"md"}>
-          <Button onClick={close}>Cancle</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button disabled={loading} onClick={handleTransfer}>
             {loading ? "Transfering " : "Transfer"}
           </Button>
@@ -372,7 +372,7 @@ export default function TemplateCardOverlay({
           <></>
         )}
         <Group position="right" mt={"md"}>
-          <Button onClick={closeChangeLocationModal}>Cancle</Button>
+          <Button onClick={closeChangeLocationModal}>Cancel</Button>
           <Button disabled={loading} onClick={changeLocation}>
             {loading ? "Transfering " : "Transfer"}
           </Button>
