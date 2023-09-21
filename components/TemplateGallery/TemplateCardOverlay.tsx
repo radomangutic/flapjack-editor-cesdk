@@ -69,7 +69,9 @@ export default function TemplateCardOverlay({
   const [menuIsOpened, setMenuIsOpened] = useState(false);
   const [modalIsOpened, setModalIsOpened] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [locationChanged, setLocationChanged] = useState(template?.location || "");
+  const [locationChanged, setLocationChanged] = useState(
+    template?.location || ""
+  );
   const [resturantId, setResturantId] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
   const [
@@ -78,12 +80,14 @@ export default function TemplateCardOverlay({
   ] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
-  const userLocation = user?.restaurant?.location?.map((item: string) => {
-    return {
-      label: item,
-      value: item,
-    };
-  });
+  const userLocation = user?.restaurant?.location?.length
+    ? user?.restaurant?.location?.map((item: string) => {
+        return {
+          label: item,
+          value: item,
+        };
+      })
+    : [];
   console.log(userLocation);
   const [locations, setLocations] = useState([]);
   const [location, setLocation] = useState("");
@@ -171,7 +175,7 @@ export default function TemplateCardOverlay({
         setError("Please select a resturant location");
         return;
       }
-      setLoading(true)
+      setLoading(true);
       const { error } = await dbClient
         .from("templates")
         .update({ location: locationChanged })
