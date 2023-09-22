@@ -102,7 +102,7 @@ const Editor = ({
               crop: true,
             },
             "//ly.img.ubq/page": {
-              manage: true,
+              manage: preview ? false : true,
               format: true,
               adjustments: false,
               filters: false,
@@ -113,7 +113,7 @@ const Editor = ({
           navigation: {
             action: {
               export: {
-                show: true,
+                show: preview ? false : true,
                 format: ["image/png", "application/pdf"],
                 onclick: () => alert("Download"),
               },
