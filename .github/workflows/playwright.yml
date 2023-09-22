@@ -1,0 +1,39 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:  # Define your environment variables here
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_GOOGLE_FONTS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_FONTS_API_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      PRODUCT_PRICE_ID: ${{ secrets.PRODUCT_PRICE_ID }}
+      REACT_APP_LICENSE: ${{ secrets.REACT_APP_LICENSE }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build Next.js App
+        run: npm run build
+      - name: Start Next.js Server
+        run: npm run start &
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

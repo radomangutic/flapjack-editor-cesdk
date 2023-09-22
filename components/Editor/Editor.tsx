@@ -124,14 +124,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content}`,
+          `/storage/v1/object/public/templates/${template?.content
+          }?t=${new Date().toISOString()}`,
       }),
       // baseURL: '/assets',
       // core: {
@@ -255,7 +256,9 @@ const Editor = ({
                         .from("templateImages")
                         .upload(content, file);
                     if (error) {
+
                       throw error;
+
                     }
                     const userData = localStorage.getItem("userData");
                     const user = userData && JSON.parse(userData);
@@ -1005,7 +1008,7 @@ const Editor = ({
           {fontsError?.submit}
         </Text>
         <Group position="right" mt={"md"}>
-          <Button onClick={close}>Cancle</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button onClick={handleUploadFont} disabled={loading}>
             {loading ? "Uploading..." : "Upload"}
           </Button>
