@@ -9,21 +9,21 @@ export type RemoveTemplate =
   | undefined;
 export type DuplicateTemplate =
   | ((
-      templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
-    ) => Promise<void>)
+    templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
+  ) => Promise<void>)
   | undefined;
 
 export type GlobalTemplate =
   | ((
-      templateDetails: Pick<ITemplateDetails, "id" | "isGlobal">,
-      id: string
-    ) => Promise<void>)
+    templateDetails: Pick<ITemplateDetails, "id" | "isGlobal">,
+    id: string
+  ) => Promise<void>)
   | undefined;
 
 export type RenameTemplate =
   | ((
-      templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
-    ) => Promise<void>)
+    templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
+  ) => Promise<void>)
   | undefined;
 
 type TemplateCardProps = {
@@ -98,7 +98,15 @@ const TemplateCard = ({
           setTemplates={setTemplates}
         />
 
-        <Image src={thumbnail} height={235} alt="Norway" />
+        <Image
+          src={thumbnail}
+          withPlaceholder={true}
+          placeholder={<Image
+            src="/thumbnail-placeholder.jpg"
+            height={235}
+            alt=" Menu Thumbnail Placeholder" />}
+          height={235}
+          alt=" Menu Thumbnail Placeholder" />
         {template?.menuSize && (
           <Badge
             color="orange"
