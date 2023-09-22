@@ -41,11 +41,15 @@ const Editor = ({
   template,
   preview,
   elementsList,
+  sectionedList,
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
   elementsList?: any;
+  sectionedList?: any;
 }) => {
+  console.log("sectionedList", sectionedList);
+
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
   let cesdk: { dispose: () => void };
@@ -73,12 +77,12 @@ const Editor = ({
       closeAuthDialog();
     }
   }, [user]);
-  function getConfigOfRecentComponent(eleList: any) {
+  function getConfigOfRecentComponent(eleList: any, id: string) {
     // most recent custom library component
     const recentcustomSource = {
-      id: customComponent?.recent,
-      title: "Recent",
-      label: "Recent",
+      id: id,
+      title: id,
+      label: id,
       previewBackgroundType: "contain",
       async findAssets(queryData: any) {
         return Promise.resolve({
@@ -198,7 +202,13 @@ const Editor = ({
                   defaultEntries[4],
                   {
                     id: "Elements",
-                    sourceIds: [customComponent?.recent, "Elements"],
+                    sourceIds: [
+                      customComponent?.recent,
+                      "Elements",
+                      ...sectionedList?.map(
+                        (item: any) => item?.resturantDetail?.name
+                      ),
+                    ],
                     previewLength: 2,
                     gridColumns: 2,
                     previewBackgroundType: "contain",
@@ -340,6 +350,14 @@ const Editor = ({
           cesdk = instance;
           cesdkInstance.current = instance;
           const firstPage = instance.engine.block.findByType("page")[0];
+          sectionedList?.forEach(async (element: any) => {
+            await instance.engine.asset.addSource(
+              getConfigOfRecentComponent(
+                element?.items,
+                element?.resturantDetail?.name
+              )
+            );
+          });
           // Custom library component
           const customSource = {
             id: "Elements",
@@ -380,12 +398,18 @@ const Editor = ({
                       customComponent?.recent
                     );
                     await instance.engine.asset.addSource(
-                      getConfigOfRecentComponent(newList)
+                      getConfigOfRecentComponent(
+                        newList,
+                        customComponent?.recent
+                      )
                     );
                   }
                 } else {
                   await instance.engine.asset.addSource(
-                    getConfigOfRecentComponent([assetResult])
+                    getConfigOfRecentComponent(
+                      [assetResult],
+                      customComponent?.recent
+                    )
                   );
                 }
               } catch (error) {
@@ -773,9 +797,7 @@ const Editor = ({
         const newList = [newItem, ...libraryElements];
         setlibraryElements(newList);
 
-        await cesdkInstance?.current.engine.asset.removeSource(
-          "Elements"
-        );
+        await cesdkInstance?.current.engine.asset.removeSource("Elements");
         const customSource = {
           id: "Elements",
           previewBackgroundType: "contain",
@@ -824,12 +846,15 @@ const Editor = ({
                     customComponent?.recent
                   );
                   await cesdkInstance?.current.engine.asset.addSource(
-                    getConfigOfRecentComponent(newList)
+                    getConfigOfRecentComponent(newList, customComponent?.recent)
                   );
                 }
               } else {
                 await cesdkInstance?.current.engine.asset.addSource(
-                  getConfigOfRecentComponent([assetResult])
+                  getConfigOfRecentComponent(
+                    [assetResult],
+                    customComponent?.recent
+                  )
                 );
               }
             } catch (error) {
@@ -876,27 +901,30 @@ const Editor = ({
     const leftPanel =
       "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div ";
 
-    var listChildren = shadowRoot?.querySelector(`${leftPanel}`)
-      ?.children as HTMLCollection;
-    if (listChildren?.length > 0) {
-      for (let index = 0; index < listChildren.length; index++) {
-        const element = listChildren[index];
-        const targetElement = element?.children[0]?.children[0]?.children[0];
-        if (
-          targetElement &&
-          targetElement?.textContent?.includes("Custom component")
-        ) {
-          targetElement.textContent = index === 0 ? "Recent" : "Custom";
+    var listChildren = shadowRoot?.querySelector(`${leftPanel}`);
+    const opendBlokElement = listChildren?.children[2] as HTMLElement;
+    // console.log('targetElement',);
+    const newName = opendBlokElement?.textContent?.split("/")[1];
+
+    if (opendBlokElement && opendBlokElement.textContent) {
+      opendBlokElement.textContent = newName
+        ? newName
+        : opendBlokElement.textContent;
+    }
+
+    var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
+    const childText = opendElement?.children as HTMLCollection;
+    for (let index = 0; index < childText?.length; index++) {
+      const element = childText[index];
+      const target = element?.children[0]?.children[0]?.children[0];
+      if (target?.textContent === "Elements/Elements") {
+        target.textContent = "Custom";
+      } else {
+        if (target?.textContent) {
+          target.textContent =
+            target?.textContent?.split("/")[1] ?? target?.textContent;
         }
       }
-    }
-    var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
-    const childText = opendElement?.children[2];
-    if (childText?.textContent === "Elements/Recent") {
-      childText.textContent = "Recent";
-    }
-    if (childText?.textContent === "Elements/Elements") {
-      childText.textContent = "Custom";
     }
   };
   useEffect(() => {
