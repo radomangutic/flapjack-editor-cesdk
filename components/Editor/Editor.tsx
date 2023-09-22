@@ -197,8 +197,8 @@ const Editor = ({
                   // Shapes
                   defaultEntries[4],
                   {
-                    id: "Custom component",
-                    sourceIds: [customComponent?.recent, "Custom component"],
+                    id: "Elements",
+                    sourceIds: [customComponent?.recent, "Elements"],
                     previewLength: 2,
                     gridColumns: 2,
                     previewBackgroundType: "contain",
@@ -342,7 +342,7 @@ const Editor = ({
           const firstPage = instance.engine.block.findByType("page")[0];
           // Custom library component
           const customSource = {
-            id: "Custom component",
+            id: "Elements",
             previewBackgroundType: "contain",
             gridBackgroundType: "contain",
 
@@ -767,17 +767,17 @@ const Editor = ({
             name: "dddddwestg",
           },
           context: {
-            sourceId: "Custom component",
+            sourceId: "Elements",
           },
         };
         const newList = [newItem, ...libraryElements];
         setlibraryElements(newList);
 
         await cesdkInstance?.current.engine.asset.removeSource(
-          "Custom component"
+          "Elements"
         );
         const customSource = {
-          id: "Custom component",
+          id: "Elements",
           previewBackgroundType: "contain",
           gridBackgroundType: "contain",
 
@@ -890,10 +890,10 @@ const Editor = ({
     }
     var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
     const childText = opendElement?.children[2];
-    if (childText?.textContent === "Custom component/Recent") {
+    if (childText?.textContent === "Elements/Recent") {
       childText.textContent = "Recent";
     }
-    if (childText?.textContent === "Custom component/Custom component") {
+    if (childText?.textContent === "Elements/Elements") {
       childText.textContent = "Custom";
     }
   };
