@@ -82,11 +82,11 @@ export default function TemplateCardOverlay({
     useState<TemplateCardModalProps["type"]>("delete");
   const userLocation = user?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-      return {
-        label: item,
-        value: item,
-      };
-    })
+        return {
+          label: item,
+          value: item,
+        };
+      })
     : [];
   console.log(userLocation);
   const [locations, setLocations] = useState([]);
@@ -256,11 +256,13 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
-            {user?.role === "owner" && navMenu === "myMenu" && (
-              <Menu.Item onClick={openChangeLocationModal}>
-                Change Location
-              </Menu.Item>
-            )}
+            {user?.role === "owner" &&
+              navMenu === "myMenu" &&
+              user?.restaurant?.location?.length > 1 && (
+                <Menu.Item onClick={openChangeLocationModal}>
+                  Change Location
+                </Menu.Item>
+              )}
             <Menu.Item onClick={openModal}>Rename</Menu.Item>
             <Menu.Item onClick={openModal}>Delete</Menu.Item>
           </Menu.Dropdown>
