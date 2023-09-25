@@ -248,6 +248,7 @@ export const canCreateTemplate = (user: IUserDetails | null) => {
     user &&
     (user.subscriptionActive ||
       user.role === "flapjack" ||
+      user.role === "user" ||
       user?.role === "owner")
   );
 };

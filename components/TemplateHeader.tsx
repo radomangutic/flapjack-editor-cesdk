@@ -201,7 +201,7 @@ const TemplateHeader = ({
               </Text>
             )}
             {(user?.role == "user" && user?.subscriptionActive) ||
-              (user?.role === "owner" ? (
+              (user?.role === "owner" || (user?.role === "user" && !!user?.restaurant_id) ? (
                 <></>
               ) : (
                 <Text
@@ -299,7 +299,7 @@ const TemplateHeader = ({
 
               <Menu.Dropdown>
                 <Menu.Label>Application</Menu.Label>
-                {user?.role === "owner" && (
+                {user?.role !== "flapjack" && (
                   <Link
                     href={`/restaurant/${user?.restaurant_id}`}
                     target="_blank"
