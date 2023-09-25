@@ -279,7 +279,7 @@ export const templateArchive = async (template: ITemplateDetails) => {
         const content = archiveTemplateData.content;
         const { error } = await dbClient.storage
           .from("templates")
-          .remove([archiveTemplateData.content?.[0]]);
+          .remove([archiveTemplateData.content?.[0]?.content]);
         if (error) throw error;
         content.shift();
         content.push({ content: newLocation, time: new Date() });

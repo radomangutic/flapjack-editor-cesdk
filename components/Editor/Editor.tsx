@@ -68,14 +68,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content}`,
+          `/storage/v1/object/public/templates/${template?.content
+          }?t=${new Date().toISOString()}`,
       }),
       ui: {
         elements: {
@@ -163,53 +164,53 @@ const Editor = ({
           });
         },
         onUpload: async (file: any) => {
-        try {
-          let isAbleToExport = true;
-          const data: any = await new Promise((resolve, reject) => {
-            setUserData(async (user: any) => {
-              if (isAbleToExport) {
-                isAbleToExport = false;
-                if (user) {
-                  const content = uuidv4();
-                  const { data, error }: { data: any; error: any } =
-                    await dbClient.storage
-                      .from("templateImages")
-                      .upload(content, file);
-                  if (error) {
-                    console.error("error uploading file");
+          try {
+            let isAbleToExport = true;
+            const data: any = await new Promise((resolve, reject) => {
+              setUserData(async (user: any) => {
+                if (isAbleToExport) {
+                  isAbleToExport = false;
+                  if (user) {
+                    const content = uuidv4();
+                    const { data, error }: { data: any; error: any } =
+                      await dbClient.storage
+                        .from("templateImages")
+                        .upload(content, file);
+                    if (error) {
+                      console.error("error uploading file");
+                    }
+                    const userData = localStorage.getItem("userData");
+                    const user = userData && JSON.parse(userData);
+                    await dbClient.from("assets").insert({
+                      content,
+                      createdBy: user?.id,
+                      restaurant_id: user?.restaurant_id,
+                      template_id: template?.id,
+                    });
+                    setTimeout(() => {
+                      isAbleToExport = true;
+                    }, 1000);
+                    resolve(data);
+                  } else {
+                    reject("Please login to continue");
                   }
-                  const userData = localStorage.getItem("userData");
-                  const user = userData && JSON.parse(userData);
-                  await dbClient.from("assets").insert({
-                    content,
-                    createdBy: user?.id,
-                    restaurant_id: user?.restaurant_id,
-                    template_id: template?.id,
-                  });
-                  setTimeout(() => {
-                    isAbleToExport = true;
-                  }, 1000);
-                  resolve(data);
-                } else {
-                  reject("Please login to continue");
                 }
-              }
-              return user;
+                return user;
+              });
             });
-          });
-          return (
-            data && {
-              id: uuidv4(), // A unique ID identifying the uploaded image
-              name: file?.name || "upload",
-              meta: {
-                uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-              },
-            }
-          );
-        } catch (error) {
-          throw error
-        }
+            return (
+              data && {
+                id: uuidv4(), // A unique ID identifying the uploaded image
+                name: file?.name || "upload",
+                meta: {
+                  uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                },
+              }
+            );
+          } catch (error) {
+            throw error;
+          }
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
@@ -587,7 +588,7 @@ const Editor = ({
           {fontsError?.submit}
         </Text>
         <Group position="right" mt={"md"}>
-          <Button onClick={close}>Cancle</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button onClick={handleUploadFont} disabled={loading}>
             {loading ? "Uploading..." : "Upload"}
           </Button>
