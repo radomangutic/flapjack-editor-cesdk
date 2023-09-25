@@ -63,6 +63,21 @@ const UpsertTemplateDialog = ({
     }/storage/v1/object/public/renderings/${router.query.id
     }/coverImage?${Date.now()}`;
 
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (loader) {
+      e.preventDefault();
+      e.returnValue = "Unsaved template. Going back may lose changes."; // This message will be displayed to the user
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [loader]);
+
   const form = useForm({
     initialValues: {
       name: removeSpecialCharacters(template?.name) || "",
@@ -80,7 +95,9 @@ const UpsertTemplateDialog = ({
       setloader(true);
       const isUpdating = router.query.id;
       const file = new Blob([content], { type: "text/plain" });
-
+      setTimeout(() => {
+        onClose();
+      }, 1000);
       let contentUpload = "";
       const userCanUpdate =
         user?.role === "flapjack" ||
@@ -153,6 +170,7 @@ const UpsertTemplateDialog = ({
         }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
+      alert("Menu saved successfully")
     } catch (err: any) {
       throw err;
     } finally {
