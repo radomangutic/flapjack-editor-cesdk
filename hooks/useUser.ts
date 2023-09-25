@@ -145,7 +145,16 @@ export const fetchResturants = async (): Promise<any[]> => {
           location: item?.location,
         };
       });
-      restaurants = reseturantOptions;
+      let flapjackRestaurant;
+      let otherRestaurants: any = [];
+      reseturantOptions.forEach((item) => {
+        if (item?.value === "2") {
+          flapjackRestaurant = item;
+        } else {
+          otherRestaurants.push(item);
+        }
+      });
+      restaurants = [flapjackRestaurant, ...otherRestaurants];
     }
   }
 

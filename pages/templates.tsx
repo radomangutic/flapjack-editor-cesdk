@@ -48,13 +48,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
-      if (user?.role !== "flapjack") {
-        templatesList.sort(
-          (a, b) =>
-            new Date(b.updatedAt as any).getTime() -
-            new Date(a.updatedAt as any).getTime()
-        );
-      }
+      templatesList.sort(
+        (a, b) =>
+          new Date(b.updatedAt as any).getTime() -
+          new Date(a.updatedAt as any).getTime()
+      );
 
       setTemplates(templatesList);
       setloading(false);
@@ -165,7 +163,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               {templates
                 ?.filter(
                   (item: ITemplateDetails) =>
-                    !!item?.isGlobal || !!!item?.restaurant_id
+                    !!item?.isGlobal ||
+                    !!!item?.restaurant_id ||
+                    item?.restaurant_id === "2"
                 )
                 ?.map((template: any, i: number) => (
                   <TemplateCard
@@ -261,6 +261,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             navMenu={navMenu}
                             resturantsOptions={resturantsOptions}
                             setTemplates={setTemplates}
+                            badge
                           />
                         ))
                       ) : (
@@ -317,6 +318,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                       navMenu={navMenu}
                       resturantsOptions={resturantsOptions}
                       setTemplates={setTemplates}
+                      badge
                     />
                   ))}
                 </SimpleGrid>
@@ -349,6 +351,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 navMenu={navMenu}
                 resturantsOptions={resturantsOptions}
                 setTemplates={setTemplates}
+                badge
               />
             ))}
           </SimpleGrid>

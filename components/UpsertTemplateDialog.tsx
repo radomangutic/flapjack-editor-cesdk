@@ -13,7 +13,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { templateArchive, useUser } from "../hooks";
+import { getUser, templateArchive, useUser } from "../hooks";
 import { ITemplate } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
@@ -39,10 +39,19 @@ const UpsertTemplateDialog = ({
   const supabase = useSupabaseClient();
   const [isFileEsist, setisFileEsist] = useState(false);
   const user = useUser();
+  const userData = getUser()
+  const userLocation = userData?.restaurant?.location?.length
+  ? user?.restaurant?.location?.map((item: string) => {
+    return {
+      label: item,
+      value: item,
+    };
+  })
+  : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
   const [loader, setloader] = useState(false);
-  const [locations, setlocations] = useState([]);
+  const [locations, setlocations] = useState(userLocation);
   const [restaurantId, setRestaurantId] = useState(
     template?.restaurant_id || ""
   );
@@ -125,7 +134,7 @@ const UpsertTemplateDialog = ({
             name: values?.name,
             description: values?.description,
             content: contentUpload,
-            isGlobal: false,
+            isGlobal: true,
             restaurant_id: restaurantId || user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
@@ -285,7 +294,7 @@ const UpsertTemplateDialog = ({
                 item.label.toLowerCase().includes(value.toLowerCase().trim())
               }
             />
-            {locations.length ? (
+            {locations?.length ? (
               <Select
                 label="Select a resturant location"
                 placeholder="Select a resturant location"
