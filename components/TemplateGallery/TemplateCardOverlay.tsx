@@ -256,7 +256,7 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
-            {user?.role === "owner" || user?.role === "user" && navMenu === "myMenu" && (
+            {user?.role !== "flapjack" && !!user?.restaurant_id && navMenu === "myMenu" && (
               <Menu.Item onClick={openChangeLocationModal}>
                 Change Location
               </Menu.Item>

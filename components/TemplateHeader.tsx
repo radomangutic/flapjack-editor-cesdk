@@ -299,7 +299,7 @@ const TemplateHeader = ({
 
               <Menu.Dropdown>
                 <Menu.Label>Application</Menu.Label>
-                {user?.role !== "flapjack" && (
+                {user?.role !== "flapjack" && user?.restaurant_id && (
                   <Link
                     href={`/restaurant/${user?.restaurant_id}`}
                     target="_blank"
