@@ -95,7 +95,7 @@ const AppHeader = () => {
 
             <Menu.Dropdown>
               <Menu.Label>Application</Menu.Label>
-              {session?.role !== "flapjack" && !!session?.restaurant_id && (
+              {session?.role === "owner" && (
                 <Link
                   href={`/restaurant/${session?.restaurant_id}`}
                   target="_blank"
