@@ -70,12 +70,20 @@ const UpsertTemplateDialog = ({
       const userCanUpdate =
         user?.role === "flapjack" ||
         (!template?.isGlobal && user?.subscriptionActive) ||
-        user?.role === "owner";
+        user?.role === "owner" || user?.role === "user";
       if (isUpdating && template?.content && userCanUpdate) {
         await templateArchive(template);
         const { data, error } = await supabase.storage
           .from("templates")
           .update(`${template?.content}`, file);
+        await supabase
+          .from("templates")
+          .update({
+            name: values?.name,
+            description: values?.description,
+            updatedAt: new Date(),
+          })
+          .eq("id", template?.id);
         if (error) {
           return;
         }

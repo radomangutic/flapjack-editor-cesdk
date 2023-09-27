@@ -60,7 +60,7 @@ export default function TemplateCardOverlay({
     if (!user || !router.pathname.includes("templates")) return false;
 
     const flapjackCanUpdate =
-      user?.role === "flapjack" || user?.role === "owner";
+      user?.role === "flapjack" || user?.role === "owner" || !!user?.restaurant_id;
     const isUserTemplate =
       user?.id === template.createdBy && user?.role === "user";
 
@@ -69,7 +69,9 @@ export default function TemplateCardOverlay({
   const [menuIsOpened, setMenuIsOpened] = useState(false);
   const [modalIsOpened, setModalIsOpened] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [locationChanged, setLocationChanged] = useState(template?.location || "");
+  const [locationChanged, setLocationChanged] = useState(
+    template?.location || ""
+  );
   const [resturantId, setResturantId] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
   const [
@@ -78,12 +80,14 @@ export default function TemplateCardOverlay({
   ] = useDisclosure(false);
   const [modalType, setModalType] =
     useState<TemplateCardModalProps["type"]>("delete");
-  const userLocation = user?.restaurant?.location?.map((item: string) => {
-    return {
-      label: item,
-      value: item,
-    };
-  });
+  const userLocation = user?.restaurant?.location?.length
+    ? user?.restaurant?.location?.map((item: string) => {
+      return {
+        label: item,
+        value: item,
+      };
+    })
+    : [];
   console.log(userLocation);
   const [locations, setLocations] = useState([]);
   const [location, setLocation] = useState("");
@@ -171,7 +175,7 @@ export default function TemplateCardOverlay({
         setError("Please select a resturant location");
         return;
       }
-      setLoading(true)
+      setLoading(true);
       const { error } = await dbClient
         .from("templates")
         .update({ location: locationChanged })
@@ -252,7 +256,7 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
-            {user?.role === "owner" && navMenu === "myMenu" && (
+            {user?.role !== "flapjack" && !!user?.restaurant_id && navMenu === "myMenu" && (
               <Menu.Item onClick={openChangeLocationModal}>
                 Change Location
               </Menu.Item>
@@ -339,7 +343,7 @@ export default function TemplateCardOverlay({
           <></>
         )}
         <Group position="right" mt={"md"}>
-          <Button onClick={close}>Cancle</Button>
+          <Button onClick={close}>Cancel</Button>
           <Button disabled={loading} onClick={handleTransfer}>
             {loading ? "Transfering " : "Transfer"}
           </Button>
@@ -368,7 +372,7 @@ export default function TemplateCardOverlay({
           <></>
         )}
         <Group position="right" mt={"md"}>
-          <Button onClick={closeChangeLocationModal}>Cancle</Button>
+          <Button onClick={closeChangeLocationModal}>Cancel</Button>
           <Button disabled={loading} onClick={changeLocation}>
             {loading ? "Transfering " : "Transfer"}
           </Button>

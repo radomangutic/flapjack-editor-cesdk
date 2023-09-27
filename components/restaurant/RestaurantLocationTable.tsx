@@ -129,10 +129,12 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
       setmodalType("empty");
     } else {
       setisLoading(true);
-      const resonse: RestaurantType | null = await updateRestaurantLocation([
-        ...locations,
-        selectedLocation,
-      ]);
+      const updatedLocation = locations?.length
+        ? [...locations, selectedLocation]
+        : [selectedLocation];
+      const resonse: RestaurantType | null = await updateRestaurantLocation(
+        updatedLocation
+      );
       if (resonse) {
         setlocations(resonse?.location);
       }
