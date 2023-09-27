@@ -60,7 +60,9 @@ export default function TemplateCardOverlay({
     if (!user || !router.pathname.includes("templates")) return false;
 
     const flapjackCanUpdate =
-      user?.role === "flapjack" || user?.role === "owner";
+      user?.role === "flapjack" ||
+      user?.role === "owner" ||
+      !!user?.restaurant_id;
     const isUserTemplate =
       user?.id === template.createdBy && user?.role === "user";
 
@@ -256,7 +258,8 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal || navMenu === "myMenu") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
-            {user?.role === "owner" &&
+            {user?.role !== "flapjack" &&
+              !!user?.restaurant_id &&
               navMenu === "myMenu" &&
               user?.restaurant?.location?.length > 1 && (
                 <Menu.Item onClick={openChangeLocationModal}>
