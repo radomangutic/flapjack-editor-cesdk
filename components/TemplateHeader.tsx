@@ -168,9 +168,8 @@ const TemplateHeader = ({
             {user && (
               <Text
                 // navMenu "cursor-pointer"
-                className={`myMenu ${
-                  navMenu === "myMenu" ? "active" : ""
-                } cursor-pointer`}
+                className={`myMenu ${navMenu === "myMenu" ? "active" : ""
+                  } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
                   activeClassFun("myMenu");
@@ -205,9 +204,8 @@ const TemplateHeader = ({
                 <></>
               ) : (
                 <Text
-                  className={`templates ${
-                    navMenu === "templates" ? "active" : ""
-                  } cursor-pointer`}
+                  className={`templates ${navMenu === "templates" ? "active" : ""
+                    } cursor-pointer`}
                   fz="sm"
                   ml="sm"
                   onClick={() => {
@@ -284,8 +282,8 @@ const TemplateHeader = ({
                   ? "Update"
                   : "Save Menu"
                 : user
-                ? "Save"
-                : "Save Menu"}
+                  ? "Save"
+                  : "Save Menu"}
             </Button>
           )}
           {user ? (
@@ -299,7 +297,7 @@ const TemplateHeader = ({
 
               <Menu.Dropdown>
                 <Menu.Label>Application</Menu.Label>
-                {user?.role !== "flapjack" && user?.restaurant_id && (
+                {user?.role == "owner" && (
                   <Link
                     href={`/restaurant/${user?.restaurant_id}`}
                     target="_blank"
@@ -313,7 +311,7 @@ const TemplateHeader = ({
                 {user?.role === "flapjack" && (
                   <Link href={`/dashboard`} target="_blank" rel="noreferrer">
                     <Menu.Item icon={<IconSettings size={14} />}>
-                     Dashboard
+                      Dashboard
                     </Menu.Item>
                   </Link>
                 )}
