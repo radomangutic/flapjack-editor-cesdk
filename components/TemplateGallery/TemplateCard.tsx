@@ -69,6 +69,8 @@ const TemplateCard = ({
       setShowOverlay(true);
     } else if (navMenu === "customerMenus") {
       setShowOverlay(true);
+    } else if (navMenu === "user") {
+      setShowOverlay(true);
     } else {
       setShowOverlay(false);
     }
@@ -111,7 +113,7 @@ const TemplateCard = ({
             bottom={15}
             right={15}
           >
-            {template?.isGlobal ? 'Live' : 'Draft'}
+            {template?.isGlobal ? "Live" : "Draft"}
           </Badge>
         )}
       </Card.Section>

@@ -86,7 +86,7 @@ const UpsertTemplateDialog = ({
       const userCanUpdate =
         user?.role === "flapjack" ||
         (!template?.isGlobal && user?.subscriptionActive) ||
-        user?.role === "owner";
+        user?.role === "owner" || user?.role === "user";
       if (isUpdating && template?.content && userCanUpdate) {
         await templateArchive(template);
         const { data, error } = await supabase.storage
