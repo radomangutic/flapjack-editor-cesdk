@@ -65,6 +65,8 @@ const TemplateCard = ({
       setShowOverlay(true);
     } else if (user?.role === "owner") {
       setShowOverlay(true);
+    } else if (user?.role === "user") {
+      setShowOverlay(true);
     } else {
       setShowOverlay(false);
     }
