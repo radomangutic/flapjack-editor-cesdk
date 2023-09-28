@@ -254,7 +254,7 @@ const Editor = ({
                   },
                   // Images
                   {
-                    // ...defaultEntries[2],
+                    ...defaultEntries[2],
                     id: "Images",
                     sourceIds: [
                       "ly.img.image.upload",
@@ -987,9 +987,10 @@ const Editor = ({
     const opendBlokElement = listChildren?.children[2] as HTMLElement;
     // console.log('targetElement',);
     const newName = opendBlokElement?.textContent?.split("/")[1];
+console.log('aaa', opendBlokElement?.className);
 
-    if (opendBlokElement && opendBlokElement.textContent) {
-      opendBlokElement.textContent = newName
+    if (opendBlokElement && opendBlokElement.textContent && opendBlokElement?.className) {
+      opendBlokElement.textContent = opendBlokElement?.className === 'UBQ_AssetLibraryBreadcrumb__label--PA5RI' && newName
         ? newName
         : opendBlokElement.textContent;
     }
