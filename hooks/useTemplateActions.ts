@@ -87,7 +87,7 @@ export const useTemplateActions = (
         const { data: duplicateData, error: duplicateError } = await supabase
           .from("templates")
           .insert({
-            name,
+            name:`${name}-Copy`,
             description,
             content: newLocation,
             isGlobal: user?.role === "flapjack" ? true : false,
