@@ -201,7 +201,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         setOtpScreen(true);
       }
     } catch (error: any) {
-      throw error
+      throw error;
     } finally {
       seturlAuthLoading(false);
     }
@@ -238,13 +238,12 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
           .eq("id", data?.user?.id);
         router.push("/templates");
       }
-  
+
       setUser?.(data?.user);
       onClose();
     } catch (error: any) {
-      throw error
+      throw error;
     }
-    
   }
 
   const validateEmail = (email: string) => {
@@ -358,6 +357,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                   <>
                     <Box>
                       <TextInput
+                        className="email-input"
                         label="Email address"
                         placeholder="Enter your email address"
                         value={value}
@@ -378,6 +378,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                       )}
                     </Box>
                     <Button
+                      className="loginWithEmailButton"
                       color="orange"
                       fullWidth
                       onClick={() => handleLogin(value)}
@@ -386,6 +387,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                       Log in with Email
                     </Button>
                     <Button
+                      className="loginWithPhoneButton"
                       color="blue"
                       variant="subtle"
                       fullWidth
@@ -458,6 +460,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                       )}
                     </Box>
                     <Button
+                      className="loginWithPhoneButton"
                       color="orange"
                       fullWidth
                       onClick={() => handleLogin(value)}
@@ -466,6 +469,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                       Log in with Phone
                     </Button>
                     <Button
+                      className="loginWithEmailButton"
                       color="blue"
                       variant="subtle"
                       fullWidth

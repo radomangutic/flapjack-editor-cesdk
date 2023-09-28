@@ -182,14 +182,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content}`
+          `/storage/v1/object/public/templates/${template?.content
+          }?t=${new Date().toISOString()}`,
       }),
       // baseURL: '/assets',
       // core: {
@@ -347,7 +348,9 @@ const Editor = ({
                 name: file?.name || "upload",
                 meta: {
                   uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`
+                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
+                  width:5,
+                  height:5,
                 }
               }
             );
