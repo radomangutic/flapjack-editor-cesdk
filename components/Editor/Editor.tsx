@@ -120,7 +120,6 @@ const Editor = ({
     };
     return recentcustomSource;
   }
-  console.log("globalTemplates", globalTemplates);
 
   function getConfigOfImageComponent (eleList: any, id: string) {
     // most recent custom library component
@@ -247,6 +246,7 @@ const Editor = ({
                   // if preview don't show sidebar
                   return [];
                 }
+
                 return [
                   // Text
                   {
@@ -254,7 +254,8 @@ const Editor = ({
                   },
                   // Images
                   {
-                    ...defaultEntries[2],
+                    // ...defaultEntries[2],
+                    id: "Images",
                     sourceIds: [
                       "ly.img.image.upload",
                       ...globalTemplates?.map(
@@ -505,7 +506,7 @@ const Editor = ({
 
           setinput(input + 1);
           setloadinEditor(false);
-          if (user?.role === "flapjack") {
+          if (user?.role !== "flapjack") {
             fetchAssets().then(
               async assetsData => await getAssetSources(assetsData)
             );
@@ -752,7 +753,7 @@ const Editor = ({
         uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         width: 3,
-        height: 5
+        height: 3
       }
     };
   }
@@ -998,6 +999,7 @@ const Editor = ({
     for (let index = 0; index < childText?.length; index++) {
       const element = childText[index];
       const target = element?.children[0]?.children[0]?.children[0];
+
       if (target?.textContent === "Elements/Elements") {
         target.textContent = "Custom";
       } else {
