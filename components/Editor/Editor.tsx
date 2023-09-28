@@ -5,7 +5,7 @@ import {
   fetchFonts,
   getUser,
   uploadCustomFont,
-  useUser,
+  useUser
 } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
@@ -25,7 +25,7 @@ import {
   Group,
   Modal,
   Text,
-  TextInput,
+  TextInput
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
@@ -35,21 +35,21 @@ interface fontsErrorsType {
   submit?: string;
 }
 const customComponent = {
-  recent: "Recent",
+  recent: "Recent"
 };
 const Editor = ({
   template,
   preview,
   elementsList,
   sectionedList,
+  globalTemplates
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
   elementsList?: any;
   sectionedList?: any;
+  globalTemplates?: any;
 }) => {
-  console.log("sectionedList", sectionedList);
-
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
   let cesdk: { dispose: () => void };
@@ -77,22 +77,22 @@ const Editor = ({
       closeAuthDialog();
     }
   }, [user]);
-  function getConfigOfRecentComponent(eleList: any, id: string) {
+  function getConfigOfRecentComponent (eleList: any, id: string) {
     // most recent custom library component
     const recentcustomSource = {
       id: id,
       title: id,
       label: id,
       previewBackgroundType: "contain",
-      async findAssets(queryData: any) {
+      async findAssets (queryData: any) {
         return Promise.resolve({
           assets: eleList,
           total: eleList.length,
           currentPage: queryData.page,
-          nextPage: undefined,
+          nextPage: undefined
         });
       },
-      async applyAsset(assetResult: any) {
+      async applyAsset (assetResult: any) {
         try {
           const firstPage =
             cesdkInstance?.current.engine.block.findByType("page")[0];
@@ -111,12 +111,71 @@ const Editor = ({
           throw error;
         }
       },
-      async applyAssetToBlock(assetResult: any, block: any) {
+      async applyAssetToBlock (assetResult: any, block: any) {
         cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
           assetResult,
           block
         );
+      }
+    };
+    return recentcustomSource;
+  }
+  console.log("globalTemplates", globalTemplates);
+
+  function getConfigOfImageComponent (eleList: any, id: string) {
+    // most recent custom library component
+    const recentcustomSource = {
+      id: id,
+      title: id,
+      label: id,
+      previewBackgroundType: "contain",
+      async findAssets (queryData: any) {
+        return Promise.resolve({
+          assets: eleList,
+          total: eleList.length,
+          currentPage: queryData.page,
+          nextPage: undefined
+        });
       },
+      async applyAsset (assetResult: any) {
+        try {
+          console.log("assetResult", assetResult);
+
+          const image = cesdkInstance?.current?.engine.block.create("image");
+          cesdkInstance?.current?.engine.block.setString(
+            image,
+            "image/imageFileURI",
+            assetResult.meta.uri
+          );
+          cesdkInstance?.current?.engine.block.setWidth(
+            image,
+            assetResult.meta.width
+          );
+          cesdkInstance?.current?.engine.block.setHeight(
+            image,
+            assetResult.meta.height
+          );
+          const firstPage =
+            cesdkInstance?.current?.engine.block.findByType("page")[0];
+          cesdkInstance?.current?.engine.block.appendChild(firstPage, image);
+          cesdkInstance?.current?.engine.scene.zoomToBlock(
+            firstPage,
+            0,
+            0,
+            0,
+            0
+          );
+          cesdkInstance?.current?.engine.editor.addUndoStep();
+        } catch (error) {
+          throw error;
+        }
+      },
+      async applyAssetToBlock (assetResult: any, block: any) {
+        cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
+          assetResult,
+          block
+        );
+      }
     };
     return recentcustomSource;
   }
@@ -131,7 +190,7 @@ const Editor = ({
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content}`,
+          `/storage/v1/object/public/templates/${template?.content}`
       }),
       // baseURL: '/assets',
       // core: {
@@ -144,13 +203,13 @@ const Editor = ({
             groups: [
               {
                 id: "ly.img.template",
-                entryIds: ["ly.img.template"],
+                entryIds: ["ly.img.template"]
               },
-              { id: "ly.img.defaultGroup" },
-            ],
+              { id: "ly.img.defaultGroup" }
+            ]
           },
           panels: {
-            settings: false,
+            settings: false
           },
           blocks: {
             opacity: true,
@@ -160,7 +219,7 @@ const Editor = ({
               filters: false,
               effects: false,
               blur: false,
-              crop: true,
+              crop: true
             },
             "//ly.img.ubq/page": {
               manage: true,
@@ -168,18 +227,18 @@ const Editor = ({
               adjustments: false,
               filters: false,
               effects: false,
-              blur: false,
-            },
+              blur: false
+            }
           },
           navigation: {
             action: {
               export: {
                 show: true,
                 format: ["image/png", "application/pdf"],
-                onclick: () => alert("Download"),
+                onclick: () => alert("Download")
               },
-              save: true,
-            },
+              save: true
+            }
           },
           libraries: {
             insert: {
@@ -191,12 +250,17 @@ const Editor = ({
                 return [
                   // Text
                   {
-                    ...defaultEntries[3],
+                    ...defaultEntries[3]
                   },
                   // Images
                   {
                     ...defaultEntries[2],
-                    sourceIds: ["ly.img.image.upload"],
+                    sourceIds: [
+                      "ly.img.image.upload",
+                      ...globalTemplates?.map(
+                        (item: any) => item?.resturantDetail?.name
+                      )
+                    ]
                   },
                   // Shapes
                   defaultEntries[4],
@@ -207,7 +271,7 @@ const Editor = ({
                       "Elements",
                       ...sectionedList?.map(
                         (item: any) => item?.resturantDetail?.name
-                      ),
+                      )
                     ],
                     previewLength: 2,
                     gridColumns: 2,
@@ -215,13 +279,13 @@ const Editor = ({
                     gridBackgroundType: "contain",
                     icon: ({ theme, iconSize }: any) => {
                       return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                    },
-                  },
+                    }
+                  }
                 ];
-              },
-            },
-          },
-        },
+              }
+            }
+          }
+        }
       },
       callbacks: {
         onExport: async (blobs: any) => {
@@ -263,7 +327,7 @@ const Editor = ({
                       content,
                       createdBy: user?.id,
                       restaurant_id: user?.restaurant_id,
-                      template_id: template?.id,
+                      template_id: template?.id
                     });
                     setTimeout(() => {
                       isAbleToExport = true;
@@ -282,8 +346,8 @@ const Editor = ({
                 name: file?.name || "upload",
                 meta: {
                   uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                },
+                  thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`
+                }
               }
             );
           } catch (error) {
@@ -306,7 +370,7 @@ const Editor = ({
             }
             return user;
           });
-        },
+        }
       },
       presets: {
         pageFormats: {
@@ -315,32 +379,32 @@ const Editor = ({
             height: 11,
             unit: "in",
             meta: {
-              default: true,
-            },
+              default: true
+            }
           },
           Legal: {
             width: 8.5,
             height: 14,
-            unit: "in",
+            unit: "in"
           },
           Tabloid: {
             width: 11,
             height: 17,
-            unit: "in",
+            unit: "in"
           },
           "Half Letter": {
             width: 5.5,
             height: 8.5,
-            unit: "in",
+            unit: "in"
           },
           "Quarter Letter": {
             width: 4.25,
             height: 5.5,
-            unit: "in",
-          },
+            unit: "in"
+          }
         },
-        typefaces: getFonts(templateFonts),
-      },
+        typefaces: getFonts(templateFonts)
+      }
     };
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
@@ -351,12 +415,24 @@ const Editor = ({
           cesdkInstance.current = instance;
           const firstPage = instance.engine.block.findByType("page")[0];
           sectionedList?.forEach(async (element: any) => {
-            await instance.engine.asset.addSource(
-              getConfigOfRecentComponent(
-                element?.items,
-                element?.resturantDetail?.name
-              )
-            );
+            if (element?.items?.length > 0 && element?.resturantDetail?.name) {
+              await instance?.engine?.asset?.addSource(
+                getConfigOfRecentComponent(
+                  element?.items,
+                  element?.resturantDetail?.name
+                )
+              );
+            }
+          });
+          globalTemplates?.forEach(async (element: any) => {
+            if (element?.items?.length > 0 && element?.resturantDetail?.name) {
+              await instance?.engine?.asset?.addSource(
+                getConfigOfImageComponent(
+                  element?.items.map(translateToAssetResult),
+                  element?.resturantDetail?.name
+                )
+              );
+            }
           });
           // Custom library component
           const customSource = {
@@ -364,15 +440,15 @@ const Editor = ({
             previewBackgroundType: "contain",
             gridBackgroundType: "contain",
 
-            async findAssets(queryData: any) {
+            async findAssets (queryData: any) {
               return Promise.resolve({
                 assets: libraryElements,
                 total: libraryElements.length,
                 currentPage: queryData.page,
-                nextPage: undefined,
+                nextPage: undefined
               });
             },
-            async applyAsset(assetResult: any) {
+            async applyAsset (assetResult: any) {
               try {
                 const firstPage = instance.engine.block.findByType("page")[0];
                 const block = await instance.engine.block.loadFromString(
@@ -418,31 +494,34 @@ const Editor = ({
                 throw error;
               }
             },
-            async applyAssetToBlock(assetResult: any, block: any) {
+            async applyAssetToBlock (assetResult: any, block: any) {
               instance.engine.asset.defaultApplyAssetToBlock(
                 assetResult,
                 block
               );
-            },
+            }
           };
           instance.engine.asset.addSource(customSource);
 
           setinput(input + 1);
           setloadinEditor(false);
-          fetchAssets().then(
-            async (assetsData) => await getAssetSources(assetsData)
-          );
-          const getAssetSources = async (assetsData: any[]) => {
-            if (assetsData.length) {
-              const assets = assetsData.map(translateToAssetResult);
-              assets.forEach((asset: any) => {
-                instance.engine.asset.addAssetToSource(
-                  "ly.img.image.upload",
-                  asset
-                );
-              });
-            }
-          };
+          if (user?.role === "flapjack") {
+            fetchAssets().then(
+              async assetsData => await getAssetSources(assetsData)
+            );
+            const getAssetSources = async (assetsData: any[]) => {
+              if (assetsData.length) {
+                const assets = assetsData.map(translateToAssetResult);
+                assets.forEach((asset: any) => {
+                  instance.engine.asset.addAssetToSource(
+                    "ly.img.image.upload",
+                    asset
+                  );
+                });
+              }
+            };
+          }
+
           enablePreviewMode();
         }
       );
@@ -479,7 +558,7 @@ const Editor = ({
       }
     }
   };
-  function downloadBlobFile(blob: any, fileName: string) {
+  function downloadBlobFile (blob: any, fileName: string) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = fileName;
@@ -666,16 +745,18 @@ const Editor = ({
       removeElement();
     }, 20);
   }, [input, libraryLoading]);
-  function translateToAssetResult(image: any) {
+  function translateToAssetResult (image: any) {
     return {
       id: image.id.toString(),
       meta: {
         uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
-      },
+        width: 3,
+        height: 5
+      }
     };
   }
-  function getFonts(fontsData: any) {
+  function getFonts (fontsData: any) {
     let fonts: any = {};
     fontsData.map((item: any) => {
       if (item?.name) {
@@ -690,9 +771,9 @@ const Editor = ({
             {
               fontURL: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fonts/${item?.content}`,
               weight: "regular",
-              style: "normal",
-            },
-          ],
+              style: "normal"
+            }
+          ]
         };
       }
     });
@@ -769,7 +850,7 @@ const Editor = ({
             template_id: template?.id,
             createdBy: user?.id,
             thumbnail: response?.data?.path,
-            restaurant_id: user?.restaurant_id,
+            restaurant_id: user?.restaurant_id
           })
           .select()
           .single();
@@ -788,11 +869,11 @@ const Editor = ({
             width: 100,
             height: 10,
             value: savedBlocks,
-            name: "dddddwestg",
+            name: "dddddwestg"
           },
           context: {
-            sourceId: "Elements",
-          },
+            sourceId: "Elements"
+          }
         };
         const newList = [newItem, ...libraryElements];
         setlibraryElements(newList);
@@ -803,15 +884,15 @@ const Editor = ({
           previewBackgroundType: "contain",
           gridBackgroundType: "contain",
 
-          async findAssets(queryData: any) {
+          async findAssets (queryData: any) {
             return Promise.resolve({
               assets: newList,
               total: newList.length,
               currentPage: queryData.page,
-              nextPage: undefined,
+              nextPage: undefined
             });
           },
-          async applyAsset(assetResult: any) {
+          async applyAsset (assetResult: any) {
             try {
               const firstPage =
                 cesdkInstance?.current.engine.block.findByType("page")[0];
@@ -861,12 +942,12 @@ const Editor = ({
               throw error;
             }
           },
-          async applyAssetToBlock(assetResult: any, block: any) {
+          async applyAssetToBlock (assetResult: any, block: any) {
             cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
               assetResult,
               block
             );
-          },
+          }
         };
         await cesdkInstance?.current.engine.asset.addSource(customSource);
         var elementWithShadowRoot = document.querySelector(
@@ -948,27 +1029,27 @@ const Editor = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flexDirection: "column",
+            flexDirection: "column"
           }}
         >
           <Flex align={"center"} gap={21}>
             <Box>
               <TailSpin
-                height="50"
-                width="50"
-                color="black"
-                ariaLabel="tail-spin-loading"
-                radius="1"
+                height='50'
+                width='50'
+                color='black'
+                ariaLabel='tail-spin-loading'
+                radius='1'
                 wrapperStyle={{}}
-                wrapperClass=""
+                wrapperClass=''
                 visible={true}
               />
             </Box>
             <Box>
-              <Text fz={"lg"} color="black" style={{ fontWeight: "bold" }}>
+              <Text fz={"lg"} color='black' style={{ fontWeight: "bold" }}>
                 Loading Editor
               </Text>
-              <Text color="black">Just a few seconds</Text>
+              <Text color='black'>Just a few seconds</Text>
             </Box>
           </Flex>
         </Box>
@@ -977,34 +1058,34 @@ const Editor = ({
       <div
         style={{
           ...cesdkWrapperStyle,
-          minHeight: preview ? "100vh" : "calc(100vh - 70px)",
+          minHeight: preview ? "100vh" : "calc(100vh - 70px)"
         }}
       >
-        <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
+        <div ref={cesdkContainer} id='cesdkContainer' style={cesdkStyle}></div>
       </div>
       <Modal
         opened={opened}
         onClose={close}
-        title="Upload Custom Fonts"
+        title='Upload Custom Fonts'
         centered
       >
         <TextInput
-          label="Your custom font name"
-          placeholder="Your custom font name"
-          onChange={(e) => setTitleFontSize(e.target.value)}
+          label='Your custom font name'
+          placeholder='Your custom font name'
+          onChange={e => setTitleFontSize(e.target.value)}
           error={fontsError?.title}
         />
         <FileInput
-          label="Your custom font"
-          placeholder="Your custom font"
+          label='Your custom font'
+          placeholder='Your custom font'
           icon={<IconUpload size={14} />}
           onChange={(file: any) => setFont(file)}
           error={fontsError?.file}
         />
-        <Text color="red" fz={"xs"} my={"xs"}>
+        <Text color='red' fz={"xs"} my={"xs"}>
           {fontsError?.submit}
         </Text>
-        <Group position="right" mt={"md"}>
+        <Group position='right' mt={"md"}>
           <Button onClick={close}>Cancle</Button>
           <Button onClick={handleUploadFont} disabled={loading}>
             {loading ? "Uploading..." : "Upload"}
@@ -1027,7 +1108,7 @@ const Editor = ({
             style={{
               borderBottom: "1px solid black",
               display: "inline",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
             onClick={() => router.push("http://flapjack.co/")}
           >
@@ -1046,7 +1127,7 @@ const cesdkStyle: object = {
   top: 0,
   right: 0,
   bottom: 0,
-  left: 0,
+  left: 0
 };
 
 const cesdkWrapperStyle: object = {
@@ -1056,161 +1137,161 @@ const cesdkWrapperStyle: object = {
   display: "flex",
   borderRadius: "0.75rem",
   boxShadow:
-    "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)",
+    "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)"
 };
 
 const defaultFonts = [
   {
-    name: "Abril Fatface",
+    name: "Abril Fatface"
   },
   {
-    name: "Aleo",
+    name: "Aleo"
   },
   {
-    name: "AmaticSC",
+    name: "AmaticSC"
   },
   {
-    name: "Archivo",
+    name: "Archivo"
   },
   {
-    name: "Bangers",
+    name: "Bangers"
   },
   {
-    name: "Barlow Condensed",
+    name: "Barlow Condensed"
   },
   {
-    name: "Bungee Inline",
+    name: "Bungee Inline"
   },
   {
-    name: "Carter",
+    name: "Carter"
   },
   {
-    name: "Caveat",
+    name: "Caveat"
   },
   {
-    name: "Coiny",
+    name: "Coiny"
   },
   {
-    name: "Courier Prime",
+    name: "Courier Prime"
   },
   {
-    name: "Elsie Swash Caps",
+    name: "Elsie Swash Caps"
   },
   {
-    name: "Fira Sans",
+    name: "Fira Sans"
   },
   {
-    name: "Krona",
+    name: "Krona"
   },
   {
-    name: "Kumar",
+    name: "Kumar"
   },
   {
-    name: "Lobster Two",
+    name: "Lobster Two"
   },
   {
-    name: "Manrope",
+    name: "Manrope"
   },
   {
-    name: "Marker",
+    name: "Marker"
   },
   {
-    name: "Monoton",
+    name: "Monoton"
   },
   {
-    name: "Montserrat",
+    name: "Montserrat"
   },
   {
-    name: "Nixie",
+    name: "Nixie"
   },
   {
-    name: "Notable",
+    name: "Notable"
   },
   {
-    name: "Nunito",
+    name: "Nunito"
   },
   {
-    name: "Open Sans",
+    name: "Open Sans"
   },
   {
-    name: "Ostrich",
+    name: "Ostrich"
   },
   {
-    name: "Oswald",
+    name: "Oswald"
   },
   {
-    name: "Palanquin Dark",
+    name: "Palanquin Dark"
   },
   {
-    name: "Parisienne",
+    name: "Parisienne"
   },
   {
-    name: "Permanent Marker",
+    name: "Permanent Marker"
   },
   {
-    name: "Petit Formal Script",
+    name: "Petit Formal Script"
   },
   {
-    name: "Playfair Display",
+    name: "Playfair Display"
   },
   {
-    name: "Poppins",
+    name: "Poppins"
   },
   {
-    name: "Quicksand",
+    name: "Quicksand"
   },
   {
-    name: "Rasa",
+    name: "Rasa"
   },
   {
-    name: "Roboto",
+    name: "Roboto"
   },
   {
-    name: "Roboto Condensed",
+    name: "Roboto Condensed"
   },
   {
-    name: "Roboto Slab",
+    name: "Roboto Slab"
   },
   {
-    name: "Sancreek",
+    name: "Sancreek"
   },
   {
-    name: "Shrikhand",
+    name: "Shrikhand"
   },
   {
-    name: "Source Code Pro",
+    name: "Source Code Pro"
   },
   {
-    name: "Source Sans Pro",
+    name: "Source Sans Pro"
   },
   {
-    name: "Source Serif Pro",
+    name: "Source Serif Pro"
   },
   {
-    name: "Space Grotesk",
+    name: "Space Grotesk"
   },
   {
-    name: "Space Mono",
+    name: "Space Mono"
   },
   {
-    name: "Stint Ultra Condensed",
+    name: "Stint Ultra Condensed"
   },
   {
-    name: "Stint Ultra Expanded",
+    name: "Stint Ultra Expanded"
   },
   {
-    name: "Sue",
+    name: "Sue"
   },
   {
-    name: "Trash Hand",
+    name: "Trash Hand"
   },
   {
-    name: "Ultra",
+    name: "Ultra"
   },
   {
-    name: "VT323",
+    name: "VT323"
   },
   {
-    name: "Yeseva",
-  },
+    name: "Yeseva"
+  }
 ];
