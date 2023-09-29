@@ -16,7 +16,7 @@ export const useTemplateActions = (
   const deleteTemplate = async (template: ITemplateDetails) => {
     try {
       if (template) {
-       await templateArchive(template)
+        await templateArchive(template)
         const { error, status } = await dbClient
           .from("templates")
           .delete()
@@ -87,7 +87,7 @@ export const useTemplateActions = (
         const { data: duplicateData, error: duplicateError } = await supabase
           .from("templates")
           .insert({
-            name:`${name}-Copy`,
+            name: `Copy of ${name}`,
             description,
             content: newLocation,
             isGlobal: user?.role === "flapjack" ? true : false,
