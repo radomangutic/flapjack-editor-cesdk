@@ -114,7 +114,7 @@ const Editor = ({
             action: {
               export: {
                 show: preview ? false : true,
-                format: ["image/png", "application/pdf"],
+                format: ["application/pdf"],
                 onclick: () => alert("Download"),
               },
               save: true,
