@@ -12,6 +12,7 @@ import PrivatePage from "../../components/PrivatePage/PrivatePage";
 import { useUser } from "../../hooks";
 import { RestaurantType } from "../../interfaces/RestaurantType";
 import { RestaurantLocationTable } from "../../components/restaurant/RestaurantLocationTable";
+import { useRouter } from "next/router";
 
 export type ModalType = "inviteUser" | "empty" | "removeUser";
 const ResturantManage = ({
@@ -23,12 +24,13 @@ const ResturantManage = ({
 }) => {
   const { supabaseClient: supabase } = useSessionContext();
   const user = useUser();
+  const router = useRouter();
   const [modalType, setmodalType] = useState<ModalType>("empty");
   const [selectedUser, setselectedUser] = useState<IUserDetails | null>(null);
   const [allUsers, setallUsers] = useState<IUserDetails[]>(profiles);
   const [isLoading, setisLoading] = useState(false);
   const [isUserTableSelect, setisUserTableSelect] = useState(true);
-  if (user?.role !== "owner") {
+  if (user?.role !== "owner" || user?.restaurant_id !== router?.query?.id) {
     return <PrivatePage />;
   }
 
@@ -111,8 +113,8 @@ const ResturantManage = ({
                 <InviteUserDesign
                   resturantDetail={resturantDetail}
                   onClose={() => setmodalType("empty")}
-                allUsers={allUsers}
-
+                  allUsers={allUsers}
+                  
                 />
               </CommanModal>
             ),
