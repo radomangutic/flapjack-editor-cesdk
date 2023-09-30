@@ -351,12 +351,14 @@ const Editor = ({
           cesdkInstance.current = instance;
           const firstPage = instance.engine.block.findByType("page")[0];
           sectionedList?.forEach(async (element: any) => {
-            await instance.engine.asset.addSource(
-              getConfigOfRecentComponent(
-                element?.items,
-                element?.resturantDetail?.name
-              )
-            );
+            if (element?.resturantDetail?.name && element?.items?.length > 0) {
+              await instance.engine.asset.addSource(
+                getConfigOfRecentComponent(
+                  element?.items,
+                  element?.resturantDetail?.name
+                )
+              );
+            }
           });
           // Custom library component
           const customSource = {
@@ -918,7 +920,7 @@ const Editor = ({
       const element = childText[index];
       const target = element?.children[0]?.children[0]?.children[0];
       if (target?.textContent === "Elements/Elements") {
-        target.textContent = "Custom";
+        target.textContent = "Current Menu Components";
       } else {
         if (target?.textContent) {
           target.textContent =
