@@ -906,16 +906,17 @@ const Editor = ({
     const leftPanel =
       "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div ";
 
-    var listChildren = shadowRoot?.querySelector(`${leftPanel}`);
-    const opendBlokElement = listChildren?.children[2] as HTMLElement;
-    // console.log('targetElement',);
-    const newName = opendBlokElement?.textContent?.split("/")[1];
-
-    if (opendBlokElement && opendBlokElement.textContent) {
-      opendBlokElement.textContent = newName
-        ? newName
-        : opendBlokElement.textContent;
-    }
+      var listChildren = shadowRoot?.querySelector(`${leftPanel}`);
+      const opendBlokElement = listChildren?.children[2] as HTMLElement;
+      // console.log('targetElement',);
+      const newName = opendBlokElement?.textContent?.split("/")[1];
+  
+      if (opendBlokElement && opendBlokElement.textContent && opendBlokElement?.className) {
+        opendBlokElement.textContent = opendBlokElement?.className === 'UBQ_AssetLibraryBreadcrumb__label--PA5RI' && newName
+          ? newName
+          : opendBlokElement.textContent;
+      }
+  
 
     var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
     const childText = opendElement?.children as HTMLCollection;
