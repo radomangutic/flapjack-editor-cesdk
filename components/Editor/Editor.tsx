@@ -94,20 +94,47 @@ const Editor = ({
       },
       async applyAsset(assetResult: any) {
         try {
-          const firstPage =
-            cesdkInstance?.current.engine.block.findByType("page")[0];
-          const block =
-            await cesdkInstance?.current.engine.block.loadFromString(
-              assetResult?.meta?.value
-            );
-          cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
-          await cesdkInstance?.current.engine.block.appendChild(
-            firstPage,
-            block[0]
+          const firstPage =  cesdkInstance?.current.engine.block.findByType("page")[0];
+          const block = await  cesdkInstance?.current.engine.block.loadFromString(
+            assetResult?.meta?.value
           );
-          await cesdkInstance?.current.engine.block.setSelected(block[0], true);
-          await cesdkInstance?.current.engine.block.select(block[0]);
+           cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
+          await  cesdkInstance?.current.engine.block.appendChild(firstPage, block[0]);
+          await  cesdkInstance?.current.engine.block.setSelected(block[0], true);
+          await  cesdkInstance?.current.engine.block.select(block[0]);
+          const isSourceExist =  cesdkInstance?.current.engine.asset
+            .findAllSources()
+            ?.includes(customComponent?.recent);
+          if (isSourceExist) {
+            const findList = await  cesdkInstance?.current.engine.asset.findAssets(
+              customComponent?.recent
+            );
+            const isAlreadyExist = findList?.assets?.find(
+              (i: any) => i?.id === assetResult?.id
+            );
+            if (!isAlreadyExist) {
+              const newList = [assetResult, ...findList?.assets];
+              await  cesdkInstance?.current.engine.asset.removeSource(
+                customComponent?.recent
+              );
+              await  cesdkInstance?.current.engine.asset.addSource(
+                getConfigOfRecentComponent(
+                  newList,
+                  customComponent?.recent
+                )
+              );
+            }
+          } else {
+            await  cesdkInstance?.current.engine.asset.addSource(
+              getConfigOfRecentComponent(
+                [assetResult],
+                customComponent?.recent
+              )
+            );
+          }
         } catch (error) {
+          console.log("error", error);
+
           throw error;
         }
       },
