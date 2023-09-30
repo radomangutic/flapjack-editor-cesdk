@@ -255,7 +255,9 @@ export default function TemplateCardOverlay({
             {user?.role === "flapjack" && (
               <Menu.Item onClick={open}>Transfer Template </Menu.Item>
             )}
-            {(template?.isGlobal || navMenu === "myMenu") && (
+            {(template?.isGlobal ||
+              navMenu === "myMenu" ||
+              user?.role === "flapjack") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
             {user?.role !== "flapjack" &&
