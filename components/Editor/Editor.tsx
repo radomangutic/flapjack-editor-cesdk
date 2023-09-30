@@ -27,6 +27,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
+import { removeSpecialCharacters } from "../../helpers/CommonFunctions";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -151,7 +152,12 @@ const Editor = ({
             if (isAbleToExport) {
               isAbleToExport = false;
               if (user) {
-                downloadBlobFile(blobs?.[0], template?.name || "");
+                console.log("template", template);
+
+                downloadBlobFile(
+                  blobs?.[0],
+                  removeSpecialCharacters(template?.name) || ""
+                );
               } else {
                 openAuthDialog();
               }
