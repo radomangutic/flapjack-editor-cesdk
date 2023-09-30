@@ -4,29 +4,13 @@ import { ITemplateDetails } from "../../interfaces";
 import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
-function convertToSectionList (data: any) {
-  return data?.reduce((result: any, item: any) => {
-    const restaurantId = item.restaurant_id;
+import { convertToSectionList } from "../../helpers/convertToSectionList";
 
-    if (!result[restaurantId]) {
-      // If the section doesn't exist, create it
-      result[restaurantId] = {
-        restaurant_id: restaurantId,
-        items: []
-      };
-    }
-
-    // Add the item to the section
-    result[restaurantId]?.items?.push(item);
-
-    return result;
-  }, {});
-}
 const Menu = ({
   data,
   elementsList,
   sectionedList,
-  globalTemplates
+  globalTemplates,
 }: {
   data: ITemplateDetails;
   elementsList: any;
@@ -41,7 +25,7 @@ const Menu = ({
   }
 
   if (!data) {
-    return <PrivatePage text='The dog ate this menu!' />;
+    return <PrivatePage text="The dog ate this menu!" />;
   }
   const elements =
     user?.role === "flapjack"
@@ -61,7 +45,7 @@ const Menu = ({
     </>
   );
 };
-export async function getServerSideProps (context: GetServerSidePropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
 
   const { data } = await supabase
@@ -95,11 +79,11 @@ export async function getServerSideProps (context: GetServerSidePropsContext) {
           width: 100,
           height: 10,
           value: item?.element,
-          name: "dddddwestg"
+          name: item?.restaurant_id,
         },
         context: {
-          sourceId: "Custom component"
-        }
+          sourceId: "Custom component",
+        },
       };
     });
   }
@@ -115,7 +99,7 @@ export async function getServerSideProps (context: GetServerSidePropsContext) {
 
       return {
         ...item,
-        resturantDetail: resturantDetail?.data
+        resturantDetail: resturantDetail?.data,
       };
     });
     return Promise.all(responseList);
@@ -135,27 +119,27 @@ export async function getServerSideProps (context: GetServerSidePropsContext) {
 
       return {
         ...item,
-        resturantDetail: resturantDetail?.data
+        resturantDetail: resturantDetail?.data,
       };
     });
     return Promise.all(responseList);
   };
   const sortedData = await sortResData();
   const globalTemplates = await sortAssetsImages();
-  const response = await globalTemplates?.filter(item => {
+  const response = await globalTemplates?.filter((item) => {
     const exist = sortedData?.find(
-      i => i?.restaurant_id === item?.restaurant_id
+      (i) => i?.restaurant_id === item?.restaurant_id
     );
     return !exist && true;
   });
-  
+
   return {
     props: {
       data: data ? data[0] : null,
       elementsList: elementList,
       sectionedList: sortedData,
-      globalTemplates: response
-    } // will be passed to the page component as props
+      globalTemplates: response,
+    }, // will be passed to the page component as props
   };
 }
 
