@@ -105,7 +105,7 @@ const TemplateCard = ({
         />
 
         <Image src={thumbnail} height={235} alt="Norway" />
-        {badge && (
+        {badge && user?.role === "flapjack" && (
           <Badge
             color={template?.isGlobal ? "green" : "orange"}
             variant="filled"

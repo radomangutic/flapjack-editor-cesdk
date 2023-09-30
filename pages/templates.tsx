@@ -22,6 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
+console.log(user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -145,12 +146,13 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               Templates
             </Text>
             <Text mb={"xl"}>
-              The templates tab contains all published global templates. To put
-              a menu here follow these instructions. When in the drafts tab,
-              hover over a menu, then click the triple dot button. Click make
-              “Publish global.” These menus are considered production and
-              therefore should only be edited by approved users.
-              <b>Do NOT modify these for QA or testing purposes.</b>
+              The Templates tab contains both draft and live menu templates.
+              Draft menus are only visible to flapjack users. Live menus are
+              visible to all users, even users without an account, so please be
+              cautious about publishing these menus. These menus are intended to
+              be starting points for customer menus. To add a menu to this tab,
+              transfer it to the Flapjack restaurant or select the Flapjack
+              restaurant when creating a menu.
             </Text>
             <SimpleGrid
               cols={3}
@@ -200,79 +202,78 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             Customer Menus
           </Text>
           <Text mb={"xl"}>
-            The “Customer Menus” tab is a tab to show us the current status of
-            delivered menus. To move menus here, go to the drafts tab, hover
-            over a menu, click the triple dot button. Click “Transfer menu”.
-            Select the restaurant the menu belongs to.
-            <b>
-              These menus are to be considered production, so please do NOT edit
-              these. Changes here will be visible to the customer immediately.
-              If you see any issues with these menus, please report it to the
-              #deploy-qa slack channel.
-            </b>
+            The “Customer Menus” tab is a place for our team to see all of the
+            menus that are either in progress or already delivered to customers.
+            Live menus are menus that customers can actively see when they log
+            in, so please <b>be careful when editing or modifying these.</b>{" "}
+            Draft menus are only visible to flapjack users. To add a menu here,
+            it must be assigned to a restaurant either when creating the menu or
+            by transferring the menu to the corresponding restaurant.
           </Text>
 
-          {resturantsOptions.map((item: any, i) => {
-            const restaurantTemplate = templates.filter(
-              (template) => template?.restaurant_id == item?.value
-            );
-            const menus = item?.location?.length
-              ? groupMenusByLocation(restaurantTemplate, item?.location)
-              : [
-                  {
-                    menus: restaurantTemplate,
-                  },
-                ];
-            return (
-              <div key={i}>
-                <Text style={{ fontSize: "26px" }} fw={"inherit"}>
-                  {item?.label}
-                </Text>
+          {resturantsOptions
+            ?.filter((i: any) => i?.value !== "2")
+            .map((item: any, i) => {
+              const restaurantTemplate = templates.filter(
+                (template) => template?.restaurant_id == item?.value
+              );
+              const menus = item?.location?.length
+                ? groupMenusByLocation(restaurantTemplate, item?.location)
+                : [
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
+              return (
+                <div key={i}>
+                  <Text style={{ fontSize: "26px" }} fw={"inherit"}>
+                    {item?.label}
+                  </Text>
 
-                {menus.map((item: any, i) => (
-                  <div key={i}>
-                    <Text fz={"xl"} fw={"inherit"} my={"md"}>
-                      {item?.location}
-                    </Text>
-                    <SimpleGrid
-                      cols={3}
-                      breakpoints={[
-                        { maxWidth: 1120, cols: 3, spacing: "md" },
-                        { maxWidth: 991, cols: 2, spacing: "sm" },
-                        { maxWidth: 600, cols: 1, spacing: "sm" },
-                      ]}
-                      sx={{ marginBottom: "80px" }}
-                    >
-                      {item?.menus?.length ? (
-                        item?.menus.map((template: any, i: number) => (
-                          <TemplateCard
-                            key={i}
-                            template={template}
-                            thumbnail={`${
-                              process.env.NEXT_PUBLIC_SUPABASE_URL
-                            }/storage/v1/object/public/renderings/${
-                              template.id
-                            }/coverImage?${i}${Date.now()}`}
-                            onRemove={deleteTemplate}
-                            onRename={renameTemplate}
-                            onDuplicate={duplicateTemplate}
-                            //@ts-ignore
-                            onGlobal={globalTemplate}
-                            navMenu={navMenu}
-                            resturantsOptions={resturantsOptions}
-                            setTemplates={setTemplates}
-                            badge
-                          />
-                        ))
-                      ) : (
-                        <Text>No menu found</Text>
-                      )}
-                    </SimpleGrid>
-                  </div>
-                ))}
-              </div>
-            );
-          })}
+                  {menus.map((item: any, i) => (
+                    <div key={i}>
+                      <Text fz={"xl"} fw={"inherit"} my={"md"}>
+                        {item?.location}
+                      </Text>
+                      <SimpleGrid
+                        cols={3}
+                        breakpoints={[
+                          { maxWidth: 1120, cols: 3, spacing: "md" },
+                          { maxWidth: 991, cols: 2, spacing: "sm" },
+                          { maxWidth: 600, cols: 1, spacing: "sm" },
+                        ]}
+                        sx={{ marginBottom: "80px" }}
+                      >
+                        {item?.menus?.length ? (
+                          item?.menus.map((template: any, i: number) => (
+                            <TemplateCard
+                              key={i}
+                              template={template}
+                              thumbnail={`${
+                                process.env.NEXT_PUBLIC_SUPABASE_URL
+                              }/storage/v1/object/public/renderings/${
+                                template.id
+                              }/coverImage?${i}${Date.now()}`}
+                              onRemove={deleteTemplate}
+                              onRename={renameTemplate}
+                              onDuplicate={duplicateTemplate}
+                              //@ts-ignore
+                              onGlobal={globalTemplate}
+                              navMenu={navMenu}
+                              resturantsOptions={resturantsOptions}
+                              setTemplates={setTemplates}
+                              badge
+                            />
+                          ))
+                        ) : (
+                          <Text>No menu found</Text>
+                        )}
+                      </SimpleGrid>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
         </Container>
       </>
     );

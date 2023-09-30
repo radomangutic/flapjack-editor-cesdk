@@ -39,15 +39,15 @@ const UpsertTemplateDialog = ({
   const supabase = useSupabaseClient();
   const [isFileEsist, setisFileEsist] = useState(false);
   const user = useUser();
-  const userData = getUser()
+  const userData = getUser();
   const userLocation = userData?.restaurant?.location?.length
-  ? user?.restaurant?.location?.map((item: string) => {
-    return {
-      label: item,
-      value: item,
-    };
-  })
-  : [];
+    ? user?.restaurant?.location?.map((item: string) => {
+        return {
+          label: item,
+          value: item,
+        };
+      })
+    : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
   const [loader, setloader] = useState(false);
@@ -86,7 +86,8 @@ const UpsertTemplateDialog = ({
       const userCanUpdate =
         user?.role === "flapjack" ||
         (!template?.isGlobal && user?.subscriptionActive) ||
-        user?.role === "owner" || user?.role === "user";
+        user?.role === "owner" ||
+        user?.role === "user";
       if (isUpdating && template?.content && userCanUpdate) {
         await templateArchive(template);
         const { data, error } = await supabase.storage
@@ -134,7 +135,7 @@ const UpsertTemplateDialog = ({
             name: values?.name,
             description: values?.description,
             content: contentUpload,
-            isGlobal: true,
+            isGlobal: user?.role === "flapjack" ? false : true,
             restaurant_id: restaurantId || user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
@@ -285,6 +286,8 @@ const UpsertTemplateDialog = ({
                     };
                   });
                   setlocations(locationMap);
+                } else {
+                  setlocations([]);
                 }
                 setRestaurantId(value);
               }}
