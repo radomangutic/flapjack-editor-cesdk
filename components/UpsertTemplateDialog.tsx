@@ -239,7 +239,7 @@ const UpsertTemplateDialog = ({
           label="Template Description"
           placeholder="Template Description"
           {...form.getInputProps("description")}
-          value={removeSpecialCharacters(form.getInputProps("name").value)}
+          value={removeSpecialCharacters(form.getInputProps("description").value)}
         />
         <Flex justify="flex-end" mt="lg">
           <Button variant="filled" type="submit" loading={loader}>

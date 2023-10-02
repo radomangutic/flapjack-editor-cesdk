@@ -2,9 +2,7 @@ export function removeSpecialCharacters(inputString: string | undefined) {
   if (!inputString) {
     return "";
   }
-  const cleanedString = inputString.replace(
-    /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/'"]/g,
-    ""
-  );
+  // Updated regular expression to remove single quotes and dots
+  const cleanedString = inputString.replace(/['"]/g, "");
   return cleanedString;
 }
