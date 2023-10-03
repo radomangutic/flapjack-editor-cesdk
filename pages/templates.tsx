@@ -165,7 +165,6 @@ console.log(user);
               {templates
                 ?.filter(
                   (item: ITemplateDetails) =>
-                    !!item?.isGlobal ||
                     !!!item?.restaurant_id ||
                     item?.restaurant_id === "2"
                 )
