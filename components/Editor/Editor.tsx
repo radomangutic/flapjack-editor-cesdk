@@ -27,6 +27,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
+import { removeSpecialCharacters } from "../../helpers/CommonFunctions";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -66,14 +67,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => { },
+      logger: () => {},
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content
+          `/storage/v1/object/public/templates/${
+            template?.content
           }?t=${new Date().toISOString()}`,
       }),
       ui: {
@@ -150,7 +152,12 @@ const Editor = ({
             if (isAbleToExport) {
               isAbleToExport = false;
               if (user) {
-                downloadBlobFile(blobs?.[0], template?.name || "");
+                console.log("template", template);
+
+                downloadBlobFile(
+                  blobs?.[0],
+                  removeSpecialCharacters(template?.name) || ""
+                );
               } else {
                 openAuthDialog();
               }
@@ -313,10 +320,18 @@ const Editor = ({
     }
   };
   function downloadBlobFile(blob: any, fileName: string) {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    link.click();
+    try {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${fileName}.pdf`;
+      link.click();
+    } catch (error: any) {
+      console.log("error", error);
+      const errorMessage = error?.message
+        ? error?.message
+        : "Something went wrong";
+      alert(errorMessage);
+    }
   }
   const saveTemplate = (string: string) => {
     setTimeout(() => {
