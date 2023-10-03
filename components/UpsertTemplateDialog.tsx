@@ -18,6 +18,7 @@ import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
 import { IconPhotoPlus } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react";
+import { removeSpecialCharacters } from "../helpers/CommonFunctions";
 
 interface IUpsertTemplateDialogProps {
   opened: boolean;
@@ -46,8 +47,8 @@ const UpsertTemplateDialog = ({
 
   const form = useForm({
     initialValues: {
-      name: template?.name || "",
-      description: template?.description || "",
+      name: removeSpecialCharacters(template?.name) || "",
+      description: removeSpecialCharacters(template?.description) || "",
       coverImage: null,
     },
     validate: {
@@ -70,7 +71,8 @@ const UpsertTemplateDialog = ({
       const userCanUpdate =
         user?.role === "flapjack" ||
         (!template?.isGlobal && user?.subscriptionActive) ||
-        user?.role === "owner" || user?.role === "user";
+        user?.role === "owner" ||
+        user?.role === "user";
       if (isUpdating && template?.content && userCanUpdate) {
         await templateArchive(template);
         const { data, error } = await supabase.storage
@@ -79,8 +81,8 @@ const UpsertTemplateDialog = ({
         await supabase
           .from("templates")
           .update({
-            name: values?.name,
-            description: values?.description,
+            name: removeSpecialCharacters(values?.name),
+            description: removeSpecialCharacters(values?.description),
             updatedAt: new Date(),
           })
           .eq("id", template?.id);
@@ -115,8 +117,8 @@ const UpsertTemplateDialog = ({
         const { error, data } = await supabase
           .from("templates")
           .insert({
-            name: values?.name,
-            description: values?.description,
+            name: removeSpecialCharacters(values?.name),
+            description: removeSpecialCharacters(values?.description),
             content: contentUpload,
             isGlobal: false,
             restaurant_id: user?.restaurant_id,
@@ -230,12 +232,14 @@ const UpsertTemplateDialog = ({
           label="Template Name"
           placeholder="Template name"
           {...form.getInputProps("name")}
+          value={removeSpecialCharacters(form.getInputProps("name").value)}
         />
         <TextInput
           withAsterisk
           label="Template Description"
           placeholder="Template Description"
           {...form.getInputProps("description")}
+          value={removeSpecialCharacters(form.getInputProps("description").value)}
         />
         <Flex justify="flex-end" mt="lg">
           <Button variant="filled" type="submit" loading={loader}>
