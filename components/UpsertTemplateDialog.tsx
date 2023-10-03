@@ -19,9 +19,13 @@ import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
 import { IconPhotoPlus } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
 import { useDisclosure } from "@mantine/hooks";
 import { removeSpecialCharacters } from "../helpers/CommonFunctions";
 
+=======
+import { toast } from "react-toastify";
+>>>>>>> fb5f43f (add toast in menu saving)
 interface IUpsertTemplateDialogProps {
   opened: boolean;
   onClose: () => void;
@@ -66,6 +70,7 @@ const UpsertTemplateDialog = ({
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     if (loader) {
       e.preventDefault();
+      toast.warn("Changes will be lost");
       e.returnValue = "Unsaved template. Going back may lose changes."; // This message will be displayed to the user
     }
   };
@@ -97,7 +102,8 @@ const UpsertTemplateDialog = ({
       const file = new Blob([content], { type: "text/plain" });
       setTimeout(() => {
         onClose();
-      }, 1000);
+        toast.info("Menu is saving");
+      }, 500);
       let contentUpload = "";
       const userCanUpdate =
         user?.role === "flapjack" ||
@@ -170,7 +176,7 @@ const UpsertTemplateDialog = ({
         }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
-      alert("Menu saved successfully")
+      toast.success("Save completed");
     } catch (err: any) {
       throw err;
     } finally {
