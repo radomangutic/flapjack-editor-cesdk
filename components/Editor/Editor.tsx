@@ -29,6 +29,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
+import { getCurrentSelectedPage } from "./helping";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -94,42 +95,43 @@ const Editor = ({
       },
       async applyAsset(assetResult: any) {
         try {
-          const firstPage =  cesdkInstance?.current.engine.block.findByType("page")[0];
-          const block = await  cesdkInstance?.current.engine.block.loadFromString(
-            assetResult?.meta?.value
+          const firstPage = await getCurrentSelectedPage(
+            cesdkInstance?.current
           );
-           cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
-          await  cesdkInstance?.current.engine.block.appendChild(firstPage, block[0]);
-          await  cesdkInstance?.current.engine.block.setSelected(block[0], true);
-          await  cesdkInstance?.current.engine.block.select(block[0]);
-          const isSourceExist =  cesdkInstance?.current.engine.asset
+          const block =
+            await cesdkInstance?.current.engine.block.loadFromString(
+              assetResult?.meta?.value
+            );
+          cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
+          await cesdkInstance?.current.engine.block.appendChild(
+            firstPage,
+            block[0]
+          );
+          await cesdkInstance?.current.engine.block.setSelected(block[0], true);
+          await cesdkInstance?.current.engine.block.select(block[0]);
+          const isSourceExist = cesdkInstance?.current.engine.asset
             .findAllSources()
             ?.includes(customComponent?.recent);
           if (isSourceExist) {
-            const findList = await  cesdkInstance?.current.engine.asset.findAssets(
-              customComponent?.recent
-            );
+            const findList =
+              await cesdkInstance?.current.engine.asset.findAssets(
+                customComponent?.recent
+              );
             const isAlreadyExist = findList?.assets?.find(
               (i: any) => i?.id === assetResult?.id
             );
             if (!isAlreadyExist) {
               const newList = [assetResult, ...findList?.assets];
-              await  cesdkInstance?.current.engine.asset.removeSource(
+              await cesdkInstance?.current.engine.asset.removeSource(
                 customComponent?.recent
               );
-              await  cesdkInstance?.current.engine.asset.addSource(
-                getConfigOfRecentComponent(
-                  newList,
-                  customComponent?.recent
-                )
+              await cesdkInstance?.current.engine.asset.addSource(
+                getConfigOfRecentComponent(newList, customComponent?.recent)
               );
             }
           } else {
-            await  cesdkInstance?.current.engine.asset.addSource(
-              getConfigOfRecentComponent(
-                [assetResult],
-                customComponent?.recent
-              )
+            await cesdkInstance?.current.engine.asset.addSource(
+              getConfigOfRecentComponent([assetResult], customComponent?.recent)
             );
           }
         } catch (error) {
@@ -151,14 +153,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => { },
+      logger: () => {},
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content
+          `/storage/v1/object/public/templates/${
+            template?.content
           }?t=${new Date().toISOString()}`,
       }),
       // baseURL: '/assets',
@@ -283,9 +286,7 @@ const Editor = ({
                         .from("templateImages")
                         .upload(content, file);
                     if (error) {
-
                       throw error;
-
                     }
                     const userData = localStorage.getItem("userData");
                     const user = userData && JSON.parse(userData);
@@ -406,7 +407,7 @@ const Editor = ({
             },
             async applyAsset(assetResult: any) {
               try {
-                const firstPage = instance.engine.block.findByType("page")[0];
+                const firstPage = await getCurrentSelectedPage(instance);
                 const block = await instance.engine.block.loadFromString(
                   assetResult?.meta?.value
                 );
@@ -845,8 +846,9 @@ const Editor = ({
           },
           async applyAsset(assetResult: any) {
             try {
-              const firstPage =
-                cesdkInstance?.current.engine.block.findByType("page")[0];
+              const firstPage = await getCurrentSelectedPage(
+                cesdkInstance?.current
+              );
               const block =
                 await cesdkInstance?.current.engine.block.loadFromString(
                   assetResult?.meta?.value
@@ -933,17 +935,22 @@ const Editor = ({
     const leftPanel =
       "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelLeft div .UBQ_AssetLibraryDock__panelContent--ED9NO .UBQ_AssetLibraryContent__block--mQiYI div div ";
 
-      var listChildren = shadowRoot?.querySelector(`${leftPanel}`);
-      const opendBlokElement = listChildren?.children[2] as HTMLElement;
-      // console.log('targetElement',);
-      const newName = opendBlokElement?.textContent?.split("/")[1];
-  
-      if (opendBlokElement && opendBlokElement.textContent && opendBlokElement?.className) {
-        opendBlokElement.textContent = opendBlokElement?.className === 'UBQ_AssetLibraryBreadcrumb__label--PA5RI' && newName
+    var listChildren = shadowRoot?.querySelector(`${leftPanel}`);
+    const opendBlokElement = listChildren?.children[2] as HTMLElement;
+    // console.log('targetElement',);
+    const newName = opendBlokElement?.textContent?.split("/")[1];
+
+    if (
+      opendBlokElement &&
+      opendBlokElement.textContent &&
+      opendBlokElement?.className
+    ) {
+      opendBlokElement.textContent =
+        opendBlokElement?.className ===
+          "UBQ_AssetLibraryBreadcrumb__label--PA5RI" && newName
           ? newName
           : opendBlokElement.textContent;
-      }
-  
+    }
 
     var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
     const childText = opendElement?.children as HTMLCollection;
