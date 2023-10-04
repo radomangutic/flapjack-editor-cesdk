@@ -100,7 +100,8 @@ const UpsertTemplateDialog = ({
             name: removeSpecialCharacters(values?.name),
             description: removeSpecialCharacters(values?.description),
             updatedAt: new Date(),
-          }).eq("id", template?.id);
+          })
+          .eq("id", template?.id);
         if (error) {
           return;
         }
@@ -200,10 +201,7 @@ const UpsertTemplateDialog = ({
     >
       <form
         onSubmit={form.onSubmit(
-          user?.role !== "user" &&
-            (template?.isGlobal || template?.restaurant_id)
-            ? handleModal
-            : onSubmit
+          user?.role !== "user" && template?.isGlobal ? handleModal : onSubmit
         )}
       >
         <Input
@@ -265,7 +263,9 @@ const UpsertTemplateDialog = ({
           label="Template Description"
           placeholder="Template Description"
           {...form.getInputProps("description")}
-          value={removeSpecialCharacters(form.getInputProps("description").value)}
+          value={removeSpecialCharacters(
+            form.getInputProps("description").value
+          )}
         />
         {user?.role === "flapjack" && (
           <>
@@ -348,7 +348,7 @@ const UpsertTemplateDialog = ({
             {loader ? "Loading..." : "Yes, let me edit"}
           </Button>
           <Button variant="outline" color="dark" size="sm" onClick={close}>
-            No, take me backs
+            No, take me back
           </Button>
         </Flex>
       </Modal>

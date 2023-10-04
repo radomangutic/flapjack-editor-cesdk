@@ -22,7 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
-console.log(user);
+  console.log(user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -70,8 +70,9 @@ console.log(user);
     if (navMenu === "templates") {
       if (
         // template is template created by user and not global or template is created by user's restaurant
-        (template.createdBy === user?.id && !template.isGlobal) ||
-        template?.restaurant_id === user?.restaurant_id
+        (template.createdBy === user?.id ||
+          template?.restaurant_id === user?.restaurant_id) &&
+        !!template.isGlobal
       ) {
         return false;
       }
@@ -80,8 +81,9 @@ console.log(user);
     } else {
       // template is created by user and not global or template is created by user's restaurant
       if (
-        (template.createdBy === user?.id && !template.isGlobal) ||
-        template?.restaurant_id === user?.restaurant_id
+        (template.createdBy === user?.id ||
+          template?.restaurant_id === user?.restaurant_id) &&
+        !!template.isGlobal
       ) {
         return true;
         // template is global
@@ -165,8 +167,7 @@ console.log(user);
               {templates
                 ?.filter(
                   (item: ITemplateDetails) =>
-                    !!!item?.restaurant_id ||
-                    item?.restaurant_id === "2"
+                    !!!item?.restaurant_id || item?.restaurant_id === "2"
                 )
                 ?.map((template: any, i: number) => (
                   <TemplateCard
