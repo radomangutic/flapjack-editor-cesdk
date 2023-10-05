@@ -19,19 +19,17 @@ import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
 import { IconPhotoPlus } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react";
-<<<<<<< HEAD
 import { useDisclosure } from "@mantine/hooks";
 import { removeSpecialCharacters } from "../helpers/CommonFunctions";
-
-=======
 import { toast } from "react-toastify";
->>>>>>> fb5f43f (add toast in menu saving)
 interface IUpsertTemplateDialogProps {
   opened: boolean;
   onClose: () => void;
   template?: ITemplate | null;
   content: any;
   restaurantsOptions: any;
+  loader: boolean;
+  setloader: (value: boolean) => void;
 }
 
 const UpsertTemplateDialog = ({
@@ -40,6 +38,8 @@ const UpsertTemplateDialog = ({
   template,
   content,
   restaurantsOptions,
+  loader,
+  setloader,
 }: IUpsertTemplateDialogProps) => {
   const supabase = useSupabaseClient();
   const [isFileEsist, setisFileEsist] = useState(false);
@@ -55,7 +55,6 @@ const UpsertTemplateDialog = ({
     : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
-  const [loader, setloader] = useState(false);
   const [locations, setlocations] = useState(userLocation);
   const [restaurantId, setRestaurantId] = useState(
     template?.restaurant_id || ""
@@ -77,7 +76,6 @@ const UpsertTemplateDialog = ({
 
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -176,7 +174,12 @@ const UpsertTemplateDialog = ({
         }
         await router.push(`/menu/${data?.[0]?.id}`);
       }
-      toast.success("Save completed");
+
+      if (window.location.href.includes("/menu/")) {
+        setTimeout(() => {
+          toast.success("Save completed");
+        }, 500);
+      }
     } catch (err: any) {
       throw err;
     } finally {
