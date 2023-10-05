@@ -22,6 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
+  console.log(user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -30,20 +31,30 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   // The better way is creating a separate `My Menu` page.
   useEffect(() => {
     const activeTab = localStorage.getItem("activeTab");
-    if (router.isReady && activeTab === "myMenu" && user) {
-      setNavMenu("myMenu");
+    if (user?.role === "flapjack" && activeTab) {
+      setNavMenu(activeTab);
     } else {
-      setNavMenu(
-        (user?.role == "user" && user?.subscriptionActive) ||
-          user?.role === "owner"
-          ? "myMenu"
-          : "templates"
-      );
+      if (router.isReady && activeTab === "myMenu" && user) {
+        setNavMenu("myMenu");
+      } else {
+        setNavMenu(
+          (user?.role == "user" && user?.subscriptionActive) ||
+            user?.role === "owner"
+            ? "myMenu"
+            : "templates"
+        );
+      }
     }
   }, [user]);
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
+      templatesList.sort(
+        (a, b) =>
+          new Date(b.updatedAt as any).getTime() -
+          new Date(a.updatedAt as any).getTime()
+      );
+
       setTemplates(templatesList);
       setloading(false);
     };
@@ -59,8 +70,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     if (navMenu === "templates") {
       if (
         // template is template created by user and not global or template is created by user's restaurant
-        (template.createdBy === user?.id && !template.isGlobal) ||
-        template?.restaurant_id === user?.restaurant_id
+        (template.createdBy === user?.id ||
+          template?.restaurant_id === user?.restaurant_id) &&
+        !!template.isGlobal
       ) {
         return false;
       }
@@ -69,8 +81,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     } else {
       // template is created by user and not global or template is created by user's restaurant
       if (
-        (template.createdBy === user?.id && !template.isGlobal) ||
-        template?.restaurant_id === user?.restaurant_id
+        (template.createdBy === user?.id ||
+          template?.restaurant_id === user?.restaurant_id) &&
+        !!template.isGlobal
       ) {
         return true;
         // template is global
@@ -107,107 +120,41 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
     templateData,
     user?.restaurant?.location || []
   );
-  const ungroupedMenus = templateData?.filter(
-    (template) => !!!template?.restaurant_id
-  );
-  if (
-    user?.role === "flapjack" &&
-    resturantsOptions.length &&
-    navMenu === "templates"
-  ) {
+  if (loading) {
     return (
-      <>
-        <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
-        <Container size="xl" px="xl" pt={16}>
-          <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
-            {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
-          </Text>
-          {loading ? (
-            <>
-              <SimpleGrid
-                cols={3}
-                breakpoints={[
-                  { maxWidth: 1120, cols: 3, spacing: "md" },
-                  { maxWidth: 991, cols: 2, spacing: "sm" },
-                  { maxWidth: 600, cols: 1, spacing: "sm" },
-                ]}
-              >
-                {loadingArray.map((item, i) => (
-                  <>
-                    <Skeleton key={i} visible={true} height={333}>
-                      Lorem ipsum dolor sit amet...
-                    </Skeleton>
-                  </>
-                ))}
-              </SimpleGrid>
-            </>
-          ) : (
-            <>
-              {resturantsOptions.map((item: any, i) => {
-                const menus = item?.location?.length
-                  ? groupMenusByLocation(templateData, item?.location)
-                  : [
-                      {
-                        menus: templateData.filter(
-                          (template) => template?.restaurant_id == item?.value
-                        ),
-                      },
-                    ];
-
-                return (
-                  <div key={i}>
-                    <Text style={{ fontSize: "26px" }} fw={"inherit"}>
-                      {item?.label}
-                    </Text>
-
-                    {menus.map((item: any, i) => (
-                      <div key={i}>
-                        <Text fz={"xl"} fw={"inherit"} my={"md"}>
-                          {item?.location}
-                        </Text>
-                        <SimpleGrid
-                          cols={3}
-                          breakpoints={[
-                            { maxWidth: 1120, cols: 3, spacing: "md" },
-                            { maxWidth: 991, cols: 2, spacing: "sm" },
-                            { maxWidth: 600, cols: 1, spacing: "sm" },
-                          ]}
-                          sx={{ marginBottom: "80px" }}
-                        >
-                          {item?.menus?.length ? (
-                            item?.menus.map((template: any, i: number) => (
-                              <TemplateCard
-                                key={i}
-                                template={template}
-                                thumbnail={`${
-                                  process.env.NEXT_PUBLIC_SUPABASE_URL
-                                }/storage/v1/object/public/renderings/${
-                                  template.id
-                                }/coverImage?${i}${Date.now()}`}
-                                onRemove={deleteTemplate}
-                                onRename={renameTemplate}
-                                onDuplicate={duplicateTemplate}
-                                //@ts-ignore
-                                onGlobal={globalTemplate}
-                                navMenu={navMenu}
-                                resturantsOptions={resturantsOptions}
-                                setTemplates={setTemplates}
-                              />
-                            ))
-                          ) : (
-                            <Text>No menu found</Text>
-                          )}
-                        </SimpleGrid>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
-            </>
-          )}
-          <div>
-            <Text style={{ fontSize: "26px" }} fw={"inherit"} my={"md"}>
-              Menu without restaurant
+      <Container size="xl" px="xl" pt={16}>
+        <SimpleGrid
+          cols={3}
+          breakpoints={[
+            { maxWidth: 1120, cols: 3, spacing: "md" },
+            { maxWidth: 991, cols: 2, spacing: "sm" },
+            { maxWidth: 600, cols: 1, spacing: "sm" },
+          ]}
+        >
+          {loadingArray.map((item, i) => (
+            <Skeleton key={i} visible={true} height={333}></Skeleton>
+          ))}
+        </SimpleGrid>
+      </Container>
+    );
+  }
+  if (user?.role === "flapjack") {
+    if (navMenu === "templates") {
+      return (
+        <>
+          <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
+          <Container size="xl" px="xl" pt={16}>
+            <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
+              Templates
+            </Text>
+            <Text mb={"xl"}>
+              The Templates tab contains both draft and live menu templates.
+              Draft menus are only visible to flapjack users. Live menus are
+              visible to all users, even users without an account, so please be
+              cautious about publishing these menus. These menus are intended to
+              be starting points for customer menus. To add a menu to this tab,
+              transfer it to the Flapjack restaurant or select the Flapjack
+              restaurant when creating a menu.
             </Text>
             <SimpleGrid
               cols={3}
@@ -217,26 +164,116 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 { maxWidth: 600, cols: 1, spacing: "sm" },
               ]}
             >
-              {ungroupedMenus.map((template: any, i: number) => (
-                <TemplateCard
-                  key={i}
-                  template={template}
-                  thumbnail={`${
-                    process.env.NEXT_PUBLIC_SUPABASE_URL
-                  }/storage/v1/object/public/renderings/${
-                    template.id
-                  }/coverImage?${i}${Date.now()}`}
-                  onRemove={deleteTemplate}
-                  onRename={renameTemplate}
-                  onDuplicate={duplicateTemplate}
-                  //@ts-ignore
-                  onGlobal={globalTemplate}
-                  navMenu={navMenu}
-                  resturantsOptions={resturantsOptions}
-                />
-              ))}
+              {templates
+                ?.filter(
+                  (item: ITemplateDetails) =>
+                    !!!item?.restaurant_id || item?.restaurant_id === "2"
+                )
+                ?.map((template: any, i: number) => (
+                  <TemplateCard
+                    key={i}
+                    template={template}
+                    thumbnail={`${
+                      process.env.NEXT_PUBLIC_SUPABASE_URL
+                    }/storage/v1/object/public/renderings/${
+                      template.id
+                    }/coverImage?${i}${Date.now()}`}
+                    onRemove={deleteTemplate}
+                    onRename={renameTemplate}
+                    onDuplicate={duplicateTemplate}
+                    //@ts-ignore
+                    onGlobal={globalTemplate}
+                    navMenu={navMenu}
+                    resturantsOptions={resturantsOptions}
+                    setTemplates={setTemplates}
+                    badge
+                  />
+                ))}
             </SimpleGrid>
-          </div>
+          </Container>
+        </>
+      );
+    }
+    return (
+      <>
+        <TemplateHeader setNavMenu={setNavMenu} navMenu={navMenu} />
+        <Container size="xl" px="xl" pt={16}>
+          <Text size={32} weight={400} sx={{ marginBottom: "1rem" }}>
+            Customer Menus
+          </Text>
+          <Text mb={"xl"}>
+            The “Customer Menus” tab is a place for our team to see all of the
+            menus that are either in progress or already delivered to customers.
+            Live menus are menus that customers can actively see when they log
+            in, so please <b>be careful when editing or modifying these.</b>{" "}
+            Draft menus are only visible to flapjack users. To add a menu here,
+            it must be assigned to a restaurant either when creating the menu or
+            by transferring the menu to the corresponding restaurant.
+          </Text>
+
+          {resturantsOptions
+            ?.filter((i: any) => i?.value !== "2")
+            .map((item: any, i) => {
+              const restaurantTemplate = templates.filter(
+                (template) => template?.restaurant_id == item?.value
+              );
+              const menus = item?.location?.length
+                ? groupMenusByLocation(restaurantTemplate, item?.location)
+                : [
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
+              return (
+                <div key={i}>
+                  <Text style={{ fontSize: "26px" }} fw={"inherit"}>
+                    {item?.label}
+                  </Text>
+
+                  {menus.map((item: any, i) => (
+                    <div key={i}>
+                      <Text fz={"xl"} fw={"inherit"} my={"md"}>
+                        {item?.location}
+                      </Text>
+                      <SimpleGrid
+                        cols={3}
+                        breakpoints={[
+                          { maxWidth: 1120, cols: 3, spacing: "md" },
+                          { maxWidth: 991, cols: 2, spacing: "sm" },
+                          { maxWidth: 600, cols: 1, spacing: "sm" },
+                        ]}
+                        sx={{ marginBottom: "80px" }}
+                      >
+                        {item?.menus?.length ? (
+                          item?.menus.map((template: any, i: number) => (
+                            <TemplateCard
+                              key={i}
+                              template={template}
+                              thumbnail={`${
+                                process.env.NEXT_PUBLIC_SUPABASE_URL
+                              }/storage/v1/object/public/renderings/${
+                                template.id
+                              }/coverImage?${i}${Date.now()}`}
+                              onRemove={deleteTemplate}
+                              onRename={renameTemplate}
+                              onDuplicate={duplicateTemplate}
+                              //@ts-ignore
+                              onGlobal={globalTemplate}
+                              navMenu={navMenu}
+                              resturantsOptions={resturantsOptions}
+                              setTemplates={setTemplates}
+                              badge
+                            />
+                          ))
+                        ) : (
+                          <Text>No menu found</Text>
+                        )}
+                      </SimpleGrid>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
         </Container>
       </>
     );
@@ -249,26 +286,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
         <Text size={32} weight={200} sx={{ marginBottom: "1rem" }}>
           {router.query.myMenu && navMenu === "templates" ? "" : "My Menus"}
         </Text>
-        {loading ? (
-          <>
-            <SimpleGrid
-              cols={3}
-              breakpoints={[
-                { maxWidth: 1120, cols: 3, spacing: "md" },
-                { maxWidth: 991, cols: 2, spacing: "sm" },
-                { maxWidth: 600, cols: 1, spacing: "sm" },
-              ]}
-            >
-              {loadingArray.map((item, i) => (
-                <>
-                  <Skeleton key={i} visible={true} height={333}>
-                    Lorem ipsum dolor sit amet...
-                  </Skeleton>
-                </>
-              ))}
-            </SimpleGrid>
-          </>
-        ) : user?.restaurant?.location?.length ? (
+        {user?.restaurant?.location?.length ? (
           <>
             {groupedMenus.map((item: any, i) => (
               <div key={i}>
@@ -301,6 +319,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                       navMenu={navMenu}
                       resturantsOptions={resturantsOptions}
                       setTemplates={setTemplates}
+                      badge
                     />
                   ))}
                 </SimpleGrid>
@@ -332,6 +351,8 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 onGlobal={globalTemplate}
                 navMenu={navMenu}
                 resturantsOptions={resturantsOptions}
+                setTemplates={setTemplates}
+                badge
               />
             ))}
           </SimpleGrid>

@@ -155,6 +155,19 @@ export default function TemplateCardOverlay({
         setError("");
         setLoading(true);
         await transferTemplate(template?.id, resturantId, location);
+        setTemplates((prev: any) => {
+          const newTemplates = prev.map((template: any) => {
+            if (template?.id === templateId) {
+              return {
+                ...template,
+                restaurant_id: resturantId,
+                location,
+              };
+            }
+            return template;
+          });
+          return newTemplates;
+        });
         setLocation("");
         setLocations([]);
         setResturantId("");
@@ -247,7 +260,7 @@ export default function TemplateCardOverlay({
           <Menu.Dropdown>
             {user?.role === "flapjack" && (
               <Menu.Item onClick={handleGlobal}>
-                {template.isGlobal ? "Make Private" : "Publish Global"}
+                {template.isGlobal ? "Unpublish Menu" : "Publish Menu"}
               </Menu.Item>
             )}
             {user?.role === "flapjack" && (

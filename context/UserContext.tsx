@@ -69,6 +69,8 @@ const UserContextProvider = (props: Props) => {
               .eq("id", data?.restaurant_id)
               .single();
             data.restaurant = restaurantData;
+          } else if (data?.restaurant) {
+            delete user.restaurant;
           }
           setUserDetails({
             ...user,
