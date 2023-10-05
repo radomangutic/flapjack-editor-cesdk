@@ -1,6 +1,5 @@
 const getCurrentSelectedPage = async (instance: any) => {
   const pages = instance.engine.block.findByType("page");
-  console.log("pages", pages);
 
   if (pages?.length > 1) {
     const selectedBlocks = await instance.engine.block.findAllSelected();

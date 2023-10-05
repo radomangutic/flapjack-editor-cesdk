@@ -1,13 +1,14 @@
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
 import { convertToSectionList } from "./convertToSectionList";
+import { RestaurantData } from "../interfaces/Editor";
 
 export async function getEditorData(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const { data } = await supabase
     .from("templates")
     .select(
-      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
+      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id, location"
     )
     .eq("id", context?.params?.id);
   let elementList: any;
@@ -27,6 +28,8 @@ export async function getEditorData(context: GetServerSidePropsContext) {
       id: item?.id?.toString(),
       createdBy: item?.createdBy || null,
       restaurant_id: item?.restaurant_id,
+      template_id: item?.template_id,
+      location: item?.location,
       meta: {
         uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
         blockType: "//ly.img.ubq/text",
@@ -41,10 +44,8 @@ export async function getEditorData(context: GetServerSidePropsContext) {
       },
     };
   });
-
-  const sortResData = () => {
-    const sectionedList = Object.values(convertToSectionList(elementList));
-    const responseList = sectionedList?.map(async (item: any) => {
+  const getElementResDetail = () => {
+    const responseList = elementList?.map(async (item: any) => {
       const resturantDetail = await supabase
         .from("restaurants")
         .select("*")
@@ -57,6 +58,14 @@ export async function getEditorData(context: GetServerSidePropsContext) {
       };
     });
     return Promise.all(responseList);
+  };
+  const ListWithName = await getElementResDetail();
+
+  const sortResData = () => {
+    const sectionedList: RestaurantData[] = Object.values(
+      convertToSectionList(ListWithName)
+    );
+    return Promise.all(sectionedList);
   };
   const sortAssetsImages = async () => {
     const { data: globalTemplates, error: globalTemplatesError } =
@@ -104,7 +113,7 @@ export async function getEditorData(context: GetServerSidePropsContext) {
   return {
     props: {
       data: data && context?.params?.id ? data[0] : null,
-      elementsList: elementList,
+      elementsList: ListWithName,
       sectionedList: sortedData,
       globalTemplates: response,
     },

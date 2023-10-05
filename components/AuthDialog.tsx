@@ -97,11 +97,9 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const router = useRouter();
   const secretKey = router?.query?.key;
   const decryptedData = decryptData(secretKey);
-  console.log("decryptedData", decryptedData);
 
   const restaurantId = decryptedData?.restaurantId;
   const userPhoneByUrl = decryptedData?.phone;
-  console.log(userPhoneByUrl);
   const setUser = useSetUser();
   const [value, setValue] = useState(
     userPhoneByUrl ? `+${userPhoneByUrl}` : ""

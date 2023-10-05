@@ -4,7 +4,10 @@ import { ITemplateDetails } from "../../interfaces";
 import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
-import { convertToSectionList } from "../../helpers/convertToSectionList";
+import {
+  convertToLocationSectionList,
+  convertToSectionList,
+} from "../../helpers/convertToSectionList";
 import { getEditorData } from "../../helpers/EditorData";
 
 const Menu = ({
@@ -29,18 +32,27 @@ const Menu = ({
     return <PrivatePage text="The dog ate this menu!" />;
   }
   const elements =
-    user?.role === "flapjack"
+    user?.role == "flapjack"
       ? elementsList
       : elementsList.filter(
           (item: any) => item?.restaurant_id === user?.restaurant_id
         );
-console.log('elements',elements)
+  const SecElements =
+    user?.role == "flapjack"
+      ? sectionedList
+      : convertToLocationSectionList(
+          elementsList.filter(
+            (item: any) => item?.restaurant_id === user?.restaurant_id
+          )
+        );
   return (
     <>
       <Editor
         template={data}
-        elementsList={elements}
-        sectionedList={sectionedList}
+        elementsList={elements?.filter(
+          (item: any) => item?.template_id === data?.id?.toString()
+        )}
+        sectionedList={SecElements}
         globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
       />
     </>

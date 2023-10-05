@@ -297,24 +297,24 @@ const Editor = ({
                     ]
                   },
                   // Shapes
-                  defaultEntries[4]
-                  // {
-                  //   id: "Elements",
-                  //   sourceIds: [
-                  //     customComponent?.recent,
-                  //     "Elements",
-                  //     ...sectionedList?.map(
-                  //       (item: any) => item?.resturantDetail?.name
-                  //     )
-                  //   ],
-                  //   previewLength: 2,
-                  //   gridColumns: 2,
-                  //   previewBackgroundType: "contain",
-                  //   gridBackgroundType: "contain",
-                  //   icon: ({ theme, iconSize }: any) => {
-                  //     return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                  //   }
-                  // }
+                  defaultEntries[4],
+                  {
+                    id: "Elements",
+                    sourceIds: [
+                      customComponent?.recent,
+                      "Elements",
+                      ...sectionedList?.map(
+                        (item: any) => item?.resturantDetail?.name
+                      )
+                    ],
+                    previewLength: 2,
+                    gridColumns: 2,
+                    previewBackgroundType: "contain",
+                    gridBackgroundType: "contain",
+                    icon: ({ theme, iconSize }: any) => {
+                      return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
+                    }
+                  }
                 ];
               }
             }
@@ -896,6 +896,7 @@ const Editor = ({
         if (!response?.data?.path) {
           return;
         }
+        console.log('template',template)
         const { error, data } = await supabase
           .from("ElementLibrary")
           .insert({
@@ -903,7 +904,8 @@ const Editor = ({
             template_id: template?.id,
             createdBy: user?.id,
             thumbnail: response?.data?.path,
-            restaurant_id: user?.restaurant_id
+            restaurant_id: user?.restaurant_id,
+            location:template?.location
           })
           .select()
           .single();
@@ -1038,7 +1040,6 @@ const Editor = ({
     const opendBlokElement = listChildren?.children[2] as HTMLElement;
     // console.log('targetElement',);
     const newName = opendBlokElement?.textContent?.split("/")[1];
-    console.log('aaa', opendBlokElement?.className);
 
     if (opendBlokElement && opendBlokElement.textContent && opendBlokElement?.className) {
       opendBlokElement.textContent = opendBlokElement?.className === 'UBQ_AssetLibraryBreadcrumb__label--PA5RI' && newName

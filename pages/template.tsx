@@ -10,7 +10,10 @@ import AuthDialog from "../components/AuthDialog";
 import Editor from "../components/Editor/Editor";
 import UpsertTemplateDialog from "../components/UpsertTemplateDialog";
 import PrivatePage from "../components/PrivatePage/PrivatePage";
-import { convertToSectionList } from "../helpers/convertToSectionList";
+import {
+  convertToLocationSectionList,
+  convertToSectionList,
+} from "../helpers/convertToSectionList";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
 import { getEditorData } from "../helpers/EditorData";
@@ -35,17 +38,27 @@ const Template = ({
       return <PrivatePage login={!user} />;
     }
     const elements =
-      user?.role === "flapjack"
+      user?.role == "flapjack"
         ? elementsList
         : elementsList.filter(
             (item: any) => item?.restaurant_id === user?.restaurant_id
+          );
+    const SecElements =
+      user?.role == "flapjack"
+        ? sectionedList
+        : convertToLocationSectionList(
+            elementsList.filter(
+              (item: any) => item?.restaurant_id === user?.restaurant_id
+            )
           );
     return (
       <>
         <Editor
           template={data}
-          elementsList={elements}
-          sectionedList={sectionedList}
+          elementsList={elements?.filter(
+            (item: any) => item?.template_id === data?.id?.toString()
+          )}
+          sectionedList={SecElements}
           globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
         />
       </>

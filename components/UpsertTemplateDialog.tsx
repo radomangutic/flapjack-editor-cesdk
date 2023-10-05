@@ -98,6 +98,8 @@ const UpsertTemplateDialog = ({
             name: removeSpecialCharacters(values?.name),
             description: removeSpecialCharacters(values?.description),
             updatedAt: new Date(),
+            location,
+
           })
           .eq("id", template?.id);
         if (error) {
