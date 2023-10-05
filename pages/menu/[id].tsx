@@ -4,37 +4,50 @@ import { ITemplateDetails } from "../../interfaces";
 import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
+import { convertToSectionList } from "../../helpers/convertToSectionList";
+import { getEditorData } from "../../helpers/EditorData";
 
-const Menu = ({ data }: { data: ITemplateDetails }) => {
+const Menu = ({
+  data,
+  elementsList,
+  sectionedList,
+  globalTemplates,
+}: {
+  data: ITemplateDetails;
+  elementsList: any;
+  sectionedList?: any;
+  globalTemplates: any;
+}) => {
   const user = getUser();
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
     }
   }
-  
 
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
+  const elements =
+    user?.role === "flapjack"
+      ? elementsList
+      : elementsList.filter(
+          (item: any) => item?.restaurant_id === user?.restaurant_id
+        );
+
   return (
     <>
-      <Editor template={data} />
+      <Editor
+        template={data}
+        elementsList={elements}
+        sectionedList={sectionedList}
+        globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
+      />
     </>
   );
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const supabase = createServerSupabaseClient(context);
-  const { data } = await supabase
-    .from("templates")
-    .select(
-      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
-    )
-    .eq("id", context?.params?.id);
-
-  return {
-    props: { data: data ? data[0] : null }, // will be passed to the page component as props
-  };
+  return await getEditorData(context);
 }
 
 export default Menu;

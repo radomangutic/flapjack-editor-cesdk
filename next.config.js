@@ -32,7 +32,7 @@ const nextConfig = {
     TWILIO_AUTH_TOKEN:process.env.TWILIO_AUTH_TOKEN,
   },
   compiler: {
-    removeConsole: true,
+    removeConsole: false,
   }
 }
 

@@ -13,6 +13,8 @@ import { hotjar } from "react-hotjar";
 import { GoogleAnalytics } from "nextjs-google-analytics";
 import UserContextProvider from "../context/UserContext";
 import { IntercomProvider } from "react-use-intercom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function App({
   Component,
   pageProps,
@@ -20,7 +22,7 @@ export default function App({
   initialSession: Session;
 }>) {
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());
-  const [initialed, setInitial] = useState(false)
+  const [initialed, setInitial] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,47 +30,52 @@ export default function App({
     hotjar.initialize(3291123, 6);
   }, []);
 
-  if(initialed) {
-  return (
-    <>
-      <Head>
-        <title>Flapjack</title>
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width"
-        />
-      </Head>
+  if (initialed) {
+    return (
+      <>
+        <Head>
+          <title>Flapjack</title>
+          <meta
+            name="viewport"
+            content="minimum-scale=1, initial-scale=1, width=device-width"
+          />
+        </Head>
 
-      <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
-        <NotificationsProvider>
-          <SessionContextProvider
-            supabaseClient={supabaseClient}
-            initialSession={pageProps.initialSession}
-          >
-            <UserContextProvider>
-              <AppShell
-                padding={0}
-                header={!router.pathname.includes("preview") ? <Header /> : <></>}
-                styles={(theme) => ({
-                  main: {
-                   backgroundColor: !router.pathname.includes("templates") ? "#e7ebee" : 'inherit'
-                  },
-                })}
-              >
-                <GoogleAnalytics trackPageViews />
-                <IntercomProvider
-                  appId={process.env.NEXT_PUBLIC_INTERCOM_APP_ID || ""}
-                  autoBoot
+        <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
+          <NotificationsProvider>
+            <SessionContextProvider
+              supabaseClient={supabaseClient}
+              initialSession={pageProps.initialSession}
+            >
+              <UserContextProvider>
+                <AppShell
+                  padding={0}
+                  header={
+                    !router.pathname.includes("preview") ? <Header /> : <></>
+                  }
+                  styles={(theme) => ({
+                    main: {
+                      backgroundColor: !router.pathname.includes("templates")
+                        ? "#e7ebee"
+                        : "inherit",
+                    },
+                  })}
                 >
-                  <Component {...pageProps} />
-                </IntercomProvider>
-              </AppShell>
-            </UserContextProvider>
-          </SessionContextProvider>
-        </NotificationsProvider>
-      </MantineProvider>
-    </>
-  )
-}
-return <></>
+                  <GoogleAnalytics trackPageViews />
+                  <IntercomProvider
+                    appId={process.env.NEXT_PUBLIC_INTERCOM_APP_ID || ""}
+                    autoBoot
+                  >
+                    <Component {...pageProps} />
+                    <ToastContainer />
+                  </IntercomProvider>
+                </AppShell>
+              </UserContextProvider>
+            </SessionContextProvider>
+          </NotificationsProvider>
+        </MantineProvider>
+      </>
+    );
+  }
+  return <></>;
 }
