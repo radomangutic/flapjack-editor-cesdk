@@ -94,6 +94,10 @@ const TemplateHeader = ({
     setSizeValue(template?.content.assets[0]);
   }, [template]);
 
+  const isActiveTab = () => {
+    return user?.role === 'flapjack' || navMenu === "myMenu";
+  };
+
   return (
     <Header height={64}>
       <Flex
@@ -165,7 +169,7 @@ const TemplateHeader = ({
             </Flex>
           </Link>
           <Flex sx={{ marginLeft: "2rem" }}>
-            {user && (
+            {user && user?.role !== "flapjack" && (
               <Text
                 // navMenu "cursor-pointer"
                 className={`myMenu ${navMenu === "myMenu" ? "active" : ""
@@ -235,12 +239,48 @@ const TemplateHeader = ({
                   Templates
                 </Text>
               ))}
+            {user?.role === "flapjack" && (
+              <Text
+                // navMenu "cursor-pointer"
+                className={`myMenu ${
+                  navMenu === "customerMenus" ? "active" : ""
+                } cursor-pointer`}
+                ml="sm"
+                fz="sm"
+                onClick={() => {
+                  activeClassFun("customerMenus");
+                }}
+              >
+                <span
+                  style={{
+                    padding: "6px 8px",
+                    backgroundColor: "#EDF2FF",
+                    borderRadius: "5px",
+                    marginRight: "5px",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="#4C6EF5"
+                    className="bi bi-file-earmark-text"
+                    viewBox="0 0 16 16"
+                    style={{ verticalAlign: "sub" }}
+                  >
+                    <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z" />
+                    <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                  </svg>
+                </span>
+                Customer Menus
+              </Text>
+            )}
           </Flex>
         </Flex>
         <Flex align="center">
           {router.pathname.includes("templates") ? (
             canCreateTemplate(user) &&
-            navMenu == "myMenu" && (
+            isActiveTab() && (
               <Button
                 size="xs"
                 color="orange"

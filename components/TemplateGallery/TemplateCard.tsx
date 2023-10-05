@@ -9,21 +9,21 @@ export type RemoveTemplate =
   | undefined;
 export type DuplicateTemplate =
   | ((
-    templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
-  ) => Promise<void>)
+      templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
+    ) => Promise<void>)
   | undefined;
 
 export type GlobalTemplate =
   | ((
-    templateDetails: Pick<ITemplateDetails, "id" | "isGlobal">,
-    id: string
-  ) => Promise<void>)
+      templateDetails: Pick<ITemplateDetails, "id" | "isGlobal">,
+      id: string
+    ) => Promise<void>)
   | undefined;
 
 export type RenameTemplate =
   | ((
-    templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
-  ) => Promise<void>)
+      templateDetails: Pick<ITemplateDetails, "id" | "name" | "description">
+    ) => Promise<void>)
   | undefined;
 
 type TemplateCardProps = {
@@ -36,6 +36,7 @@ type TemplateCardProps = {
   navMenu: string;
   resturantsOptions: any;
   setTemplates: any;
+  badge?: boolean;
 };
 
 const TemplateCard = ({
@@ -48,6 +49,7 @@ const TemplateCard = ({
   navMenu,
   resturantsOptions,
   setTemplates,
+  badge,
 }: TemplateCardProps) => {
   const user = useUser();
 
@@ -65,7 +67,9 @@ const TemplateCard = ({
       setShowOverlay(true);
     } else if (user?.role === "owner") {
       setShowOverlay(true);
-    } else if (user?.role === "user") {
+    } else if (navMenu === "customerMenus") {
+      setShowOverlay(true);
+    } else if (navMenu === "user") {
       setShowOverlay(true);
     } else {
       setShowOverlay(false);
@@ -103,21 +107,25 @@ const TemplateCard = ({
         <Image
           src={thumbnail}
           withPlaceholder={true}
-          placeholder={<Image
-            src="/thumbnail-placeholder.jpg"
-            height={235}
-            alt=" Menu Thumbnail Placeholder" />}
+          placeholder={
+            <Image
+              src="/thumbnail-placeholder.jpg"
+              height={235}
+              alt=" Menu Thumbnail Placeholder"
+            />
+          }
           height={235}
-          alt=" Menu Thumbnail Placeholder" />
-        {template?.menuSize && (
+          alt=" Menu Thumbnail Placeholder"
+        />
+        {badge && user?.role === "flapjack" && (
           <Badge
-            color="orange"
+            color={template?.isGlobal ? "green" : "orange"}
             variant="filled"
             pos="absolute"
             bottom={15}
-            left={15}
+            right={15}
           >
-            {template.menuSize}
+            {template?.isGlobal ? "Live" : "Draft"}
           </Badge>
         )}
       </Card.Section>
