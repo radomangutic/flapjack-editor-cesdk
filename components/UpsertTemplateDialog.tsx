@@ -43,11 +43,11 @@ const UpsertTemplateDialog = ({
   const userData = getUser();
   const userLocation = userData?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-        return {
-          label: item,
-          value: item,
-        };
-      })
+      return {
+        label: item,
+        value: item,
+      };
+    })
     : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
@@ -59,11 +59,9 @@ const UpsertTemplateDialog = ({
   const [location, setLocation] = useState(template?.location || "");
   const [isModalOpen, { open, close }] = useDisclosure(false);
   const [values, setValues] = useState();
-  const filUrl = `${
-    process.env.NEXT_PUBLIC_SUPABASE_URL
-  }/storage/v1/object/public/renderings/${
-    router.query.id
-  }/coverImage?${Date.now()}`;
+  const filUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+    }/storage/v1/object/public/renderings/${router.query.id
+    }/coverImage?${Date.now()}`;
 
   const form = useForm({
     initialValues: {
@@ -201,7 +199,7 @@ const UpsertTemplateDialog = ({
     >
       <form
         onSubmit={form.onSubmit(
-          user?.role !== "user" && template?.isGlobal ? handleModal : onSubmit
+          user?.role === 'flapjack' && template?.isGlobal ? handleModal : onSubmit
         )}
       >
         <Input
@@ -234,8 +232,8 @@ const UpsertTemplateDialog = ({
                   isFileEsist
                     ? filUrl
                     : form?.values?.coverImage
-                    ? URL.createObjectURL(form?.values?.coverImage)
-                    : ""
+                      ? URL.createObjectURL(form?.values?.coverImage)
+                      : ""
                 }
                 alt="Selected"
                 style={{
@@ -345,7 +343,7 @@ const UpsertTemplateDialog = ({
             disabled={loader}
             mr="md"
           >
-            {loader ? "Loading..." : "Yes, let me edit"}
+            {loader ? "Loading..." : "Yes, let me save"}
           </Button>
           <Button variant="outline" color="dark" size="sm" onClick={close}>
             No, take me back
