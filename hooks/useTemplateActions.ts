@@ -90,7 +90,7 @@ export const useTemplateActions = (
             name: `Copy of ${name}`,
             description,
             content: newLocation,
-            isGlobal: user?.role === "flapjack" ? true : false,
+            isGlobal: false,
             restaurant_id: user?.restaurant_id,
             createdBy: user?.id,
             created_at: new Date(),
