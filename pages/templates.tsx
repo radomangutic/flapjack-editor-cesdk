@@ -76,8 +76,8 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       ) {
         return false;
       }
-      return true;
-      // template is global
+      // template is global 
+      // return true; <-- hotfix: I removed thie because the logic needs to be re-written to accomodate new tabs. At that time, this should display only global menus in teh flapjack restaurant.
     } else {
       // template is created by user and not global or template is created by user's restaurant
       if (
@@ -173,11 +173,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   <TemplateCard
                     key={i}
                     template={template}
-                    thumbnail={`${
-                      process.env.NEXT_PUBLIC_SUPABASE_URL
-                    }/storage/v1/object/public/renderings/${
-                      template.id
-                    }/coverImage?${i}${Date.now()}`}
+                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${template.id
+                      }/coverImage?${i}${Date.now()}`}
                     onRemove={deleteTemplate}
                     onRename={renameTemplate}
                     onDuplicate={duplicateTemplate}
@@ -220,10 +218,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               const menus = item?.location?.length
                 ? groupMenusByLocation(restaurantTemplate, item?.location)
                 : [
-                    {
-                      menus: restaurantTemplate,
-                    },
-                  ];
+                  {
+                    menus: restaurantTemplate,
+                  },
+                ];
               return (
                 <div key={i}>
                   <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -249,11 +247,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             <TemplateCard
                               key={i}
                               template={template}
-                              thumbnail={`${
-                                process.env.NEXT_PUBLIC_SUPABASE_URL
-                              }/storage/v1/object/public/renderings/${
-                                template.id
-                              }/coverImage?${i}${Date.now()}`}
+                              thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                                }/storage/v1/object/public/renderings/${template.id
+                                }/coverImage?${i}${Date.now()}`}
                               onRemove={deleteTemplate}
                               onRename={renameTemplate}
                               onDuplicate={duplicateTemplate}
@@ -306,11 +302,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     <TemplateCard
                       key={i}
                       template={template}
-                      thumbnail={`${
-                        process.env.NEXT_PUBLIC_SUPABASE_URL
-                      }/storage/v1/object/public/renderings/${
-                        template.id
-                      }/coverImage?${i}${Date.now()}`}
+                      thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                        }/storage/v1/object/public/renderings/${template.id
+                        }/coverImage?${i}${Date.now()}`}
                       onRemove={deleteTemplate}
                       onRename={renameTemplate}
                       onDuplicate={duplicateTemplate}
@@ -339,11 +333,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               <TemplateCard
                 key={i}
                 template={template}
-                thumbnail={`${
-                  process.env.NEXT_PUBLIC_SUPABASE_URL
-                }/storage/v1/object/public/renderings/${
-                  template.id
-                }/coverImage?${i}${Date.now()}`}
+                thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                  }/storage/v1/object/public/renderings/${template.id
+                  }/coverImage?${i}${Date.now()}`}
                 onRemove={deleteTemplate}
                 onRename={renameTemplate}
                 onDuplicate={duplicateTemplate}
