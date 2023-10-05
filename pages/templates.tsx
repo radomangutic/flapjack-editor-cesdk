@@ -67,30 +67,8 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   }, [user?.id]);
 
   const templateData = templates?.filter((template) => {
-    if (navMenu === "templates") {
-      if (
-        // template is template created by user and not global or template is created by user's restaurant
-        (template.createdBy === user?.id ||
-          template?.restaurant_id === user?.restaurant_id) &&
-        !!template.isGlobal
-      ) {
-        return false;
-      }
-      // template is global 
-      // return true; <-- hotfix: I removed thie because the logic needs to be re-written to accomodate new tabs. At that time, this should display only global menus in teh flapjack restaurant.
-    } else {
-      // template is created by user and not global or template is created by user's restaurant
-      if (
-        (template.createdBy === user?.id ||
-          template?.restaurant_id === user?.restaurant_id) &&
-        !!template.isGlobal
-      ) {
-        return true;
-        // template is global
-      } else {
-        return false;
-      }
-    }
+    // show all menus in the user's restaurant
+    if (template?.restaurant_id === user?.restaurant_id) return true
   });
   const groupMenusByLocation = (menus: any[], locations: string[]) => {
     const menuMap: { [key: string]: any[] } = {};
