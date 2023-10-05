@@ -10,8 +10,10 @@ import AuthDialog from "../components/AuthDialog";
 import Editor from "../components/Editor/Editor";
 import UpsertTemplateDialog from "../components/UpsertTemplateDialog";
 import PrivatePage from "../components/PrivatePage/PrivatePage";
-import { getEditorData } from "../helpers/EditorData";
+import { convertToSectionList } from "../helpers/convertToSectionList";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
+import { getEditorData } from "../helpers/EditorData";
 
 export const WRAPPER_PADDING = 10;
 
@@ -19,11 +21,13 @@ const Template = ({
   data,
   elementsList,
   sectionedList,
+  globalTemplates,
 }: {
   drawerOpened: boolean;
   data: ITemplateDetails | null;
   elementsList: any;
   sectionedList?: any;
+  globalTemplates: any;
 }) => {
   const user = getUser();
   if (typeof window !== "undefined") {
@@ -42,6 +46,7 @@ const Template = ({
           template={data}
           elementsList={elements}
           sectionedList={sectionedList}
+          globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
         />
       </>
     );

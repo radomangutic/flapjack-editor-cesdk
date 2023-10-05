@@ -27,7 +27,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id, location"
+          "id, updatedAt, createdBy, name, description, content, tags, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -44,7 +44,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
+          "id, createdBy, updatedAt, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .or(`restaurant_id.eq.${restaurant_id},isGlobal.eq.true`)
         .order("templateOrder", { ascending: true });
@@ -59,7 +59,7 @@ export const fetchTemplates = async (
       await dbClient
         .from("templates")
         .select(
-          "id, createdBy, name, description, tags, content, isGlobal, menuSize,restaurant_id, location"
+          "id, createdBy, name, updatedAt, description, tags, content, isGlobal, menuSize,restaurant_id, location"
         )
         .order("templateOrder", { ascending: true });
 
@@ -141,11 +141,20 @@ export const fetchResturants = async (): Promise<any[]> => {
       const reseturantOptions = restaurantsData.map((item) => {
         return {
           label: item?.name,
-          value: item.id,
+          value: item?.id?.toString(),
           location: item?.location,
         };
       });
-      restaurants = reseturantOptions;
+      let flapjackRestaurant;
+      let otherRestaurants: any = [];
+      reseturantOptions.forEach((item) => {
+        if (item?.value === "2") {
+          flapjackRestaurant = item;
+        } else {
+          otherRestaurants.push(item);
+        }
+      });
+      restaurants = [flapjackRestaurant, ...otherRestaurants];
     }
   }
 

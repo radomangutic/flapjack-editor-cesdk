@@ -60,7 +60,9 @@ export default function TemplateCardOverlay({
     if (!user || !router.pathname.includes("templates")) return false;
 
     const flapjackCanUpdate =
-      user?.role === "flapjack" || user?.role === "owner" || !!user?.restaurant_id;
+      user?.role === "flapjack" ||
+      user?.role === "owner" ||
+      !!user?.restaurant_id;
     const isUserTemplate =
       user?.id === template.createdBy && user?.role === "user";
 
@@ -82,11 +84,11 @@ export default function TemplateCardOverlay({
     useState<TemplateCardModalProps["type"]>("delete");
   const userLocation = user?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-      return {
-        label: item,
-        value: item,
-      };
-    })
+        return {
+          label: item,
+          value: item,
+        };
+      })
     : [];
 
   console.log(userLocation);
@@ -156,6 +158,19 @@ export default function TemplateCardOverlay({
         setError("");
         setLoading(true);
         await transferTemplate(template?.id, resturantId, location);
+        setTemplates((prev: any) => {
+          const newTemplates = prev.map((template: any) => {
+            if (template?.id === templateId) {
+              return {
+                ...template,
+                restaurant_id: resturantId,
+                location,
+              };
+            }
+            return template;
+          });
+          return newTemplates;
+        });
         setLocation("");
         setLocations([]);
         setResturantId("");
@@ -248,20 +263,25 @@ export default function TemplateCardOverlay({
           <Menu.Dropdown>
             {user?.role === "flapjack" && (
               <Menu.Item onClick={handleGlobal}>
-                {template.isGlobal ? "Make Private" : "Publish Global"}
+                {template.isGlobal ? "Unpublish Menu" : "Publish Menu"}
               </Menu.Item>
             )}
             {user?.role === "flapjack" && (
               <Menu.Item onClick={open}>Transfer Template </Menu.Item>
             )}
-            {(template?.isGlobal || navMenu === "myMenu") && (
+            {(template?.isGlobal ||
+              navMenu === "myMenu" ||
+              user?.role === "flapjack") && (
               <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
             )}
-            {user?.role !== "flapjack" && !!user?.restaurant_id && navMenu === "myMenu" && (
-              <Menu.Item onClick={openChangeLocationModal}>
-                Change Location
-              </Menu.Item>
-            )}
+            {user?.role !== "flapjack" &&
+              !!user?.restaurant_id &&
+              navMenu === "myMenu" &&
+              user?.restaurant?.location?.length > 1 && (
+                <Menu.Item onClick={openChangeLocationModal}>
+                  Change Location
+                </Menu.Item>
+              )}
             <Menu.Item onClick={openModal}>Rename</Menu.Item>
             <Menu.Item onClick={openModal}>Delete</Menu.Item>
           </Menu.Dropdown>

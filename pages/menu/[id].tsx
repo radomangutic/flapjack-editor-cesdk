@@ -4,15 +4,19 @@ import { ITemplateDetails } from "../../interfaces";
 import Editor from "../../components/Editor/Editor";
 import { getUser } from "../../hooks";
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
+import { convertToSectionList } from "../../helpers/convertToSectionList";
 import { getEditorData } from "../../helpers/EditorData";
+
 const Menu = ({
   data,
   elementsList,
   sectionedList,
+  globalTemplates,
 }: {
   data: ITemplateDetails;
   elementsList: any;
   sectionedList?: any;
+  globalTemplates: any;
 }) => {
   const user = getUser();
   if (user?.role !== "flapjack") {
@@ -37,6 +41,7 @@ console.log('elements',elements)
         template={data}
         elementsList={elements}
         sectionedList={sectionedList}
+        globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
       />
     </>
   );
