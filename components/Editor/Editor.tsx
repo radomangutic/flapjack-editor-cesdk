@@ -6,7 +6,7 @@ import {
   fetchResturants,
   getUser,
   uploadCustomFont,
-  useUser
+  useUser,
 } from "../../hooks/useUser";
 import { dbClient } from "../../tests/helpers/database.helper";
 import { useRouter } from "next/router";
@@ -26,7 +26,7 @@ import {
   Group,
   Modal,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
@@ -37,14 +37,14 @@ interface fontsErrorsType {
   submit?: string;
 }
 const customComponent = {
-  recent: "Recent"
+  recent: "Recent",
 };
 const Editor = ({
   template,
   preview,
   elementsList,
   sectionedList,
-  globalTemplates
+  globalTemplates,
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
@@ -69,7 +69,7 @@ const Editor = ({
   const [font, setFont] = useState();
   const [titleFontSize, setTitleFontSize] = useState<any>("");
   const [fonts, setFonts] = useState<any>([]);
-  const [restaurantsOptions, setRestaurantsOptions] = useState([])
+  const [restaurantsOptions, setRestaurantsOptions] = useState([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
   const [libraryLoading, setlibraryLoading] = useState(false);
   const [libraryElements, setlibraryElements] = useState(elementsList);
@@ -92,7 +92,7 @@ const Editor = ({
           assets: eleList,
           total: eleList.length,
           currentPage: queryData.page,
-          nextPage: undefined
+          nextPage: undefined,
         });
       },
       async applyAsset(assetResult: any) {
@@ -119,7 +119,7 @@ const Editor = ({
           assetResult,
           block
         );
-      }
+      },
     };
     return recentcustomSource;
   }
@@ -136,7 +136,7 @@ const Editor = ({
           assets: eleList,
           total: eleList.length,
           currentPage: queryData.page,
-          nextPage: undefined
+          nextPage: undefined,
         });
       },
       async applyAsset(assetResult: any) {
@@ -177,7 +177,7 @@ const Editor = ({
           assetResult,
           block
         );
-      }
+      },
     };
     return recentcustomSource;
   }
@@ -185,14 +185,15 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => { },
+      logger: () => {},
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${template?.content
+          `/storage/v1/object/public/templates/${
+            template?.content
           }?t=${new Date().toISOString()}`,
       }),
       // baseURL: '/assets',
@@ -206,13 +207,13 @@ const Editor = ({
             groups: [
               {
                 id: "ly.img.template",
-                entryIds: ["ly.img.template"]
+                entryIds: ["ly.img.template"],
               },
-              { id: "ly.img.defaultGroup" }
-            ]
+              { id: "ly.img.defaultGroup" },
+            ],
           },
           panels: {
-            settings: false
+            settings: false,
           },
           blocks: {
             opacity: true,
@@ -222,7 +223,7 @@ const Editor = ({
               filters: false,
               effects: false,
               blur: false,
-              crop: true
+              crop: true,
             },
             "//ly.img.ubq/page": {
               manage: preview ? false : true,
@@ -230,8 +231,8 @@ const Editor = ({
               adjustments: false,
               filters: false,
               effects: false,
-              blur: false
-            }
+              blur: false,
+            },
           },
           navigation: {
             action: {
@@ -240,8 +241,8 @@ const Editor = ({
                 format: ["application/pdf"],
                 onclick: () => alert("Download"),
               },
-              save: true
-            }
+              save: true,
+            },
           },
           libraries: {
             insert: {
@@ -254,7 +255,7 @@ const Editor = ({
                 return [
                   // Text
                   {
-                    ...defaultEntries[3]
+                    ...defaultEntries[3],
                   },
                   // Images
                   {
@@ -264,11 +265,11 @@ const Editor = ({
                       "ly.img.image.upload",
                       ...globalTemplates?.map(
                         (item: any) => item?.resturantDetail?.name
-                      )
-                    ]
+                      ),
+                    ],
                   },
                   // Shapes
-                  defaultEntries[4]
+                  defaultEntries[4],
                   // {
                   //   id: "Elements",
                   //   sourceIds: [
@@ -287,10 +288,10 @@ const Editor = ({
                   //   }
                   // }
                 ];
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       },
       callbacks: {
         onExport: async (blobs: any) => {
@@ -337,7 +338,7 @@ const Editor = ({
                       content,
                       createdBy: user?.id,
                       restaurant_id: user?.restaurant_id,
-                      template_id: template?.id
+                      template_id: template?.id,
                     });
                     setTimeout(() => {
                       isAbleToExport = true;
@@ -359,7 +360,7 @@ const Editor = ({
                   thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
                   width: 5,
                   height: 5,
-                }
+                },
               }
             );
           } catch (error) {
@@ -382,7 +383,7 @@ const Editor = ({
             }
             return user;
           });
-        }
+        },
       },
       presets: {
         pageFormats: {
@@ -391,32 +392,32 @@ const Editor = ({
             height: 11,
             unit: "in",
             meta: {
-              default: true
-            }
+              default: true,
+            },
           },
           Legal: {
             width: 8.5,
             height: 14,
-            unit: "in"
+            unit: "in",
           },
           Tabloid: {
             width: 11,
             height: 17,
-            unit: "in"
+            unit: "in",
           },
           "Half Letter": {
             width: 5.5,
             height: 8.5,
-            unit: "in"
+            unit: "in",
           },
           "Quarter Letter": {
             width: 4.25,
             height: 5.5,
-            unit: "in"
-          }
+            unit: "in",
+          },
         },
-        typefaces: getFonts(templateFonts)
-      }
+        typefaces: getFonts(templateFonts),
+      },
     };
     if (cesdkContainer.current) {
       CreativeEditorSDK.init(cesdkContainer.current, config).then(
@@ -457,7 +458,7 @@ const Editor = ({
                 assets: libraryElements,
                 total: libraryElements.length,
                 currentPage: queryData.page,
-                nextPage: undefined
+                nextPage: undefined,
               });
             },
             async applyAsset(assetResult: any) {
@@ -511,7 +512,7 @@ const Editor = ({
                 assetResult,
                 block
               );
-            }
+            },
           };
           instance.engine.asset.addSource(customSource);
 
@@ -519,7 +520,7 @@ const Editor = ({
           setloadinEditor(false);
           if (user?.role !== "flapjack") {
             fetchAssets().then(
-              async assetsData => await getAssetSources(assetsData)
+              async (assetsData) => await getAssetSources(assetsData)
             );
             const getAssetSources = async (assetsData: any[]) => {
               if (assetsData.length) {
@@ -534,7 +535,7 @@ const Editor = ({
             };
           }
 
-          enablePreviewMode();
+          // enablePreviewMode();
         }
       );
     }
@@ -554,27 +555,12 @@ const Editor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cesdkContainer]);
 
-  const enablePreviewMode = () => {
-    var elementWithShadowRoot = document.querySelector(
-      "#cesdkContainer #root-shadow "
-    );
-    var shadowRoot = elementWithShadowRoot?.shadowRoot;
-    var previewElement = shadowRoot?.querySelector(
-      `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
-    );
-    let previewChildLength = previewElement?.children;
-    if (previewChildLength?.length === 3 && template?.id) {
-      let elementToRemove = previewChildLength[1] as HTMLElement;
-      if (!preview) {
-        if (!elementToRemove.hasAttribute("data-click-listener")) {
-          elementToRemove.setAttribute("data-click-listener", "true");
-          elementToRemove.addEventListener("click", () => {
-            router.push(`/menu/preview/${template?.id}`);
-          });
-        }
-      }
-    }
-  };
+  // const enablePreviewMode = () => {
+  //   var elementWithShadowRoot = document.querySelector(
+  //     "#cesdkContainer #root-shadow "
+  //   );
+  //   var shadowRoot = elementWithShadowRoot?.shadowRoot;
+  // };
   function downloadBlobFile(blob: any, fileName: string) {
     try {
       const link = document.createElement("a");
@@ -711,8 +697,9 @@ const Editor = ({
                       <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
                       <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
                     </svg>
-                    <span>${libraryLoading ? "Loading..." : "Save to Library"
-              }</span>
+                    <span>${
+                      libraryLoading ? "Loading..." : "Save to Library"
+                    }</span>
                   </span>
                 </button>
               </div>
@@ -731,6 +718,13 @@ const Editor = ({
             }
           }
         }
+      }
+      var previewElement = shadowRoot?.querySelector(
+        `div .UBQ_Theme__block--nxqW8 div div div .UBQ_Topbar__controlsContainerRight--0PI5c`
+      );
+      let previewChildrenLength = previewElement?.children;
+      if (previewChildrenLength?.length === 3) {
+        previewElement?.removeChild(previewChildrenLength[1]);
       }
     };
     const removeDelayedItems = () => {
@@ -776,8 +770,8 @@ const Editor = ({
         uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         width: 3,
-        height: 3
-      }
+        height: 3,
+      },
     };
   }
   function getFonts(fontsData: any) {
@@ -795,9 +789,9 @@ const Editor = ({
             {
               fontURL: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/fonts/${item?.content}`,
               weight: "regular",
-              style: "normal"
-            }
-          ]
+              style: "normal",
+            },
+          ],
         };
       }
     });
@@ -874,13 +868,15 @@ const Editor = ({
             template_id: template?.id,
             createdBy: user?.id,
             thumbnail: response?.data?.path,
-            restaurant_id: user?.restaurant_id
+            restaurant_id: user?.restaurant_id,
           })
           .select()
           .single();
-        const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
-          }/storage/v1/object/public/elementsThumbnail/${response?.data?.path
-          }?${Date.now()}`;
+        const imagePath = `${
+          process.env.NEXT_PUBLIC_SUPABASE_URL
+        }/storage/v1/object/public/elementsThumbnail/${
+          response?.data?.path
+        }?${Date.now()}`;
         const newItem = {
           id: data?.id?.toString(),
           createdBy: user?.id || null,
@@ -891,11 +887,11 @@ const Editor = ({
             width: 100,
             height: 10,
             value: savedBlocks,
-            name: "dddddwestg"
+            name: "dddddwestg",
           },
           context: {
-            sourceId: "Elements"
-          }
+            sourceId: "Elements",
+          },
         };
         const newList = [newItem, ...libraryElements];
         setlibraryElements(newList);
@@ -911,7 +907,7 @@ const Editor = ({
               assets: newList,
               total: newList.length,
               currentPage: queryData.page,
-              nextPage: undefined
+              nextPage: undefined,
             });
           },
           async applyAsset(assetResult: any) {
@@ -969,7 +965,7 @@ const Editor = ({
               assetResult,
               block
             );
-          }
+          },
         };
         await cesdkInstance?.current.engine.asset.addSource(customSource);
         var elementWithShadowRoot = document.querySelector(
@@ -1008,12 +1004,18 @@ const Editor = ({
     const opendBlokElement = listChildren?.children[2] as HTMLElement;
     // console.log('targetElement',);
     const newName = opendBlokElement?.textContent?.split("/")[1];
-    console.log('aaa', opendBlokElement?.className);
+    console.log("aaa", opendBlokElement?.className);
 
-    if (opendBlokElement && opendBlokElement.textContent && opendBlokElement?.className) {
-      opendBlokElement.textContent = opendBlokElement?.className === 'UBQ_AssetLibraryBreadcrumb__label--PA5RI' && newName
-        ? newName
-        : opendBlokElement.textContent;
+    if (
+      opendBlokElement &&
+      opendBlokElement.textContent &&
+      opendBlokElement?.className
+    ) {
+      opendBlokElement.textContent =
+        opendBlokElement?.className ===
+          "UBQ_AssetLibraryBreadcrumb__label--PA5RI" && newName
+          ? newName
+          : opendBlokElement.textContent;
     }
 
     var opendElement = shadowRoot?.querySelector(`${leftPanel}`) as HTMLElement;
@@ -1053,27 +1055,27 @@ const Editor = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            flexDirection: "column"
+            flexDirection: "column",
           }}
         >
           <Flex align={"center"} gap={21}>
             <Box>
               <TailSpin
-                height='50'
-                width='50'
-                color='black'
-                ariaLabel='tail-spin-loading'
-                radius='1'
+                height="50"
+                width="50"
+                color="black"
+                ariaLabel="tail-spin-loading"
+                radius="1"
                 wrapperStyle={{}}
-                wrapperClass=''
+                wrapperClass=""
                 visible={true}
               />
             </Box>
             <Box>
-              <Text fz={"lg"} color='black' style={{ fontWeight: "bold" }}>
+              <Text fz={"lg"} color="black" style={{ fontWeight: "bold" }}>
                 Loading Editor
               </Text>
-              <Text color='black'>Just a few seconds</Text>
+              <Text color="black">Just a few seconds</Text>
             </Box>
           </Flex>
         </Box>
@@ -1082,34 +1084,34 @@ const Editor = ({
       <div
         style={{
           ...cesdkWrapperStyle,
-          minHeight: preview ? "100vh" : "calc(100vh - 70px)"
+          minHeight: preview ? "100vh" : "calc(100vh - 70px)",
         }}
       >
-        <div ref={cesdkContainer} id='cesdkContainer' style={cesdkStyle}></div>
+        <div ref={cesdkContainer} id="cesdkContainer" style={cesdkStyle}></div>
       </div>
       <Modal
         opened={opened}
         onClose={close}
-        title='Upload Custom Fonts'
+        title="Upload Custom Fonts"
         centered
       >
         <TextInput
-          label='Your custom font name'
-          placeholder='Your custom font name'
-          onChange={e => setTitleFontSize(e.target.value)}
+          label="Your custom font name"
+          placeholder="Your custom font name"
+          onChange={(e) => setTitleFontSize(e.target.value)}
           error={fontsError?.title}
         />
         <FileInput
-          label='Your custom font'
-          placeholder='Your custom font'
+          label="Your custom font"
+          placeholder="Your custom font"
           icon={<IconUpload size={14} />}
           onChange={(file: any) => setFont(file)}
           error={fontsError?.file}
         />
-        <Text color='red' fz={"xs"} my={"xs"}>
+        <Text color="red" fz={"xs"} my={"xs"}>
           {fontsError?.submit}
         </Text>
-        <Group position='right' mt={"md"}>
+        <Group position="right" mt={"md"}>
           <Button onClick={close}>Cancle</Button>
           <Button onClick={handleUploadFont} disabled={loading}>
             {loading ? "Uploading..." : "Upload"}
@@ -1133,7 +1135,7 @@ const Editor = ({
             style={{
               borderBottom: "1px solid black",
               display: "inline",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
             onClick={() => router.push("http://flapjack.co/")}
           >
@@ -1152,7 +1154,7 @@ const cesdkStyle: object = {
   top: 0,
   right: 0,
   bottom: 0,
-  left: 0
+  left: 0,
 };
 
 const cesdkWrapperStyle: object = {
@@ -1162,161 +1164,161 @@ const cesdkWrapperStyle: object = {
   display: "flex",
   borderRadius: "0.75rem",
   boxShadow:
-    "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)"
+    "0px 0px 2px rgba(22, 22, 23, 0.25), 0px 4px 6px -2px rgba(22, 22, 23, 0.12), 0px 2px 2.5px -2px rgba(22, 22, 23, 0.12), 0px 1px 1.75px -2px rgba(22, 22, 23, 0.12)",
 };
 
 const defaultFonts = [
   {
-    name: "Abril Fatface"
+    name: "Abril Fatface",
   },
   {
-    name: "Aleo"
+    name: "Aleo",
   },
   {
-    name: "AmaticSC"
+    name: "AmaticSC",
   },
   {
-    name: "Archivo"
+    name: "Archivo",
   },
   {
-    name: "Bangers"
+    name: "Bangers",
   },
   {
-    name: "Barlow Condensed"
+    name: "Barlow Condensed",
   },
   {
-    name: "Bungee Inline"
+    name: "Bungee Inline",
   },
   {
-    name: "Carter"
+    name: "Carter",
   },
   {
-    name: "Caveat"
+    name: "Caveat",
   },
   {
-    name: "Coiny"
+    name: "Coiny",
   },
   {
-    name: "Courier Prime"
+    name: "Courier Prime",
   },
   {
-    name: "Elsie Swash Caps"
+    name: "Elsie Swash Caps",
   },
   {
-    name: "Fira Sans"
+    name: "Fira Sans",
   },
   {
-    name: "Krona"
+    name: "Krona",
   },
   {
-    name: "Kumar"
+    name: "Kumar",
   },
   {
-    name: "Lobster Two"
+    name: "Lobster Two",
   },
   {
-    name: "Manrope"
+    name: "Manrope",
   },
   {
-    name: "Marker"
+    name: "Marker",
   },
   {
-    name: "Monoton"
+    name: "Monoton",
   },
   {
-    name: "Montserrat"
+    name: "Montserrat",
   },
   {
-    name: "Nixie"
+    name: "Nixie",
   },
   {
-    name: "Notable"
+    name: "Notable",
   },
   {
-    name: "Nunito"
+    name: "Nunito",
   },
   {
-    name: "Open Sans"
+    name: "Open Sans",
   },
   {
-    name: "Ostrich"
+    name: "Ostrich",
   },
   {
-    name: "Oswald"
+    name: "Oswald",
   },
   {
-    name: "Palanquin Dark"
+    name: "Palanquin Dark",
   },
   {
-    name: "Parisienne"
+    name: "Parisienne",
   },
   {
-    name: "Permanent Marker"
+    name: "Permanent Marker",
   },
   {
-    name: "Petit Formal Script"
+    name: "Petit Formal Script",
   },
   {
-    name: "Playfair Display"
+    name: "Playfair Display",
   },
   {
-    name: "Poppins"
+    name: "Poppins",
   },
   {
-    name: "Quicksand"
+    name: "Quicksand",
   },
   {
-    name: "Rasa"
+    name: "Rasa",
   },
   {
-    name: "Roboto"
+    name: "Roboto",
   },
   {
-    name: "Roboto Condensed"
+    name: "Roboto Condensed",
   },
   {
-    name: "Roboto Slab"
+    name: "Roboto Slab",
   },
   {
-    name: "Sancreek"
+    name: "Sancreek",
   },
   {
-    name: "Shrikhand"
+    name: "Shrikhand",
   },
   {
-    name: "Source Code Pro"
+    name: "Source Code Pro",
   },
   {
-    name: "Source Sans Pro"
+    name: "Source Sans Pro",
   },
   {
-    name: "Source Serif Pro"
+    name: "Source Serif Pro",
   },
   {
-    name: "Space Grotesk"
+    name: "Space Grotesk",
   },
   {
-    name: "Space Mono"
+    name: "Space Mono",
   },
   {
-    name: "Stint Ultra Condensed"
+    name: "Stint Ultra Condensed",
   },
   {
-    name: "Stint Ultra Expanded"
+    name: "Stint Ultra Expanded",
   },
   {
-    name: "Sue"
+    name: "Sue",
   },
   {
-    name: "Trash Hand"
+    name: "Trash Hand",
   },
   {
-    name: "Ultra"
+    name: "Ultra",
   },
   {
-    name: "VT323"
+    name: "VT323",
   },
   {
-    name: "Yeseva"
-  }
+    name: "Yeseva",
+  },
 ];
