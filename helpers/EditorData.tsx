@@ -102,7 +102,7 @@ export async function getEditorData(context: GetServerSidePropsContext) {
   return {
     props: {
       data: data && context?.params?.id ? data[0] : null,
-      elementsList: [],
+      elementsList: [], // hotfix: this was causing the payload to exceed the limit. When we release this feature, we'll need to make sure that this payload doesn't break the page. We can probably fetch this data client side or when the panel is opened.
       sectionedList: sortedData,
       globalTemplates: response,
     },
