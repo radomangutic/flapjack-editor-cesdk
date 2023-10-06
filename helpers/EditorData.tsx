@@ -17,11 +17,9 @@ export async function getEditorData(context: GetServerSidePropsContext) {
     .select("*")
     .order("created_at", { ascending: false });
   elementList = elements?.data?.map((item, i) => {
-    const imagePath = `${
-      process.env.NEXT_PUBLIC_SUPABASE_URL
-    }/storage/v1/object/public/elementsThumbnail/${
-      item.thumbnail
-    }?${i}${Date.now()}`;
+    const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+      }/storage/v1/object/public/elementsThumbnail/${item.thumbnail
+      }?${i}${Date.now()}`;
 
     return {
       id: item?.id?.toString(),
@@ -90,12 +88,12 @@ export async function getEditorData(context: GetServerSidePropsContext) {
         ...item,
         resturantDetail: item?.resturantDetail
           ? {
-              ...item?.resturantDetail,
-              name: `${item?.resturantDetail?.name}.`,
-            }
+            ...item?.resturantDetail,
+            name: `${item?.resturantDetail?.name}.`,
+          }
           : {
-              name: `Others.`,
-            },
+            name: `Others.`,
+          },
       };
     }
     return item;
@@ -104,7 +102,7 @@ export async function getEditorData(context: GetServerSidePropsContext) {
   return {
     props: {
       data: data && context?.params?.id ? data[0] : null,
-      elementsList: elementList,
+      elementsList: [], // hotfix: this was causing the payload to exceed the limit. When we release this feature, we'll need to make sure that this payload doesn't break the page. We can probably fetch this data client side or when the panel is opened.
       sectionedList: sortedData,
       globalTemplates: response,
     },
