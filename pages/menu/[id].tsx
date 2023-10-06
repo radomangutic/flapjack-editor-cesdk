@@ -22,6 +22,7 @@ const Menu = ({
   globalTemplates: any;
 }) => {
   const user = getUser();
+
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
@@ -33,25 +34,29 @@ const Menu = ({
   }
   const elements =
     user?.role == "flapjack"
-      ? elementsList
+      ? elementsList?.filter(
+          (item: any) => item?.template_id === data?.id?.toString()
+        )
       : elementsList.filter(
-          (item: any) => item?.restaurant_id === user?.restaurant_id
+          (item: any) =>
+            item?.restaurant_id === user?.restaurant_id
         );
+  const convertedElements = convertToLocationSectionList(
+    elementsList.filter(
+      (item: any) => item?.restaurant_id === user?.restaurant_id
+    )
+  );
   const SecElements =
     user?.role == "flapjack"
       ? sectionedList
-      : convertToLocationSectionList(
-          elementsList.filter(
-            (item: any) => item?.restaurant_id === user?.restaurant_id
-          )
-        );
+      : convertedElements?.length > 1
+      ? convertedElements
+      : [];
   return (
     <>
       <Editor
         template={data}
-        elementsList={elements?.filter(
-          (item: any) => item?.template_id === data?.id?.toString()
-        )}
+        elementsList={elements}
         sectionedList={SecElements}
         globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
       />
