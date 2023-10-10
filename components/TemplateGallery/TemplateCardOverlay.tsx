@@ -84,13 +84,13 @@ export default function TemplateCardOverlay({
     useState<TemplateCardModalProps["type"]>("delete");
   const userLocation = user?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-        return {
-          label: item,
-          value: item,
-        };
-      })
+      return {
+        label: item,
+        value: item,
+      };
+    })
     : [];
-  console.log(userLocation);
+  // console.log(userLocation);
   const [locations, setLocations] = useState([]);
   const [location, setLocation] = useState("");
   const [error, setError] = useState("");
@@ -271,8 +271,8 @@ export default function TemplateCardOverlay({
             {(template?.isGlobal ||
               navMenu === "myMenu" ||
               user?.role === "flapjack") && (
-              <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
-            )}
+                <Menu.Item onClick={openModal}>Duplicate</Menu.Item>
+              )}
             {user?.role !== "flapjack" &&
               !!user?.restaurant_id &&
               navMenu === "myMenu" &&
