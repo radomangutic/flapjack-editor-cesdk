@@ -18,11 +18,9 @@ export async function getEditorData(context: GetServerSidePropsContext) {
     .select("*")
     .order("created_at", { ascending: false });
   elementList = elements?.data?.map((item, i) => {
-    const imagePath = `${
-      process.env.NEXT_PUBLIC_SUPABASE_URL
-    }/storage/v1/object/public/elementsThumbnail/${
-      item.thumbnail
-    }?${i}${Date.now()}`;
+    const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+      }/storage/v1/object/public/elementsThumbnail/${item.thumbnail
+      }?${i}${Date.now()}`;
 
     return {
       id: item?.id?.toString(),
@@ -99,12 +97,12 @@ export async function getEditorData(context: GetServerSidePropsContext) {
         ...item,
         resturantDetail: item?.resturantDetail
           ? {
-              ...item?.resturantDetail,
-              name: `${item?.resturantDetail?.name}.`,
-            }
+            ...item?.resturantDetail,
+            name: `${item?.resturantDetail?.name}.`,
+          }
           : {
-              name: `Others.`,
-            },
+            name: `Others.`,
+          },
       };
     }
     return item;
