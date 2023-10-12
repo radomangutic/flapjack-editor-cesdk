@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { IFont, ITemplate, ITemplateDetails } from "../interfaces";
+import { IFont, ITemplate, ITemplateDetails, IUserDetails } from "../interfaces";
 import { canCreateTemplate, getUser, useDialog, useUser } from "../hooks";
 import {
   useSupabaseClient,
@@ -22,45 +22,21 @@ export const WRAPPER_PADDING = 10;
 
 const Template = ({
   data,
-  elementsList,
-  sectionedList,
-  globalTemplates,
+  restaurantList,
+  user,
 }: {
-  drawerOpened: boolean;
-  data: ITemplateDetails | null;
-  elementsList: any;
-  sectionedList?: any;
-  globalTemplates: any;
+  data: ITemplateDetails;
+  restaurantList: any;
+  user: IUserDetails;
 }) => {
-  const user = getUser();
   if (typeof window !== "undefined") {
     if (!canCreateTemplate(user)) {
       return <PrivatePage login={!user} />;
     }
-    const elements =
-      user?.role == "flapjack"
-        ? elementsList
-        : elementsList.filter(
-            (item: any) => item?.restaurant_id === user?.restaurant_id
-          );
-    const SecElements =
-      user?.role == "flapjack"
-        ? sectionedList
-        : convertToLocationSectionList(
-            elementsList.filter(
-              (item: any) => item?.restaurant_id === user?.restaurant_id
-            )
-          );
+
     return (
       <>
-        <Editor
-          template={data}
-          elementsList={elements?.filter(
-            (item: any) => item?.template_id === data?.id?.toString()
-          )}
-          sectionedList={SecElements}
-          globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
-        />
+        <Editor template={data} restaurantList={restaurantList} user={user} />
       </>
     );
   }

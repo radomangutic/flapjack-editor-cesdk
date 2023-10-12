@@ -1,11 +1,11 @@
-export function convertToSectionList(data: any) {
+export function convertToSectionList(data: any,imageType:boolean=false) {
   return data?.reduce((result: any, item: any) => {
-    const restaurantId = item.restaurant_id;
+    const restaurantId = imageType?item.restaurant_id?.id:item.restaurant_id;
 
     if (!result[restaurantId]) {
       // If the section doesn't exist, create it
       result[restaurantId] = {
-        resturantDetail:item?.resturantDetail,
+        resturantDetail:imageType?item?.restaurant_id:item?.resturantDetail,
         restaurant_id: restaurantId,
         items: [],
       };

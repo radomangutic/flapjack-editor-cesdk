@@ -96,3 +96,22 @@ async function seedTable(tableName: string, tableData: unknown[] | unknown) {
 async function clearTable(tableName: string) {
   return dbClient.from(tableName).delete({ count: "exact" }).neq("id", 0);
 }
+export async function getLogedInUser(supabase: any) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    return null;
+  }
+  const reesponse = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", data?.user?.id)
+    .single();
+  if (reesponse?.error) {
+    return null;
+  }
+  let userDetail = {
+    ...data?.user,
+    ...reesponse?.data,
+  };
+  return userDetail;
+}
