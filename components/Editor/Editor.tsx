@@ -49,7 +49,7 @@ const Editor = ({
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
-  restaurantList: any;
+  restaurantList?: any;
   user: IUserDetails;
 }) => {
   const cesdkContainer = useRef<any>(null);
