@@ -454,7 +454,6 @@ const Editor = ({
             template?.id
           );
           setlibraryElements(configData?.libraryElements);
-          const firstPage = instance.engine.block.findByType("page")[0];
           configData?.ElementsSectionList?.forEach(async (element: any) => {
             if (element?.items?.length > 0 && element?.resturantDetail?.name) {
               await instance?.engine?.asset?.addSource(
