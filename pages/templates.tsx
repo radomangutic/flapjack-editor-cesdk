@@ -67,7 +67,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
 
   const templateData = templates?.filter((template) => {
     // show all menus in the user's restaurant
-    if (template?.restaurant_id === user?.restaurant_id) return true
+    if (template?.restaurant_id === user?.restaurant_id) return true;
   });
   const groupMenusByLocation = (menus: any[], locations: string[]) => {
     const menuMap: { [key: string]: any[] } = {};
@@ -150,9 +150,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   <TemplateCard
                     key={i}
                     template={template}
-                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                      }/storage/v1/object/public/renderings/${template.id
-                      }/coverImage?${i}${Date.now()}`}
+                    thumbnail={`${
+                      process.env.NEXT_PUBLIC_SUPABASE_URL
+                    }/storage/v1/object/public/renderings/${
+                      template.id
+                    }/coverImage?${i}${Date.now()}`}
                     onRemove={deleteTemplate}
                     onRename={renameTemplate}
                     onDuplicate={duplicateTemplate}
@@ -195,10 +197,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               const menus = item?.location?.length
                 ? groupMenusByLocation(restaurantTemplate, item?.location)
                 : [
-                  {
-                    menus: restaurantTemplate,
-                  },
-                ];
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
               return (
                 <div key={i}>
                   <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -224,9 +226,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             <TemplateCard
                               key={i}
                               template={template}
-                              thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                                }/storage/v1/object/public/renderings/${template.id
-                                }/coverImage?${i}${Date.now()}`}
+                              thumbnail={`${
+                                process.env.NEXT_PUBLIC_SUPABASE_URL
+                              }/storage/v1/object/public/renderings/${
+                                template.id
+                              }/coverImage?${i}${Date.now()}`}
                               onRemove={deleteTemplate}
                               onRename={renameTemplate}
                               onDuplicate={duplicateTemplate}
@@ -279,9 +283,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     <TemplateCard
                       key={i}
                       template={template}
-                      thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                        }/storage/v1/object/public/renderings/${template.id
-                        }/coverImage?${i}${Date.now()}`}
+                      thumbnail={`${
+                        process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${
+                        template.id
+                      }/coverImage?${i}${Date.now()}`}
                       onRemove={deleteTemplate}
                       onRename={renameTemplate}
                       onDuplicate={duplicateTemplate}
@@ -310,9 +316,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               <TemplateCard
                 key={i}
                 template={template}
-                thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                  }/storage/v1/object/public/renderings/${template.id
-                  }/coverImage?${i}${Date.now()}`}
+                thumbnail={`${
+                  process.env.NEXT_PUBLIC_SUPABASE_URL
+                }/storage/v1/object/public/renderings/${
+                  template.id
+                }/coverImage?${i}${Date.now()}`}
                 onRemove={deleteTemplate}
                 onRename={renameTemplate}
                 onDuplicate={duplicateTemplate}

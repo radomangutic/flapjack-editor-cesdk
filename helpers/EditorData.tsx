@@ -6,7 +6,7 @@ import { getRestaurantsByLogedInUser } from "../tests/helpers/menu.helper";
 export async function getEditorData(context: GetServerSidePropsContext) {
   try {
     const supabase = createServerSupabaseClient(context);
-    const logedInUser = await getLogedInUser(supabase);
+    const logedInUser = await getLogedInUser(context);
     const { data } = await supabase
       .from("templates")
       .select(

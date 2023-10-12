@@ -24,7 +24,7 @@ const Menu = ({
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
-  const logedInUser = await getLogedInUser(supabase);
+  const logedInUser = await getLogedInUser(context);
 
   const { data } = await supabase
     .from("templates")

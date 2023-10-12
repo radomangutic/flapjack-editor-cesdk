@@ -222,6 +222,11 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         token: otp,
         type: "sms",
       });
+      if (data?.session) {
+        const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
+        document.cookie = `my-access-token=${data?.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        document.cookie = `my-refresh-token=${data?.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+      }
 
       if (error) {
         setError({ phone: "Invalid Otp" });
@@ -238,6 +243,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       }
 
       setUser?.(data?.user);
+      window.location.reload();
       onClose();
     } catch (error: any) {
       throw error;
