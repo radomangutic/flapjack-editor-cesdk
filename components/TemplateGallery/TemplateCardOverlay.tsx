@@ -90,7 +90,7 @@ export default function TemplateCardOverlay({
       };
     })
     : [];
-  // console.log(userLocation);
+
   const [locations, setLocations] = useState([]);
   const [location, setLocation] = useState("");
   const [error, setError] = useState("");
