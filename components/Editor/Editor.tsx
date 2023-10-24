@@ -131,7 +131,9 @@ const Editor = ({
       id: id,
       title: id,
       label: id,
-      previewBackgroundType: "contain",
+      previewLength: 3,
+      gridItemHeight: 'square',
+      previewBackgroundType: 'cover',
       async findAssets(queryData: any) {
         return Promise.resolve({
           assets: eleList,
@@ -229,6 +231,9 @@ const Editor = ({
                         (item: any) => item?.resturantDetail?.name
                       ),
                     ],
+                    previewLength: 3,
+                    gridItemHeight: 'square',
+                    previewBackgroundType: 'cover',
                   },
                   // Shapes
                   defaultEntries[4],

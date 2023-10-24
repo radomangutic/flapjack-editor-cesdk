@@ -82,7 +82,7 @@ export const fetchAssets = async (): Promise<any[]> => {
       const { data: globalTemplates, error: globalTemplatesError } =
         await dbClient
           .from("assets")
-          .select("id, createdBy, content ,restaurant_id, height, width");
+          .select("id, createdBy, content ,restaurant_id, height, width").order("created_at", { ascending: false });
 
       if (globalTemplatesError) {
         throw globalTemplatesError;
