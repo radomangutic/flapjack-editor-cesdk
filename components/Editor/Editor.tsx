@@ -31,7 +31,9 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconUpload } from "@tabler/icons";
+import { getCurrentSelectedPage } from "./helping";
 import { removeSpecialCharacters } from "../../helpers/CommonFunctions";
+import { getElementsWithRestaurant } from "../../tests/helpers/menu.helper";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -43,15 +45,13 @@ const customComponent = {
 const Editor = ({
   template,
   preview,
-  elementsList,
-  sectionedList,
-  globalTemplates,
+  restaurantList,
+  user,
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
-  elementsList?: any;
-  sectionedList?: any;
-  globalTemplates?: any;
+  restaurantList?: any;
+  user: IUserDetails;
 }) => {
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
@@ -60,7 +60,6 @@ const Editor = ({
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
   const [userData, setUserData] = useState<any>(getUser());
-  const user = useUser();
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
@@ -73,7 +72,7 @@ const Editor = ({
   const [restaurantsOptions, setRestaurantsOptions] = useState([]);
   const [fontsError, setFontsError] = useState<fontsErrorsType | undefined>();
   const [libraryLoading, setlibraryLoading] = useState(false);
-  const [libraryElements, setlibraryElements] = useState(elementsList);
+  const [libraryElements, setlibraryElements] = useState<any>();
   const [usedComponenets, setusedComponenets] = useState<any>([]);
   useEffect(() => {
     setUserData(user);
@@ -98,8 +97,9 @@ const Editor = ({
       },
       async applyAsset(assetResult: any) {
         try {
-          const firstPage =
-            cesdkInstance?.current.engine.block.findByType("page")[0];
+          const firstPage = await getCurrentSelectedPage(
+            cesdkInstance?.current
+          );
           const block =
             await cesdkInstance?.current.engine.block.loadFromString(
               assetResult?.meta?.value
@@ -111,7 +111,34 @@ const Editor = ({
           );
           await cesdkInstance?.current.engine.block.setSelected(block[0], true);
           await cesdkInstance?.current.engine.block.select(block[0]);
+          const isSourceExist = cesdkInstance?.current.engine.asset
+            .findAllSources()
+            ?.includes(customComponent?.recent);
+          if (isSourceExist) {
+            const findList =
+              await cesdkInstance?.current.engine.asset.findAssets(
+                customComponent?.recent
+              );
+            const isAlreadyExist = findList?.assets?.find(
+              (i: any) => i?.id === assetResult?.id
+            );
+            if (!isAlreadyExist) {
+              const newList = [assetResult, ...findList?.assets];
+              await cesdkInstance?.current.engine.asset.removeSource(
+                customComponent?.recent
+              );
+              await cesdkInstance?.current.engine.asset.addSource(
+                getConfigOfRecentComponent(newList, customComponent?.recent)
+              );
+            }
+          } else {
+            await cesdkInstance?.current.engine.asset.addSource(
+              getConfigOfRecentComponent([assetResult], customComponent?.recent)
+            );
+          }
         } catch (error) {
+          console.log("error", error);
+
           throw error;
         }
       },
@@ -226,9 +253,7 @@ const Editor = ({
                     id: "Images",
                     sourceIds: [
                       "ly.img.image.upload",
-                      ...globalTemplates?.map(
-                        (item: any) => item?.resturantDetail?.name
-                      ),
+                      ...restaurantList?.map((item: any) => `${item?.name}.`),
                     ],
                     previewLength: 3,
                     gridItemHeight: 'square',
@@ -241,9 +266,7 @@ const Editor = ({
                   //   sourceIds: [
                   //     customComponent?.recent,
                   //     "Elements",
-                  //     ...sectionedList?.map(
-                  //       (item: any) => item?.resturantDetail?.name
-                  //     )
+                  //     ...restaurantList?.map((item: any) => item?.name),
                   //   ],
                   //   previewLength: 2,
                   //   gridColumns: 2,
@@ -251,8 +274,8 @@ const Editor = ({
                   //   gridBackgroundType: "contain",
                   //   icon: ({ theme, iconSize }: any) => {
                   //     return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                  //   }
-                  // }
+                  //   },
+                  // },
                 ];
               },
             },
@@ -393,23 +416,27 @@ const Editor = ({
           instance.addDemoAssetSources();
           cesdk = instance;
           cesdkInstance.current = instance;
-          const firstPage = instance.engine.block.findByType("page")[0];
-          sectionedList?.forEach(async (element: any) => {
-            if (element?.items?.length > 0 && element?.resturantDetail?.name) {
-              await instance?.engine?.asset?.addSource(
-                getConfigOfRecentComponent(
-                  element?.items,
-                  element?.resturantDetail?.name
-                )
-              );
-            }
-          });
-          globalTemplates?.forEach(async (element: any) => {
+          const configData = await getElementsWithRestaurant(
+            user,
+            template?.id
+          );
+          setlibraryElements(configData?.libraryElements);
+          // configData?.ElementsSectionList?.forEach(async (element: any) => {
+          //   if (element?.items?.length > 0 && element?.resturantDetail?.name) {
+          //     await instance?.engine?.asset?.addSource(
+          //       getConfigOfRecentComponent(
+          //         element?.items,
+          //         element?.resturantDetail?.name
+          //       )
+          //     );
+          //   }
+          // });
+          configData?.globalTemplates?.forEach(async (element: any) => {
             if (element?.items?.length > 0 && element?.resturantDetail?.name) {
               await instance?.engine?.asset?.addSource(
                 getConfigOfImageComponent(
                   element?.items.map(translateToAssetResult),
-                  element?.resturantDetail?.name
+                  `${element?.resturantDetail?.name}.`
                 )
               );
             }
@@ -422,15 +449,15 @@ const Editor = ({
 
             async findAssets(queryData: any) {
               return Promise.resolve({
-                assets: libraryElements,
-                total: libraryElements.length,
+                assets: configData?.libraryElements,
+                total: configData?.libraryElements?.length,
                 currentPage: queryData.page,
                 nextPage: undefined,
               });
             },
             async applyAsset(assetResult: any) {
               try {
-                const firstPage = instance.engine.block.findByType("page")[0];
+                const firstPage = await getCurrentSelectedPage(instance);
                 const block = await instance.engine.block.loadFromString(
                   assetResult?.meta?.value
                 );
@@ -678,7 +705,9 @@ const Editor = ({
               blockType !== "//ly.img.ubq/page" &&
               user?.role === "flapjack"
             ) {
-              placeholderChild.replaceWith(newElement);
+              // placeholderChild.replaceWith(newElement);
+              placeholderChild.remove();
+
             } else {
               placeholderChild.remove();
             }
@@ -827,6 +856,7 @@ const Editor = ({
         if (!response?.data?.path) {
           return;
         }
+        console.log("template", template);
         const { error, data } = await supabase
           .from("ElementLibrary")
           .insert({
@@ -835,6 +865,7 @@ const Editor = ({
             createdBy: user?.id,
             thumbnail: response?.data?.path,
             restaurant_id: user?.restaurant_id,
+            location: template?.location,
           })
           .select()
           .single();
@@ -876,8 +907,9 @@ const Editor = ({
           },
           async applyAsset(assetResult: any) {
             try {
-              const firstPage =
-                cesdkInstance?.current.engine.block.findByType("page")[0];
+              const firstPage = await getCurrentSelectedPage(
+                cesdkInstance?.current
+              );
               const block =
                 await cesdkInstance?.current.engine.block.loadFromString(
                   assetResult?.meta?.value
@@ -989,7 +1021,7 @@ const Editor = ({
       const target = element?.children[0]?.children[0]?.children[0];
 
       if (target?.textContent === "Elements/Elements") {
-        target.textContent = "Custom";
+        target.textContent = "Current Menu Components";
       } else {
         if (target?.textContent) {
           target.textContent =

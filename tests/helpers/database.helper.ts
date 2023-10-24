@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import fontsJSON from "./data/fonts.json";
 import palettesJSON from "./data/palettes.json";
 import usersJSON from "./data/users.json";
+import { GetServerSidePropsContext } from "next";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const supabaseURL =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321";
@@ -95,4 +97,31 @@ async function seedTable(tableName: string, tableData: unknown[] | unknown) {
 
 async function clearTable(tableName: string) {
   return dbClient.from(tableName).delete({ count: "exact" }).neq("id", 0);
+}
+export async function getLogedInUser(context: GetServerSidePropsContext) {
+  const supabase = createServerSupabaseClient(context);
+
+  const refreshToken = context?.req.cookies["my-refresh-token"] ?? "";
+  const accessToken = context?.req.cookies["my-access-token"] ?? "";
+  await supabase.auth.setSession({
+    refresh_token: refreshToken,
+    access_token: accessToken,
+  });
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    return null;
+  }
+  const reesponse = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", data?.user?.id)
+    .single();
+  if (reesponse?.error) {
+    return null;
+  }
+  let userDetail = {
+    ...data?.user,
+    ...reesponse?.data,
+  };
+  return userDetail;
 }

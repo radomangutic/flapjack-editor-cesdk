@@ -22,7 +22,7 @@ export interface Props {
 
 const UserContextProvider = (props: Props) => {
   const { isLoading, supabaseClient: supabase } = useSessionContext();
-  const supabaseUser = useSupaUser();
+  const supabaseUser = useSupaUser();  
   const [user, setuser] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<IUserDetails | null>(null);
   const setUser = (userDetails: any) => {

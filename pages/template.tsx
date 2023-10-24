@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { IFont, ITemplate, ITemplateDetails } from "../interfaces";
+import { IFont, ITemplate, ITemplateDetails, IUserDetails } from "../interfaces";
 import { canCreateTemplate, getUser, useDialog, useUser } from "../hooks";
 import {
   useSupabaseClient,
@@ -10,7 +10,10 @@ import AuthDialog from "../components/AuthDialog";
 import Editor from "../components/Editor/Editor";
 import UpsertTemplateDialog from "../components/UpsertTemplateDialog";
 import PrivatePage from "../components/PrivatePage/PrivatePage";
-import { convertToSectionList } from "../helpers/convertToSectionList";
+import {
+  convertToLocationSectionList,
+  convertToSectionList,
+} from "../helpers/convertToSectionList";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
 import { getEditorData } from "../helpers/EditorData";
@@ -19,35 +22,21 @@ export const WRAPPER_PADDING = 10;
 
 const Template = ({
   data,
-  elementsList,
-  sectionedList,
-  globalTemplates,
+  restaurantList,
+  user,
 }: {
-  drawerOpened: boolean;
-  data: ITemplateDetails | null;
-  elementsList: any;
-  sectionedList?: any;
-  globalTemplates: any;
+  data: ITemplateDetails;
+  restaurantList: any;
+  user: IUserDetails;
 }) => {
-  const user = getUser();
   if (typeof window !== "undefined") {
     if (!canCreateTemplate(user)) {
       return <PrivatePage login={!user} />;
     }
-    const elements =
-      user?.role === "flapjack"
-        ? elementsList
-        : elementsList.filter(
-            (item: any) => item?.restaurant_id === user?.restaurant_id
-          );
+
     return (
       <>
-        <Editor
-          template={data}
-          elementsList={elements}
-          sectionedList={sectionedList}
-          globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
-        />
+        <Editor template={data} restaurantList={restaurantList} user={user} />
       </>
     );
   }
