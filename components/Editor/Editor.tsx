@@ -4,6 +4,7 @@ import {
   fetchAssets,
   fetchFonts,
   fetchResturants,
+  getImageDimensions,
   getUser,
   uploadCustomFont,
   useUser,
@@ -130,7 +131,9 @@ const Editor = ({
       id: id,
       title: id,
       label: id,
-      previewBackgroundType: "contain",
+      previewLength: 3,
+      gridItemHeight: 'square',
+      previewBackgroundType: 'cover',
       async findAssets(queryData: any) {
         return Promise.resolve({
           assets: eleList,
@@ -138,45 +141,6 @@ const Editor = ({
           currentPage: queryData.page,
           nextPage: undefined,
         });
-      },
-      async applyAsset(assetResult: any) {
-        try {
-          console.log("assetResult", assetResult);
-
-          const image = cesdkInstance?.current?.engine.block.create("image");
-          cesdkInstance?.current?.engine.block.setString(
-            image,
-            "image/imageFileURI",
-            assetResult.meta.uri
-          );
-          cesdkInstance?.current?.engine.block.setWidth(
-            image,
-            assetResult.meta.width
-          );
-          cesdkInstance?.current?.engine.block.setHeight(
-            image,
-            assetResult.meta.height
-          );
-          const firstPage =
-            cesdkInstance?.current?.engine.block.findByType("page")[0];
-          cesdkInstance?.current?.engine.block.appendChild(firstPage, image);
-          cesdkInstance?.current?.engine.scene.zoomToBlock(
-            firstPage,
-            0,
-            0,
-            0,
-            0
-          );
-          cesdkInstance?.current?.engine.editor.addUndoStep();
-        } catch (error) {
-          throw error;
-        }
-      },
-      async applyAssetToBlock(assetResult: any, block: any) {
-        cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
-          assetResult,
-          block
-        );
       },
     };
     return recentcustomSource;
@@ -266,6 +230,9 @@ const Editor = ({
                         (item: any) => item?.resturantDetail?.name
                       ),
                     ],
+                    previewLength: 3,
+                    gridItemHeight: 'square',
+                    previewBackgroundType: 'cover',
                   },
                   // Shapes
                   defaultEntries[4],
@@ -333,11 +300,14 @@ const Editor = ({
                     }
                     const userData = localStorage.getItem("userData");
                     const user = userData && JSON.parse(userData);
+                    const { height, width } = await getImageDimensions(file);
                     await dbClient.from("assets").insert({
                       content,
                       createdBy: user?.id,
                       restaurant_id: user?.restaurant_id,
                       template_id: template?.id,
+                      height,
+                      width,
                     });
                     setTimeout(() => {
                       isAbleToExport = true;
@@ -357,8 +327,6 @@ const Editor = ({
                 meta: {
                   uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
                   thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                  width: 5,
-                  height: 5,
                 },
               }
             );
@@ -767,8 +735,8 @@ const Editor = ({
       meta: {
         uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
-        width: 3,
-        height: 3,
+        width: image?.width,
+        height: image?.height,
       },
     };
   }

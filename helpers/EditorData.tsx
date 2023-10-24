@@ -61,7 +61,7 @@ export async function getEditorData(context: GetServerSidePropsContext) {
     const { data: globalTemplates, error: globalTemplatesError } =
       await supabase
         .from("assets")
-        .select("id, createdBy, content ,restaurant_id")
+        .select("id, createdBy, content ,restaurant_id, height, width")
         .order("created_at", { ascending: false });
     const sectionedList = Object.values(convertToSectionList(globalTemplates));
     const responseList = sectionedList?.map(async (item: any) => {
