@@ -295,21 +295,21 @@ const Editor = ({
                   },
                   // Shapes
                   defaultEntries[4],
-                  {
-                    id: "Elements",
-                    sourceIds: [
-                      customComponent?.recent,
-                      "Elements",
-                      ...restaurantList?.map((item: any) => item?.name),
-                    ],
-                    previewLength: 2,
-                    gridColumns: 2,
-                    previewBackgroundType: "contain",
-                    gridBackgroundType: "contain",
-                    icon: ({ theme, iconSize }: any) => {
-                      return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                    },
-                  },
+                  // {
+                  //   id: "Elements",
+                  //   sourceIds: [
+                  //     customComponent?.recent,
+                  //     "Elements",
+                  //     ...restaurantList?.map((item: any) => item?.name),
+                  //   ],
+                  //   previewLength: 2,
+                  //   gridColumns: 2,
+                  //   previewBackgroundType: "contain",
+                  //   gridBackgroundType: "contain",
+                  //   icon: ({ theme, iconSize }: any) => {
+                  //     return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
+                  //   },
+                  // },
                 ];
               },
             },
@@ -454,16 +454,16 @@ const Editor = ({
             template?.id
           );
           setlibraryElements(configData?.libraryElements);
-          configData?.ElementsSectionList?.forEach(async (element: any) => {
-            if (element?.items?.length > 0 && element?.resturantDetail?.name) {
-              await instance?.engine?.asset?.addSource(
-                getConfigOfRecentComponent(
-                  element?.items,
-                  element?.resturantDetail?.name
-                )
-              );
-            }
-          });
+          // configData?.ElementsSectionList?.forEach(async (element: any) => {
+          //   if (element?.items?.length > 0 && element?.resturantDetail?.name) {
+          //     await instance?.engine?.asset?.addSource(
+          //       getConfigOfRecentComponent(
+          //         element?.items,
+          //         element?.resturantDetail?.name
+          //       )
+          //     );
+          //   }
+          // });
           configData?.globalTemplates?.forEach(async (element: any) => {
             if (element?.items?.length > 0 && element?.resturantDetail?.name) {
               await instance?.engine?.asset?.addSource(
@@ -739,7 +739,9 @@ const Editor = ({
               blockType !== "//ly.img.ubq/page" &&
               user?.role === "flapjack"
             ) {
-              placeholderChild.replaceWith(newElement);
+              // placeholderChild.replaceWith(newElement);
+              placeholderChild.remove();
+
             } else {
               placeholderChild.remove();
             }
