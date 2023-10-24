@@ -4,6 +4,7 @@ import {
   fetchAssets,
   fetchFonts,
   fetchResturants,
+  getImageDimensions,
   getUser,
   uploadCustomFont,
   useUser,
@@ -157,7 +158,9 @@ const Editor = ({
       id: id,
       title: id,
       label: id,
-      previewBackgroundType: "contain",
+      previewLength: 3,
+      gridItemHeight: 'square',
+      previewBackgroundType: 'cover',
       async findAssets(queryData: any) {
         return Promise.resolve({
           assets: eleList,
@@ -166,45 +169,6 @@ const Editor = ({
           nextPage: undefined,
         });
       },
-      async applyAsset(assetResult: any) {
-        try {
-          console.log("assetResult", assetResult);
-
-          const image = cesdkInstance?.current?.engine.block.create("image");
-          cesdkInstance?.current?.engine.block.setString(
-            image,
-            "image/imageFileURI",
-            assetResult.meta.uri
-          );
-          cesdkInstance?.current?.engine.block.setWidth(
-            image,
-            assetResult.meta.width
-          );
-          cesdkInstance?.current?.engine.block.setHeight(
-            image,
-            assetResult.meta.height
-          );
-          const firstPage =
-            cesdkInstance?.current?.engine.block.findByType("page")[0];
-          cesdkInstance?.current?.engine.block.appendChild(firstPage, image);
-          cesdkInstance?.current?.engine.scene.zoomToBlock(
-            firstPage,
-            0,
-            0,
-            0,
-            0
-          );
-          cesdkInstance?.current?.engine.editor.addUndoStep();
-        } catch (error) {
-          throw error;
-        }
-      },
-      async applyAssetToBlock(assetResult: any, block: any) {
-        cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
-          assetResult,
-          block
-        );
-      },
     };
     return recentcustomSource;
   }
@@ -212,15 +176,14 @@ const Editor = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
       ...(template?.content && {
         initialSceneURL:
           process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${
-            template?.content
+          `/storage/v1/object/public/templates/${template?.content
           }?t=${new Date().toISOString()}`,
       }),
       // baseURL: '/assets',
@@ -292,6 +255,9 @@ const Editor = ({
                       "ly.img.image.upload",
                       ...restaurantList?.map((item: any) => `${item?.name}.`),
                     ],
+                    previewLength: 3,
+                    gridItemHeight: 'square',
+                    previewBackgroundType: 'cover',
                   },
                   // Shapes
                   defaultEntries[4],
@@ -357,11 +323,14 @@ const Editor = ({
                     }
                     const userData = localStorage.getItem("userData");
                     const user = userData && JSON.parse(userData);
+                    const { height, width } = await getImageDimensions(file);
                     await dbClient.from("assets").insert({
                       content,
                       createdBy: user?.id,
                       restaurant_id: user?.restaurant_id,
                       template_id: template?.id,
+                      height,
+                      width,
                     });
                     setTimeout(() => {
                       isAbleToExport = true;
@@ -381,8 +350,6 @@ const Editor = ({
                 meta: {
                   uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
                   thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${data?.path}`,
-                  width: 5,
-                  height: 5,
                 },
               }
             );
@@ -724,9 +691,8 @@ const Editor = ({
                       <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
                       <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
                     </svg>
-                    <span>${
-                      libraryLoading ? "Loading..." : "Save to Library"
-                    }</span>
+                    <span>${libraryLoading ? "Loading..." : "Save to Library"
+              }</span>
                   </span>
                 </button>
               </div>
@@ -798,8 +764,8 @@ const Editor = ({
       meta: {
         uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
         thumbUri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${image?.content}`,
-        width: 3,
-        height: 3,
+        width: image?.width,
+        height: image?.height,
       },
     };
   }
@@ -903,11 +869,9 @@ const Editor = ({
           })
           .select()
           .single();
-        const imagePath = `${
-          process.env.NEXT_PUBLIC_SUPABASE_URL
-        }/storage/v1/object/public/elementsThumbnail/${
-          response?.data?.path
-        }?${Date.now()}`;
+        const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+          }/storage/v1/object/public/elementsThumbnail/${response?.data?.path
+          }?${Date.now()}`;
         const newItem = {
           id: data?.id?.toString(),
           createdBy: user?.id || null,
@@ -1036,6 +1000,7 @@ const Editor = ({
     const opendBlokElement = listChildren?.children[2] as HTMLElement;
     // console.log('targetElement',);
     const newName = opendBlokElement?.textContent?.split("/")[1];
+    // console.log("aaa", opendBlokElement?.className);
 
     if (
       opendBlokElement &&

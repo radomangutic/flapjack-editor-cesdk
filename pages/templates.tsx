@@ -22,6 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
+  // console.log(user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -279,26 +280,28 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   ]}
                   sx={{ marginBottom: "80px" }}
                 >
-                  {item?.menus.map((template: any, i: number) => (
-                    <TemplateCard
-                      key={i}
-                      template={template}
-                      thumbnail={`${
-                        process.env.NEXT_PUBLIC_SUPABASE_URL
-                      }/storage/v1/object/public/renderings/${
-                        template.id
-                      }/coverImage?${i}${Date.now()}`}
-                      onRemove={deleteTemplate}
-                      onRename={renameTemplate}
-                      onDuplicate={duplicateTemplate}
-                      //@ts-ignore
-                      onGlobal={globalTemplate}
-                      navMenu={navMenu}
-                      resturantsOptions={resturantsOptions}
-                      setTemplates={setTemplates}
-                      badge
-                    />
-                  ))}
+                  {item?.menus.map((template: any, i: number) => {
+                    if (((user?.role === 'user' || user?.role === 'owner') && template?.isGlobal)) // Don't show menu if it is "draft" status
+                      return (
+                        <TemplateCard
+                          key={i}
+                          template={template}
+                          thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                            }/storage/v1/object/public/renderings/${template.id
+                            }/coverImage?${i}${Date.now()}`}
+                          onRemove={deleteTemplate}
+                          onRename={renameTemplate}
+                          onDuplicate={duplicateTemplate}
+                          //@ts-ignore
+                          onGlobal={globalTemplate}
+                          navMenu={navMenu}
+                          resturantsOptions={resturantsOptions}
+                          setTemplates={setTemplates}
+                          badge
+                        />
+                      )
+                  }
+                  )}
                 </SimpleGrid>
               </div>
             ))}
@@ -312,26 +315,27 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               { maxWidth: 600, cols: 1, spacing: "sm" },
             ]}
           >
-            {templateData.map((template: any, i: number) => (
-              <TemplateCard
-                key={i}
-                template={template}
-                thumbnail={`${
-                  process.env.NEXT_PUBLIC_SUPABASE_URL
-                }/storage/v1/object/public/renderings/${
-                  template.id
-                }/coverImage?${i}${Date.now()}`}
-                onRemove={deleteTemplate}
-                onRename={renameTemplate}
-                onDuplicate={duplicateTemplate}
-                //@ts-ignore
-                onGlobal={globalTemplate}
-                navMenu={navMenu}
-                resturantsOptions={resturantsOptions}
-                setTemplates={setTemplates}
-                badge
-              />
-            ))}
+            {templateData.map((template: any, i: number) => {
+              if (((user?.role === 'user' || user?.role === 'owner') && template?.isGlobal)) // Don't show menu if it is "draft" status
+                return (
+                  <TemplateCard
+                    key={i}
+                    template={template}
+                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${template.id
+                      }/coverImage?${i}${Date.now()}`}
+                    onRemove={deleteTemplate}
+                    onRename={renameTemplate}
+                    onDuplicate={duplicateTemplate}
+                    //@ts-ignore
+                    onGlobal={globalTemplate}
+                    navMenu={navMenu}
+                    resturantsOptions={resturantsOptions}
+                    setTemplates={setTemplates}
+                    badge
+                  />
+                )
+            })}
           </SimpleGrid>
         )}
       </Container>
