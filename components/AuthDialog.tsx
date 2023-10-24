@@ -97,7 +97,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const router = useRouter();
   const secretKey = router?.query?.key;
   const decryptedData = decryptData(secretKey);
-
   const restaurantId = decryptedData?.restaurantId;
   const userPhoneByUrl = decryptedData?.phone;
   const setUser = useSetUser();
@@ -437,9 +436,8 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
                       fullWidth
                       onClick={() => handleLogin(value)}
                     >
-                      {`Resend Otp ${
-                        inventoryTimer !== 0 ? inventoryTimer : ""
-                      }`}
+                      {`Resend Otp ${inventoryTimer !== 0 ? inventoryTimer : ""
+                        }`}
                     </Button>
                   </>
                 ) : (
