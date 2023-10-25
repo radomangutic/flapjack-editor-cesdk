@@ -69,7 +69,7 @@ const UpsertTemplateDialog = ({
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     if (loader) {
       e.preventDefault();
-      toast.warn("Changes will be lost");
+      // toast.warn("Changes will be lost");
       e.returnValue = "Unsaved template. Going back may lose changes."; // This message will be displayed to the user
     }
   };
@@ -100,7 +100,7 @@ const UpsertTemplateDialog = ({
       const file = new Blob([content], { type: "text/plain" });
       setTimeout(() => {
         onClose();
-        toast.info("Menu is saving");
+        toast.info("Menu is saving", { autoClose: 3000 });
       }, 500);
       let contentUpload = "";
       const userCanUpdate =
@@ -177,7 +177,7 @@ const UpsertTemplateDialog = ({
 
       if (window.location.href.includes("/menu/")) {
         setTimeout(() => {
-          toast.success("Save completed");
+          toast.success("Save completed", { autoClose: 2000 });
         }, 500);
       }
     } catch (err: any) {

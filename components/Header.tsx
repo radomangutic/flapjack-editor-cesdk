@@ -30,11 +30,14 @@ const AppHeader = ({ loader }: Props) => {
       >
         <Box
           sx={{ cursor: "pointer" }}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             if (loader) {
-              toast.warn("Changes will be lost");
+              toast.warn("Please wait until this menu finishes saving. We will notify you when it is safe to leave the page.",
+                { autoClose: 5000 });
+            } else {
+              router.push("/templates");
             }
-            router.push("/templates");
           }}
         >
           <Flex align="center" style={{ cursor: "pointer" }}>
