@@ -54,14 +54,14 @@
     "@types/crypto-js": "^4.1.2",
     "@types/lodash": "^4.14.191",
     "@types/node": "^20.5.7",
-    "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.8",
+    "@types/react": "^18.2.8",
+    "@types/react-dom": "^18.2.4",
     "@types/twilio": "^3.19.3",
     "@types/uuid": "^9.0.2",
     "eslint": "8.27.0",
     "eslint-config-next": "12.3.3",
     "prettier": "^2.8.6",
     "supabase": "^1.46.0",
-    "typescript": "4.8.4"
+    "typescript": "^5.1.3"
   }
 }
