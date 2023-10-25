@@ -1,24 +1,19 @@
-import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
-import { ITemplateDetails } from "../../interfaces";
+import { ITemplateDetails, IUserDetails } from "../../interfaces";
 import Editor from "../../components/Editor/Editor";
-import { getUser } from "../../hooks";
+
 import PrivatePage from "../../components/PrivatePage/PrivatePage";
-import { convertToSectionList } from "../../helpers/convertToSectionList";
 import { getEditorData } from "../../helpers/EditorData";
 
 const Menu = ({
   data,
-  elementsList,
-  sectionedList,
-  globalTemplates,
+  restaurantList,
+  user,
 }: {
   data: ITemplateDetails;
-  elementsList: any;
-  sectionedList?: any;
-  globalTemplates: any;
+  restaurantList: any;
+  user: IUserDetails;
 }) => {
-  const user = getUser();
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
@@ -28,21 +23,10 @@ const Menu = ({
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
-  const elements =
-    user?.role === "flapjack"
-      ? elementsList
-      : elementsList.filter(
-          (item: any) => item?.restaurant_id === user?.restaurant_id
-        );
 
   return (
     <>
-      <Editor
-        template={data}
-        elementsList={elements}
-        sectionedList={sectionedList}
-        globalTemplates={user?.role === "flapjack" ? globalTemplates : []}
-      />
+      <Editor template={data} restaurantList={restaurantList} user={user} />
     </>
   );
 };

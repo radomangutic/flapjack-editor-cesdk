@@ -1,21 +1,31 @@
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
-import { ITemplateDetails } from "../../../interfaces";
+import { ITemplateDetails, IUserDetails } from "../../../interfaces";
 import Editor from "../../../components/Editor/Editor";
 import PrivatePage from "../../../components/PrivatePage/PrivatePage";
+import { getLogedInUser } from "../../../tests/helpers/database.helper";
 
-const Menu = ({ data }: { data: ITemplateDetails; images: string[] }) => {
+const Menu = ({
+  data,
+  user,
+}: {
+  data: ITemplateDetails;
+  images: string[];
+  user: IUserDetails;
+}) => {
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
   return (
     <>
-      <Editor template={data} preview />
+      <Editor template={data} preview user={user} />
     </>
   );
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
+  const logedInUser = await getLogedInUser(context);
+
   const { data } = await supabase
     .from("templates")
     .select(
@@ -42,7 +52,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     });
   }
   return {
-    props: { data: data ? data[0] : null, images: imageUrls }, // will be passed to the page component as props
+    props: {
+      data: data ? data[0] : null,
+      images: imageUrls,
+      user: logedInUser,
+    }, // will be passed to the page component as props
   };
 }
 

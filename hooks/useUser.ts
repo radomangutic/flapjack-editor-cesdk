@@ -82,7 +82,7 @@ export const fetchAssets = async (): Promise<any[]> => {
       const { data: globalTemplates, error: globalTemplatesError } =
         await dbClient
           .from("assets")
-          .select("id, createdBy, content ,restaurant_id");
+          .select("id, createdBy, content ,restaurant_id, height, width").order("created_at", { ascending: false });
 
       if (globalTemplatesError) {
         throw globalTemplatesError;
@@ -92,7 +92,7 @@ export const fetchAssets = async (): Promise<any[]> => {
       const { data: globalTemplatesResturantId, error: globalTemplatesError } =
         await dbClient
           .from("assets")
-          .select("id, createdBy, content ,restaurant_id")
+          .select("id, createdBy, content ,restaurant_id, height, width")
           .or(`restaurant_id.eq.${restaurant_id}`);
 
       if (globalTemplatesError) {
@@ -104,7 +104,7 @@ export const fetchAssets = async (): Promise<any[]> => {
       const { data: globalTemplatesUser, error: globalTemplatesError } =
         await dbClient
           .from("assets")
-          .select("id, createdBy, content ,restaurant_id")
+          .select("id, createdBy, content ,restaurant_id, height, width")
           .or(`createdBy.eq.${id}`);
 
       if (globalTemplatesError) {
@@ -312,3 +312,58 @@ export const templateArchive = async (template: ITemplateDetails) => {
     console.error(err);
   }
 };
+
+export function getImageDimensions(
+  blob: Blob
+): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.src = URL.createObjectURL(blob);
+
+    image.onload = () => {
+      const width = image.width;
+      const height = image.height;
+      resolve({ width, height });
+    };
+
+    image.onerror = (error) => {
+      reject(error);
+    };
+  });
+}
+
+// export const setAllAssetsHeightWidth = async () => {
+//   const { data } = await dbClient.from("assets").select("*");
+//   if (data) {
+//     data.forEach(async (item: any) => {
+//       const { width, height } = await getImageDimensionsFromUrl(
+//         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/templateImages/${item?.content}`
+//       );
+//       await dbClient
+//         .from("assets")
+//         .update({ width, height })
+//         .eq("id", item?.id);
+//       console.log("Updated Width", item?.id);
+//     });
+//   }
+// };
+
+// function getImageDimensionsFromUrl(
+//   url: string
+// ): Promise<{ width: number; height: number }> {
+//   console.log("Test132156", url);
+//   return new Promise((resolve, reject) => {
+//     const image = new Image();
+//     image.src = url;
+
+//     image.onload = () => {
+//       const width = image.width;
+//       const height = image.height;
+//       resolve({ width, height });
+//     };
+
+//     image.onerror = (error) => {
+//       reject(error);
+//     };
+//   });
+// }

@@ -22,7 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
-  console.log(user);
+  // console.log(user);
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -68,7 +68,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
 
   const templateData = templates?.filter((template) => {
     // show all menus in the user's restaurant
-    if (template?.restaurant_id === user?.restaurant_id) return true
+    if (template?.restaurant_id === user?.restaurant_id) return true;
   });
   const groupMenusByLocation = (menus: any[], locations: string[]) => {
     const menuMap: { [key: string]: any[] } = {};
@@ -151,9 +151,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   <TemplateCard
                     key={i}
                     template={template}
-                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                      }/storage/v1/object/public/renderings/${template.id
-                      }/coverImage?${i}${Date.now()}`}
+                    thumbnail={`${
+                      process.env.NEXT_PUBLIC_SUPABASE_URL
+                    }/storage/v1/object/public/renderings/${
+                      template.id
+                    }/coverImage?${i}${Date.now()}`}
                     onRemove={deleteTemplate}
                     onRename={renameTemplate}
                     onDuplicate={duplicateTemplate}
@@ -196,10 +198,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               const menus = item?.location?.length
                 ? groupMenusByLocation(restaurantTemplate, item?.location)
                 : [
-                  {
-                    menus: restaurantTemplate,
-                  },
-                ];
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
               return (
                 <div key={i}>
                   <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -225,9 +227,11 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             <TemplateCard
                               key={i}
                               template={template}
-                              thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                                }/storage/v1/object/public/renderings/${template.id
-                                }/coverImage?${i}${Date.now()}`}
+                              thumbnail={`${
+                                process.env.NEXT_PUBLIC_SUPABASE_URL
+                              }/storage/v1/object/public/renderings/${
+                                template.id
+                              }/coverImage?${i}${Date.now()}`}
                               onRemove={deleteTemplate}
                               onRename={renameTemplate}
                               onDuplicate={duplicateTemplate}
@@ -276,24 +280,28 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   ]}
                   sx={{ marginBottom: "80px" }}
                 >
-                  {item?.menus.map((template: any, i: number) => (
-                    <TemplateCard
-                      key={i}
-                      template={template}
-                      thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                        }/storage/v1/object/public/renderings/${template.id
-                        }/coverImage?${i}${Date.now()}`}
-                      onRemove={deleteTemplate}
-                      onRename={renameTemplate}
-                      onDuplicate={duplicateTemplate}
-                      //@ts-ignore
-                      onGlobal={globalTemplate}
-                      navMenu={navMenu}
-                      resturantsOptions={resturantsOptions}
-                      setTemplates={setTemplates}
-                      badge
-                    />
-                  ))}
+                  {item?.menus.map((template: any, i: number) => {
+                    if (((user?.role === 'user' || user?.role === 'owner') && template?.isGlobal)) // Don't show menu if it is "draft" status
+                      return (
+                        <TemplateCard
+                          key={i}
+                          template={template}
+                          thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                            }/storage/v1/object/public/renderings/${template.id
+                            }/coverImage?${i}${Date.now()}`}
+                          onRemove={deleteTemplate}
+                          onRename={renameTemplate}
+                          onDuplicate={duplicateTemplate}
+                          //@ts-ignore
+                          onGlobal={globalTemplate}
+                          navMenu={navMenu}
+                          resturantsOptions={resturantsOptions}
+                          setTemplates={setTemplates}
+                          badge
+                        />
+                      )
+                  }
+                  )}
                 </SimpleGrid>
               </div>
             ))}
@@ -307,24 +315,27 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               { maxWidth: 600, cols: 1, spacing: "sm" },
             ]}
           >
-            {templateData.map((template: any, i: number) => (
-              <TemplateCard
-                key={i}
-                template={template}
-                thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
-                  }/storage/v1/object/public/renderings/${template.id
-                  }/coverImage?${i}${Date.now()}`}
-                onRemove={deleteTemplate}
-                onRename={renameTemplate}
-                onDuplicate={duplicateTemplate}
-                //@ts-ignore
-                onGlobal={globalTemplate}
-                navMenu={navMenu}
-                resturantsOptions={resturantsOptions}
-                setTemplates={setTemplates}
-                badge
-              />
-            ))}
+            {templateData.map((template: any, i: number) => {
+              if (((user?.role === 'user' || user?.role === 'owner') && template?.isGlobal)) // Don't show menu if it is "draft" status
+                return (
+                  <TemplateCard
+                    key={i}
+                    template={template}
+                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${template.id
+                      }/coverImage?${i}${Date.now()}`}
+                    onRemove={deleteTemplate}
+                    onRename={renameTemplate}
+                    onDuplicate={duplicateTemplate}
+                    //@ts-ignore
+                    onGlobal={globalTemplate}
+                    navMenu={navMenu}
+                    resturantsOptions={resturantsOptions}
+                    setTemplates={setTemplates}
+                    badge
+                  />
+                )
+            })}
           </SimpleGrid>
         )}
       </Container>
