@@ -709,8 +709,8 @@ const Editor = ({
               blockType !== "//ly.img.ubq/page" &&
               user?.role === "flapjack"
             ) {
-              // placeholderChild.replaceWith(newElement);
-              placeholderChild.remove();
+              placeholderChild.replaceWith(newElement);
+              // placeholderChild.remove();
 
             } else {
               placeholderChild.remove();
