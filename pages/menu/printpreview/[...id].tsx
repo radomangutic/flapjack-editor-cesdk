@@ -7,6 +7,7 @@ import { getLogedInUser } from "../../../tests/helpers/database.helper";
 
 const Menu = ({
   data,
+  layout,
   user,
 }: {
   data: ITemplateDetails;
@@ -18,20 +19,26 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={data} user={user} preview />
+      <Editor template={data} layout={layout} user={user} preview />
     </>
   );
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const logedInUser = await getLogedInUser(context);
-
+  console.log(context.params)
   const { data } = await supabase
     .from("templates")
     .select(
       "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
-    .eq("id", context?.params?.id);
+    .eq("id", context?.params?.id?.[1]);
+  const { data: layout } = await supabase
+    .from("templates")
+    .select(
+      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
+    )
+    .eq("id", context?.params?.id?.[0]);
 
   const { data: images, error } = await supabase.storage
     .from("renderings")
@@ -54,6 +61,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       data: data ? data[0] : null,
+      layout: layout ? layout[0] : null,
       images: imageUrls,
       user: logedInUser,
     }, // will be passed to the page component as props
