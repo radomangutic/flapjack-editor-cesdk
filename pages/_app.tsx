@@ -40,7 +40,6 @@ export default function App({
             content="minimum-scale=1, initial-scale=1, width=device-width"
           />
         </Head>
-        <ToastContainer />
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <NotificationsProvider>
             <SessionContextProvider

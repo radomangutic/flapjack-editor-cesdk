@@ -100,7 +100,7 @@ const UpsertTemplateDialog = ({
       const file = new Blob([content], { type: "text/plain" });
       setTimeout(() => {
         onClose();
-        toast.info("Menu is saving", { autoClose: 3000 });
+        toast.info("Menu is saving", { hideProgressBar: true, autoClose: 3000 });
       }, 500);
       let contentUpload = "";
       const userCanUpdate =
@@ -177,7 +177,7 @@ const UpsertTemplateDialog = ({
 
       if (window.location.href.includes("/menu/")) {
         setTimeout(() => {
-          toast.success("Save completed", { autoClose: 2000 });
+          toast.success("Save completed", { hideProgressBar: true, autoClose: 2000 });
         }, 500);
       }
     } catch (err: any) {

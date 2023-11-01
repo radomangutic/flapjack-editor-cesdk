@@ -989,7 +989,7 @@ const Editor = ({
           openAuthDialog();
         }
       }
-      toast.success("Component has been saved!");
+      toast.success("Component has been saved!", { hideProgressBar: true });
     } catch (error) {
       console.log("error", error);
     } finally {

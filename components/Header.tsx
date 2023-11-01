@@ -34,7 +34,7 @@ const AppHeader = ({ loader }: Props) => {
             e.preventDefault();
             if (loader) {
               toast.warn("Please wait until this menu finishes saving. We will notify you when it is safe to leave the page.",
-                { autoClose: 5000 });
+                { hideProgressBar: true, autoClose: 5000 });
             } else {
               router.push("/templates");
             }
