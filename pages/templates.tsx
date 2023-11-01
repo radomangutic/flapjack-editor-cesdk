@@ -151,11 +151,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   <TemplateCard
                     key={i}
                     template={template}
-                    thumbnail={`${
-                      process.env.NEXT_PUBLIC_SUPABASE_URL
-                    }/storage/v1/object/public/renderings/${
-                      template.id
-                    }/coverImage?${i}${Date.now()}`}
+                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${template.id
+                      }/coverImage?${i}${Date.now()}`}
                     onRemove={deleteTemplate}
                     onRename={renameTemplate}
                     onDuplicate={duplicateTemplate}
@@ -189,8 +187,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
             by transferring the menu to the corresponding restaurant.
           </Text>
 
+          {/* Render customer restaurants and menus, exclude internal restaurants */}
           {resturantsOptions
-            ?.filter((i: any) => i?.value !== "2")
+            ?.filter((i: any) => i?.value !== "2" && i?.value !== "5" && i?.value !== "1" && i?.value !== "7")
             .map((item: any, i) => {
               const restaurantTemplate = templates.filter(
                 (template) => template?.restaurant_id == item?.value
@@ -198,10 +197,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
               const menus = item?.location?.length
                 ? groupMenusByLocation(restaurantTemplate, item?.location)
                 : [
-                    {
-                      menus: restaurantTemplate,
-                    },
-                  ];
+                  {
+                    menus: restaurantTemplate,
+                  },
+                ];
               return (
                 <div key={i}>
                   <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -227,11 +226,71 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                             <TemplateCard
                               key={i}
                               template={template}
-                              thumbnail={`${
-                                process.env.NEXT_PUBLIC_SUPABASE_URL
-                              }/storage/v1/object/public/renderings/${
-                                template.id
-                              }/coverImage?${i}${Date.now()}`}
+                              thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                                }/storage/v1/object/public/renderings/${template.id
+                                }/coverImage?${i}${Date.now()}`}
+                              onRemove={deleteTemplate}
+                              onRename={renameTemplate}
+                              onDuplicate={duplicateTemplate}
+                              //@ts-ignore
+                              onGlobal={globalTemplate}
+                              navMenu={navMenu}
+                              resturantsOptions={resturantsOptions}
+                              setTemplates={setTemplates}
+                              badge
+                            />
+                          ))
+                        ) : (
+                          <Text>No menu found</Text>
+                        )}
+                      </SimpleGrid>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          {/* Render internal restaurants and memnus after customer menus, should refactor to reuse code from above */}
+          {resturantsOptions
+            ?.filter((i: any) => i?.value == "5" || i?.value == "1" || i?.value == "7")
+            .map((item: any, i) => {
+              const restaurantTemplate = templates.filter(
+                (template) => template?.restaurant_id == item?.value
+              );
+              const menus = item?.location?.length
+                ? groupMenusByLocation(restaurantTemplate, item?.location)
+                : [
+                  {
+                    menus: restaurantTemplate,
+                  },
+                ];
+              return (
+                <div key={i}>
+                  <Text style={{ fontSize: "26px" }} fw={"inherit"}>
+                    {item?.label}
+                  </Text>
+
+                  {menus.map((item: any, i) => (
+                    <div key={i}>
+                      <Text fz={"xl"} fw={"inherit"} my={"md"}>
+                        {item?.location}
+                      </Text>
+                      <SimpleGrid
+                        cols={3}
+                        breakpoints={[
+                          { maxWidth: 1120, cols: 3, spacing: "md" },
+                          { maxWidth: 991, cols: 2, spacing: "sm" },
+                          { maxWidth: 600, cols: 1, spacing: "sm" },
+                        ]}
+                        sx={{ marginBottom: "80px" }}
+                      >
+                        {item?.menus?.length ? (
+                          item?.menus.map((template: any, i: number) => (
+                            <TemplateCard
+                              key={i}
+                              template={template}
+                              thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                                }/storage/v1/object/public/renderings/${template.id
+                                }/coverImage?${i}${Date.now()}`}
                               onRemove={deleteTemplate}
                               onRename={renameTemplate}
                               onDuplicate={duplicateTemplate}
