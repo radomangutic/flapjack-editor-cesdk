@@ -54,8 +54,8 @@ const Editor = ({
   preview?: boolean;
   restaurantList?: any;
   user: IUserDetails;
-  loader?: boolean;
-  setloader?: (value: boolean) => void;
+  loader: boolean;
+  setloader: (value: boolean) => void;
 }) => {
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
