@@ -27,6 +27,7 @@ interface IUpsertTemplateDialogProps {
   onClose: () => void;
   template?: ITemplate | null;
   content: any;
+  previewContent?: string[];
   restaurantsOptions: any;
 }
 
@@ -35,6 +36,7 @@ const UpsertTemplateDialog = ({
   onClose,
   template,
   content,
+  previewContent,
   restaurantsOptions,
 }: IUpsertTemplateDialogProps) => {
   const supabase = useSupabaseClient();
@@ -102,6 +104,12 @@ const UpsertTemplateDialog = ({
 
           })
           .eq("id", template?.id);
+
+        await supabase
+          .from('menu_preview')
+          .upsert({ content: previewContent, menu_id: template?.id }, { onConflict: 'menu_id' })
+          .select()
+
         if (error) {
           return;
         }

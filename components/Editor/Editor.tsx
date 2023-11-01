@@ -61,6 +61,7 @@ const Editor = ({
   const supabase = useSupabaseClient();
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
+  const [previewContent, setPreviewContent] = useState<string[]>([]);
   const [userData, setUserData] = useState<any>(getUser());
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
@@ -363,6 +364,7 @@ const Editor = ({
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
+          saveMenuToLibrary()
           setUserData((user: any) => {
             if (isAbleToUpdate) {
               isAbleToUpdate = false;
@@ -1077,163 +1079,44 @@ const Editor = ({
     return arrayA.filter((item: number) => !arrayB.includes(item));
   }
   const saveMenuToLibrary = async () => {
+    // input is a page id, output is a group id of all the components within the page
+    async function groupComponents(page: string) {
+      const childrenOfPage = cesdkInstance?.current.engine?.block?.getChildren(page)
+      if (cesdkInstance?.current.engine?.block?.isGroupable(childrenOfPage)) {
+        const group = cesdkInstance?.current?.engine.block.group(childrenOfPage);
+        const savedBlock = await cesdkInstance?.current.engine.block.saveToString([group]);
+        console.log(savedBlock)
+        return (savedBlock)
+      }
+
+    }
     try {
       // setlibraryLoading(true);
-      if (layout) {
-        const allBlocks =
-          cesdkInstance?.current.engine?.block?.findAll();
-        const arrayB = [1, 2, 3, 4];
-        const menuBlocks = removeValuesFromArrayA(allBlocks, arrayB)
-        // console.log(allBlocks.filter((item: number) => !arrayB.includes(item)))
-        const isGroupable =
-          cesdkInstance?.current.engine.block.isGroupable(menuBlocks) &&
-          selectedIds?.length > 1;
+      // console.log(cesdkInstance?.current?.engine.scene.getPages())
+      const pageBlocks = cesdkInstance?.current?.engine.scene.getPages()
+      const pageGroups = pageBlocks.map(async (page: string) => await groupComponents(page))
+      setPreviewContent(pageGroups)
+      console.log(pageGroups)
+      // const allBlocks =
+      //   cesdkInstance?.current.engine?.block?.findAll();
+      // const arrayB = [1, 2, 3, ...pageBlocks];
+      // const menuBlocks = removeValuesFromArrayA(allBlocks, arrayB)
+      // console.log(allBlocks.filter((item: number) => !arrayB.includes(item)))
+      // console.log(pageBlocks, allBlocks, menuBlocks)
 
-        const group = isGroupable
-          ? cesdkInstance?.current?.engine.block.group(selectedIds)
-          : false;
-        const saveAbleId = isGroupable ? [group] : selectedIds;
-        const savedBlocks =
-          await cesdkInstance?.current.engine.block.saveToString(saveAbleId);
-        // console.log(savedBlocks)
-        return (savedBlocks)
-        // const mimeType = "image/png";
-        // const options = { pngCompressionLevel: 0 };
-        // const blob = await cesdkInstance?.current.engine.block.export(
-        //   saveAbleId[0],
-        //   mimeType,
-        //   options
-        // );
-        // const response = await dbClient.storage
-        //   .from("elementsThumbnail")
-        //   .upload(uuidv4(), blob);
-        // if (!response?.data?.path) {
-        //   return;
-        // }
-        // console.log("template", template);
-        // const { error, data } = await supabase
-        //   .from("ElementLibrary")
-        //   .insert({
-        //     element: savedBlocks,
-        //     template_id: template?.id,
-        //     createdBy: user?.id,
-        //     thumbnail: response?.data?.path,
-        //     restaurant_id: user?.restaurant_id,
-        //     location: template?.location,
-        //   })
-        //   .select()
-        //   .single();
-        // const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
-        //   }/storage/v1/object/public/elementsThumbnail/${response?.data?.path
-        //   }?${Date.now()}`;
-        // const newItem = {
-        //   id: data?.id?.toString(),
-        //   createdBy: user?.id || null,
-        //   meta: {
-        //     uri: "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-        //     blockType: "//ly.img.ubq/text",
-        //     thumbUri: imagePath,
-        //     width: 100,
-        //     height: 10,
-        //     value: savedBlocks,
-        //     name: "dddddwestg",
-        //   },
-        //   context: {
-        //     sourceId: "Elements",
-        //   },
-        // };
-        // const newList = [newItem, ...libraryElements];
-        // setlibraryElements(newList);
-
-        // await cesdkInstance?.current.engine.asset.removeSource("Elements");
-        // const customSource = {
-        //   id: "Elements",
-        //   previewBackgroundType: "contain",
-        //   gridBackgroundType: "contain",
-
-        //   async findAssets(queryData: any) {
-        //     return Promise.resolve({
-        //       assets: newList,
-        //       total: newList.length,
-        //       currentPage: queryData.page,
-        //       nextPage: undefined,
-        //     });
-        //   },
-        //   async applyAsset(assetResult: any) {
-        //     try {
-        //       const firstPage = await getCurrentSelectedPage(
-        //         cesdkInstance?.current
-        //       );
-        //       const block =
-        //         await cesdkInstance?.current.engine.block.loadFromString(
-        //           assetResult?.meta?.value
-        //         );
-        //       cesdkInstance?.current.engine.block.setName(block[0], "ddddd");
-        //       await cesdkInstance?.current.engine.block.appendChild(
-        //         firstPage,
-        //         block[0]
-        //       );
-        //       await cesdkInstance?.current.engine.block.setSelected(
-        //         block[0],
-        //         true
-        //       );
-        //       await cesdkInstance?.current.engine.block.select(block[0]);
-        //       const isSourceExist = cesdkInstance?.current.engine.asset
-        //         .findAllSources()
-        //         ?.includes(customComponent?.recent);
-        //       if (isSourceExist) {
-        //         const findList =
-        //           await cesdkInstance?.current.engine.asset.findAssets(
-        //             customComponent?.recent
-        //           );
-        //         const isAlreadyExist = findList?.assets?.find(
-        //           (i: any) => i?.id === assetResult?.id
-        //         );
-        //         if (!isAlreadyExist) {
-        //           const newList = [assetResult, ...findList?.assets];
-        //           await cesdkInstance?.current.engine.asset.removeSource(
-        //             customComponent?.recent
-        //           );
-        //           await cesdkInstance?.current.engine.asset.addSource(
-        //             getConfigOfRecentComponent(newList, customComponent?.recent)
-        //           );
-        //         }
-        //       } else {
-        //         await cesdkInstance?.current.engine.asset.addSource(
-        //           getConfigOfRecentComponent(
-        //             [assetResult],
-        //             customComponent?.recent
-        //           )
-        //         );
-        //       }
-        //     } catch (error) {
-        //       throw error;
-        //     }
-        //   },
-        //   async applyAssetToBlock(assetResult: any, block: any) {
-        //     cesdkInstance?.current.engine.asset.defaultApplyAssetToBlock(
-        //       assetResult,
-        //       block
-        //     );
-        //   },
-        // };
-        // await cesdkInstance?.current.engine.asset.addSource(customSource);
-        // var elementWithShadowRoot = document.querySelector(
-        //   "#cesdkContainer #root-shadow "
-        // );
-        // var shadowRoot = elementWithShadowRoot?.shadowRoot;
-        // const sideBarPanel =
-        //   "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY div";
-        // var sideBarPanelLibrary = shadowRoot?.querySelector(`${sideBarPanel}`)
-        //   ?.children[1]?.children[3] as HTMLElement;
-        // sideBarPanelLibrary?.click();
+      // const group = cesdkInstance?.current?.engine.block.group(menuBlocks)
+      // const saveAbleId = isGroupable ? [group] : selectedIds;
+      // const savedBlocks =
+      //   await cesdkInstance?.current.engine.block.saveToString(group);
+      // console.log(menuBlocks)
+      // console.log(cesdkInstance?.current?.engine.scene.getPages())
+      // setPreviewContent(savedBlocks)
+      // return (savedBlocks)
+      const value = await cesdkInstance?.current.save();
+      if (user) {
+        saveTemplate(value);
       } else {
-        const value = await cesdkInstance?.current.save();
-        if (user) {
-          saveTemplate(value);
-        } else {
-          openAuthDialog();
-        }
+        openAuthDialog();
       }
       toast.success("Component has been saved!");
     } catch (error) {
@@ -1347,9 +1230,9 @@ const Editor = ({
 
     return () => clearInterval(intervalId);
   }, []);
-  setTimeout(() => {
-    injectMenuIntoCanvas();
-  }, 1000);
+  // setTimeout(() => {
+  //   injectMenuIntoCanvas();
+  // }, 1000);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
@@ -1433,6 +1316,7 @@ const Editor = ({
         template={template}
         onClose={() => settemplateModal(false)}
         content={content}
+        previewContent={previewContent}
         restaurantsOptions={restaurantsOptions}
       />
       {preview && (
