@@ -27,7 +27,7 @@ interface IUpsertTemplateDialogProps {
   onClose: () => void;
   template?: ITemplate | null;
   content: any;
-  previewContent?: string[];
+  previewContent?: Promise<string>[];
   restaurantsOptions: any;
 }
 

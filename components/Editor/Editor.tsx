@@ -61,7 +61,7 @@ const Editor = ({
   const supabase = useSupabaseClient();
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
-  const [previewContent, setPreviewContent] = useState<string[]>([]);
+  const [previewContent, setPreviewContent] = useState<Promise<string>[]>([]);
   const [userData, setUserData] = useState<any>(getUser());
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
@@ -1094,8 +1094,8 @@ const Editor = ({
       // setlibraryLoading(true);
       // console.log(cesdkInstance?.current?.engine.scene.getPages())
       const pageBlocks = cesdkInstance?.current?.engine.scene.getPages()
-      const pageGroups = pageBlocks.map(async (page: string) => await groupComponents(page))
-      setPreviewContent(pageGroups)
+      const pageGroups = Promise.all(pageBlocks.map(async (page: string) => await groupComponents(page)))
+      setPreviewContent(await pageGroups)
       console.log(pageGroups)
       // const allBlocks =
       //   cesdkInstance?.current.engine?.block?.findAll();
