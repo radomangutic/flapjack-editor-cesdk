@@ -29,6 +29,8 @@ const Template = ({
   restaurantList: any;
   user: IUserDetails;
 }) => {
+  const [loader, setloader] = useState(false);
+
   if (typeof window !== "undefined") {
     if (!canCreateTemplate(user)) {
       return <PrivatePage login={!user} />;
@@ -36,7 +38,7 @@ const Template = ({
 
     return (
       <>
-        <Editor template={data} restaurantList={restaurantList} user={user} />
+        <Editor template={data} loader={loader} setloader={setloader} restaurantList={restaurantList} user={user} />
       </>
     );
   }
