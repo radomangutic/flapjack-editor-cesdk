@@ -47,11 +47,15 @@ const Editor = ({
   preview,
   restaurantList,
   user,
+  loader,
+  setloader
 }: {
   template: ITemplateDetails | null;
   preview?: boolean;
   restaurantList?: any;
   user: IUserDetails;
+  loader: boolean;
+  setloader: (value: boolean) => void;
 }) => {
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
@@ -985,7 +989,7 @@ const Editor = ({
           openAuthDialog();
         }
       }
-      toast.success("Component has been saved!");
+      toast.success("Component has been saved!", { hideProgressBar: true });
     } catch (error) {
       console.log("error", error);
     } finally {
@@ -1125,6 +1129,8 @@ const Editor = ({
         onClose={() => settemplateModal(false)}
         content={content}
         restaurantsOptions={restaurantsOptions}
+        loader={loader}
+        setloader={setloader}
       />
       {preview && (
         <Text
