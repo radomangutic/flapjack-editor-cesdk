@@ -13,6 +13,7 @@ const Menu = ({
   data: ITemplateDetails;
   images: string[];
   user: IUserDetails;
+  layout: any;
 }) => {
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
