@@ -50,7 +50,7 @@ export default function App({
                 <AppShell
                   padding={0}
                   header={
-                    !router.pathname.includes("preview") && !router.pathname.includes("image") ? <Header /> : <></>
+                    !router.pathname.includes("preview") && !router.pathname.includes("tv/") ? <Header /> : <></>
                   }
                   styles={(theme) => ({
                     main: {

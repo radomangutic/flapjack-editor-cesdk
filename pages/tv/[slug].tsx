@@ -1,19 +1,26 @@
-export default function TvPreview({
-  ip
-}: {
-  ip: string
-}) {
-  return <>
-    <p>test: {ip}</p>
-    {/* <img width="100%" src="https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/tv_menu_links/Boston%20Market%20Page%201.jpg" /> */}
-  </>;
+import { saveIpAdddressData } from "../../helpers/SaveIpAddress";
+import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/router';
+import Image from 'next/image'
+
+export default function TvPreview() {
+  const router = useRouter();
+  const { slug } = router.query;
+  return <div style={{ position: "relative", height: "100%", width: "100%" }}>
+    <Image
+      alt="Tv menu image"
+      src={`https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/tv_menu_links/${slug}`}
+      layout="fill"
+      objectFit="contain"
+      priority={true}
+    />
+  </div>;
 }
-export async function getServerSideProps({ req }: any) {
-  const forwarded = req.headers["x-forwarded-for"]
-  const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+
+  saveIpAdddressData(context)
   return {
     props: {
-      ip,
     },
   }
 }
