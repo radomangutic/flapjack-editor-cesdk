@@ -49,7 +49,9 @@ export default function App({
               <UserContextProvider>
                 <AppShell
                   padding={0}
-                  header={!router.pathname.includes("preview") ? <Header /> : <></>}
+                  header={
+                    !router.pathname.includes("preview") && !router.pathname.includes("tv/") ? <Header /> : <></>
+                  }
                   styles={(theme) => ({
                     main: {
                       backgroundColor: !router.pathname.includes("templates") ? "#e7ebee" : 'inherit'
