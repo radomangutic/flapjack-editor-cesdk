@@ -20,28 +20,29 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={data} layout={layout} user={user} preview />
+      <Editor template={layout} layout={data} user={user} preview />
     </>
   );
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const logedInUser = await getLogedInUser(context);
-  console.log(context.params)
-  const { data } = await supabase
-    .from("templates")
-    .select(
-      "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
+  // console.log(context.params)
+  const { data, error } = await supabase
+    .from("menu_preview")
+    .select("*"
     )
-    .eq("id", context?.params?.id?.[1]);
+    .eq("menu_id", context?.params?.id?.[0]);
+
+  console.log(data, "this is an error")
   const { data: layout } = await supabase
     .from("templates")
     .select(
       "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
-    .eq("id", context?.params?.id?.[0]);
+    .eq("id", context?.params?.id?.[1]);
 
-  const { data: images, error } = await supabase.storage
+  const { data: images } = await supabase.storage
     .from("renderings")
     .list(`${context?.params?.id}`, {
       limit: 6,
