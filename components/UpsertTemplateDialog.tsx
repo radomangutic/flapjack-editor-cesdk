@@ -21,13 +21,15 @@ import { IconPhotoPlus } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { removeSpecialCharacters } from "../helpers/CommonFunctions";
-
+import { toast } from "react-toastify";
 interface IUpsertTemplateDialogProps {
   opened: boolean;
   onClose: () => void;
   template?: ITemplate | null;
   content: any;
   restaurantsOptions: any;
+  loader: boolean;
+  setloader: (value: boolean) => void;
 }
 
 const UpsertTemplateDialog = ({
@@ -36,6 +38,8 @@ const UpsertTemplateDialog = ({
   template,
   content,
   restaurantsOptions,
+  loader,
+  setloader,
 }: IUpsertTemplateDialogProps) => {
   const supabase = useSupabaseClient();
   const [isFileEsist, setisFileEsist] = useState(false);
@@ -51,7 +55,6 @@ const UpsertTemplateDialog = ({
     : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
-  const [loader, setloader] = useState(false);
   const [locations, setlocations] = useState(userLocation);
   const [restaurantId, setRestaurantId] = useState(
     template?.restaurant_id || ""
@@ -62,6 +65,21 @@ const UpsertTemplateDialog = ({
   const filUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL
     }/storage/v1/object/public/renderings/${router.query.id
     }/coverImage?${Date.now()}`;
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (loader) {
+      e.preventDefault();
+      // toast.warn("Changes will be lost");
+      e.returnValue = "Unsaved template. Going back may lose changes."; // This message will be displayed to the user
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [loader]);
 
   const form = useForm({
     initialValues: {
@@ -80,7 +98,10 @@ const UpsertTemplateDialog = ({
       setloader(true);
       const isUpdating = router.query.id;
       const file = new Blob([content], { type: "text/plain" });
-
+      setTimeout(() => {
+        onClose();
+        toast.info("Menu is saving", { hideProgressBar: true, autoClose: 3000 });
+      }, 500);
       let contentUpload = "";
       const userCanUpdate =
         user?.role === "flapjack" ||
@@ -88,7 +109,7 @@ const UpsertTemplateDialog = ({
         user?.role === "owner" ||
         user?.role === "user";
       if (isUpdating && template?.content && userCanUpdate) {
-        await templateArchive(template);
+        templateArchive(template);
         const { data, error } = await supabase.storage
           .from("templates")
           .update(`${template?.content}`, file);
@@ -152,6 +173,12 @@ const UpsertTemplateDialog = ({
             .upload("coverImage", values?.coverImage);
         }
         await router.push(`/menu/${data?.[0]?.id}`);
+      }
+
+      if (window.location.href.includes("/menu/")) {
+        setTimeout(() => {
+          toast.success("Save completed", { hideProgressBar: true, autoClose: 2000 });
+        }, 500);
       }
     } catch (err: any) {
       throw err;

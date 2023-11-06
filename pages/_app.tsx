@@ -13,8 +13,8 @@ import { hotjar } from "react-hotjar";
 import { GoogleAnalytics } from "nextjs-google-analytics";
 import UserContextProvider from "../context/UserContext";
 import { IntercomProvider } from "react-use-intercom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function App({
   Component,
   pageProps,
@@ -40,7 +40,6 @@ export default function App({
             content="minimum-scale=1, initial-scale=1, width=device-width"
           />
         </Head>
-
         <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
           <NotificationsProvider>
             <SessionContextProvider
@@ -51,13 +50,11 @@ export default function App({
                 <AppShell
                   padding={0}
                   header={
-                    !router.pathname.includes("preview") ? <Header /> : <></>
+                    !router.pathname.includes("preview") && !router.pathname.includes("tv/") ? <Header /> : <></>
                   }
                   styles={(theme) => ({
                     main: {
-                      backgroundColor: !router.pathname.includes("templates")
-                        ? "#e7ebee"
-                        : "inherit",
+                      backgroundColor: !router.pathname.includes("templates") ? "#e7ebee" : 'inherit'
                     },
                   })}
                 >

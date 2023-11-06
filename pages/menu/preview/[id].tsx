@@ -4,6 +4,7 @@ import { ITemplateDetails, IUserDetails } from "../../../interfaces";
 import Editor from "../../../components/Editor/Editor";
 import PrivatePage from "../../../components/PrivatePage/PrivatePage";
 import { getLogedInUser } from "../../../tests/helpers/database.helper";
+import { useState } from 'react'
 
 const Menu = ({
   data,
@@ -13,12 +14,13 @@ const Menu = ({
   images: string[];
   user: IUserDetails;
 }) => {
+  const [loader, setloader] = useState(false);
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
   return (
     <>
-      <Editor template={data} preview user={user} />
+      <Editor template={data} preview user={user} loader={loader} setloader={setloader} />
     </>
   );
 };
