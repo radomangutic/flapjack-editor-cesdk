@@ -77,6 +77,7 @@ const Editor = ({
   const [libraryLoading, setlibraryLoading] = useState(false);
   const [libraryElements, setlibraryElements] = useState<any>();
   const [usedComponenets, setusedComponenets] = useState<any>([]);
+  const [menuInjected, setMenuInjected] = useState<boolean>(false);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -1134,7 +1135,7 @@ const Editor = ({
       // console.log("this is the vlocnj", block)
       const menuPlaceholders = cesdkInstance?.current.engine.block.findByName("menu_placeholder")
       // console.log(cesdkInstance?.current.engine.block.findByName("menu_placeholder"))
-      for (let i = 0; i < menuPlaceholders.length - 1; i++) {
+      for (let i = 0; i < menuPlaceholders.length; i++) {
         let element = menuPlaceholders[i]
         console.log(element, block)
         cesdkInstance?.current.engine.block.appendChild(element, block[0])
@@ -1147,7 +1148,7 @@ const Editor = ({
         // cesdkInstance?.current.engine.block.setPositionX(block2[0], cesdkInstance?.current.engine.block.getPositionX(element))
         // cesdkInstance?.current.engine.block.setPositionY(block2[0], cesdkInstance?.current.engine.block.getPositionY(element))
         // console.log(cesdkInstance?.current.engine.block.getPositionX(element), cesdkInstance?.current.engine.block.getPositionY(element))
-
+        console.log(cesdkInstance?.current.engine.block.findAll())
       }
       // debugger
       // const childrenList =
@@ -1177,6 +1178,7 @@ const Editor = ({
       setinput(input + 1);
       return block[0];
     } catch (error) {
+      setMenuInjected(false)
       console.log("error", error);
     }
   };
@@ -1229,8 +1231,19 @@ const Editor = ({
 
     return () => clearInterval(intervalId);
   }, []);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      changeCustomComponentTitle();
+    }, 100);
+    setMenuInjected(false)
+    return () => clearInterval(intervalId);
+  }, []);
   setTimeout(() => {
-    injectMenuIntoCanvas();
+    console.log(menuInjected)
+    if (!menuInjected) {
+      injectMenuIntoCanvas();
+      setMenuInjected(true)
+    }
   }, 1000);
   return (
     <div onClick={() => setinput(input + 1)}>
