@@ -840,9 +840,9 @@ const Editor = ({
       listChildren?.appendChild(newElement);
     }
   };
-  setTimeout(() => {
+  useEffect(() => {
     addDishSideSection();
-  }, 300);
+  }, [cesdkInstance?.current]);
 
 
   function translateToAssetResult(image: any) {
@@ -1130,20 +1130,23 @@ const Editor = ({
     try {
       const firstPage = await getCurrentSelectedPage(cesdkInstance?.current);
       // console.log(await saveMenuToLibrary())
-      const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
       // const block2 = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
       // console.log("this is the vlocnj", block)
       const menuPlaceholders = cesdkInstance?.current.engine.block.findByName("menu_placeholder")
       // console.log(cesdkInstance?.current.engine.block.findByName("menu_placeholder"))
       for (let i = 0; i < menuPlaceholders.length; i++) {
         let element = menuPlaceholders[i]
+        const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
         console.log(element, block)
         cesdkInstance?.current.engine.block.appendChild(element, block[0])
         // cesdkInstance?.current.engine.block.appendChild(element, block2[0])
         // cesdkInstance?.current.engine.block.setPositionX(block[0], cesdkInstance?.current.engine.block.getPositionX(element))
         // cesdkInstance?.current.engine.block.setPositionY(block[0], cesdkInstance?.current.engine.block.getPositionY(element))
-        cesdkInstance?.current.engine.block.setPositionX(block[0], 0)
+        cesdkInstance?.current.engine.block.setPositionX(block[0], 0.05)
         cesdkInstance?.current.engine.block.setPositionY(block[0], 0)
+
+        cesdkInstance?.current.engine.block.setFillEnabled(element, false)
+        cesdkInstance?.current.engine.block.setStrokeEnabled(element, false)
         // debugger
         // cesdkInstance?.current.engine.block.setPositionX(block2[0], cesdkInstance?.current.engine.block.getPositionX(element))
         // cesdkInstance?.current.engine.block.setPositionY(block2[0], cesdkInstance?.current.engine.block.getPositionY(element))
@@ -1238,13 +1241,12 @@ const Editor = ({
     setMenuInjected(false)
     return () => clearInterval(intervalId);
   }, []);
-  setTimeout(() => {
-    console.log(menuInjected)
+  useEffect(() => {
     if (!menuInjected) {
       injectMenuIntoCanvas();
       setMenuInjected(true)
     }
-  }, 1000);
+  }, [cesdkInstance?.current]);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
