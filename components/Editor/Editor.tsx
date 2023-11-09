@@ -427,6 +427,27 @@ const Editor = ({
             user,
             template?.id
           );
+          console.log(cesdkInstance.current)
+
+          // If there is a scene and layout, we will duplicate the first page, one for each element in layout
+          const scene = await cesdkInstance.current.engine.scene.get()
+          if (scene && layout) {
+            const editor = cesdkInstance.current.engine.block;
+            const existingPages = editor.findByType("page")
+            const pageWidth = editor.getWidth(existingPages[0])
+            const pageHeight = editor.getHeight(existingPages[0])
+            const numPages = layout?.content.length
+            for (let i = 0; i < numPages - 1; i++) {
+              const page = cesdkInstance.current.engine.block.duplicate(existingPages[0]);
+              editor.setWidth(page, pageWidth)
+              editor.setHeight(page, pageHeight)
+              editor.appendChild(3, page); // this should be REFACTORED, it is hard coded because there is oddly a scene inside of a scene. I don't think this is implemented properly
+            }
+
+
+            // console.log("current block: ", cesdkInstance.current.engine.scene.getPages())
+            // console.log("after: ", cesdkInstance.current.engine.block.getChildren(3))
+          }
           if (user?.role === "flapjack") {
             setlibraryElements(configData?.libraryElements);
             configData?.ElementsSectionList?.forEach(async (element: any) => {
@@ -1133,25 +1154,31 @@ const Editor = ({
       // const block2 = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
       // console.log("this is the vlocnj", block)
       const menuPlaceholders = cesdkInstance?.current.engine.block.findByName("menu_placeholder")
+      const menuContent = layout?.content
+      const pages = cesdkInstance?.current.engine.block.getChildren(3);
+      console.log(pages.length)
       // console.log(cesdkInstance?.current.engine.block.findByName("menu_placeholder"))
-      for (let i = 0; i < menuPlaceholders.length; i++) {
-        let element = menuPlaceholders[i]
-        const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
-        console.log(element, block)
-        cesdkInstance?.current.engine.block.appendChild(element, block[0])
+      for (let i = 0; i < pages.length; i++) {
+        const pageChildren = cesdkInstance?.current.engine.block.getChildren(pages[i]);
+        const placeholdersOnPage = pageChildren.filter((item: number) => menuPlaceholders.includes(item))
+        // let element = menuPlaceholders[i]
+        for (let n = 0; n < placeholdersOnPage.length; n++) {
+          const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[i]);
+          // console.log(element, block)
+          cesdkInstance?.current.engine.block.appendChild(placeholdersOnPage[n], block[0])
+          cesdkInstance?.current.engine.block.setPositionX(block[0], 0.05)
+          cesdkInstance?.current.engine.block.setPositionY(block[0], 0)
+          cesdkInstance?.current.engine.block.setFillEnabled(placeholdersOnPage[n], false)
+          cesdkInstance?.current.engine.block.setStrokeEnabled(placeholdersOnPage[n], false)
+        }
+        // console.log(cesdkInstance?.current.engine.block.findAll())
         // cesdkInstance?.current.engine.block.appendChild(element, block2[0])
         // cesdkInstance?.current.engine.block.setPositionX(block[0], cesdkInstance?.current.engine.block.getPositionX(element))
         // cesdkInstance?.current.engine.block.setPositionY(block[0], cesdkInstance?.current.engine.block.getPositionY(element))
-        cesdkInstance?.current.engine.block.setPositionX(block[0], 0.05)
-        cesdkInstance?.current.engine.block.setPositionY(block[0], 0)
-
-        cesdkInstance?.current.engine.block.setFillEnabled(element, false)
-        cesdkInstance?.current.engine.block.setStrokeEnabled(element, false)
         // debugger
         // cesdkInstance?.current.engine.block.setPositionX(block2[0], cesdkInstance?.current.engine.block.getPositionX(element))
         // cesdkInstance?.current.engine.block.setPositionY(block2[0], cesdkInstance?.current.engine.block.getPositionY(element))
         // console.log(cesdkInstance?.current.engine.block.getPositionX(element), cesdkInstance?.current.engine.block.getPositionY(element))
-        console.log(cesdkInstance?.current.engine.block.findAll())
       }
       // debugger
       // const childrenList =
