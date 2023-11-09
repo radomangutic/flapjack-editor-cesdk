@@ -34,7 +34,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     )
     .eq("menu_id", context?.params?.id?.[0]);
 
-  console.log(data, "this is an error")
+  // console.log(data, "this is an error")
   const { data: layout } = await supabase
     .from("templates")
     .select(

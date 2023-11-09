@@ -10,7 +10,7 @@ export async function getEditorData(context: GetServerSidePropsContext) {
     const { data } = await supabase
       .from("templates")
       .select(
-        "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id, location"
+        "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id, location, printPreview"
       )
       .eq("id", context?.params?.id);
 

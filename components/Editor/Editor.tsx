@@ -291,25 +291,30 @@ const Editor = ({
       callbacks: {
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
-          setUserData((user: any) => {
-            if (isAbleToExport) {
-              isAbleToExport = false;
-              if (user) {
-                console.log("template", template);
+          if (template?.printPreview) {
+            saveMenuToLibrary()
+            window.open(`/menu/printpreview/${template.id}/${template.printPreview}`)
+          } else {
+            setUserData((user: any) => {
+              if (isAbleToExport) {
+                isAbleToExport = false;
+                if (user) {
+                  console.log("template", template);
 
-                downloadBlobFile(
-                  blobs?.[0],
-                  removeSpecialCharacters(template?.name) || ""
-                );
-              } else {
-                openAuthDialog();
+                  downloadBlobFile(
+                    blobs?.[0],
+                    removeSpecialCharacters(template?.name) || ""
+                  );
+                } else {
+                  openAuthDialog();
+                }
+                setTimeout(() => {
+                  isAbleToExport = true;
+                }, 1000);
               }
-              setTimeout(() => {
-                isAbleToExport = true;
-              }, 1000);
-            }
-            return user;
-          });
+              return user;
+            });
+          }
         },
         onUpload: async (file: any) => {
           try {
@@ -1124,7 +1129,8 @@ const Editor = ({
   };
   const injectMenuIntoCanvas = async () => {
     try {
-      const menuPlaceholders = cesdkInstance?.current.engine.block.findByName("menu_placeholder")
+      const menuPlaceholders = await cesdkInstance?.current?.engine?.block.findByName("menu_placeholder")
+      // console.log("menu placeholders, ", menuPlaceholders)
       const pages = cesdkInstance?.current.engine.block.getChildren(3);
       for (let i = 0; i < pages.length; i++) {
         const pageChildren = cesdkInstance?.current.engine.block.getChildren(pages[i]);
@@ -1138,6 +1144,7 @@ const Editor = ({
           cesdkInstance?.current.engine.block.setStrokeEnabled(placeholdersOnPage[n], false)
         }
       }
+      // debugger
     } catch (error) {
       setMenuInjected(false)
       console.log("error", error);
