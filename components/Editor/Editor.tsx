@@ -427,11 +427,10 @@ const Editor = ({
             user,
             template?.id
           );
-          console.log(cesdkInstance.current)
 
           // If there is a scene and layout, we will duplicate the first page, one for each element in layout
           const scene = await cesdkInstance.current.engine.scene.get()
-          if (scene && layout) {
+          if (scene && layout && router.pathname.includes("printpreview/")) {
             const editor = cesdkInstance.current.engine.block;
             const existingPages = editor.findByType("page")
             const pageWidth = editor.getWidth(existingPages[0])
@@ -443,10 +442,6 @@ const Editor = ({
               editor.setHeight(page, pageHeight)
               editor.appendChild(3, page); // this should be REFACTORED, it is hard coded because there is oddly a scene inside of a scene. I don't think this is implemented properly
             }
-
-
-            // console.log("current block: ", cesdkInstance.current.engine.scene.getPages())
-            // console.log("after: ", cesdkInstance.current.engine.block.getChildren(3))
           }
           if (user?.role === "flapjack") {
             setlibraryElements(configData?.libraryElements);
@@ -1097,9 +1092,7 @@ const Editor = ({
       setlibraryLoading(false);
     }
   };
-  function removeValuesFromArrayA(arrayA: number[], arrayB: number[]) {
-    return arrayA.filter((item: number) => !arrayB.includes(item));
-  }
+
   const saveMenuToLibrary = async () => {
     // input is a page id, output is a group id of all the components within the page
     async function groupComponents(page: string) {
@@ -1113,27 +1106,9 @@ const Editor = ({
 
     }
     try {
-      // setlibraryLoading(true);
-      // console.log(cesdkInstance?.current?.engine.scene.getPages())
       const pageBlocks = cesdkInstance?.current?.engine.scene.getPages()
       const pageGroups = Promise.all(pageBlocks.map(async (page: string) => await groupComponents(page)))
       setPreviewContent(await pageGroups)
-      console.log(pageGroups)
-      // const allBlocks =
-      //   cesdkInstance?.current.engine?.block?.findAll();
-      // const arrayB = [1, 2, 3, ...pageBlocks];
-      // const menuBlocks = removeValuesFromArrayA(allBlocks, arrayB)
-      // console.log(allBlocks.filter((item: number) => !arrayB.includes(item)))
-      // console.log(pageBlocks, allBlocks, menuBlocks)
-
-      // const group = cesdkInstance?.current?.engine.block.group(menuBlocks)
-      // const saveAbleId = isGroupable ? [group] : selectedIds;
-      // const savedBlocks =
-      //   await cesdkInstance?.current.engine.block.saveToString(group);
-      // console.log(menuBlocks)
-      // console.log(cesdkInstance?.current?.engine.scene.getPages())
-      // setPreviewContent(savedBlocks)
-      // return (savedBlocks)
       const value = await cesdkInstance?.current.save();
       if (user) {
         saveTemplate(value);
@@ -1149,64 +1124,20 @@ const Editor = ({
   };
   const injectMenuIntoCanvas = async () => {
     try {
-      const firstPage = await getCurrentSelectedPage(cesdkInstance?.current);
-      // console.log(await saveMenuToLibrary())
-      // const block2 = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[0]);
-      // console.log("this is the vlocnj", block)
       const menuPlaceholders = cesdkInstance?.current.engine.block.findByName("menu_placeholder")
-      const menuContent = layout?.content
       const pages = cesdkInstance?.current.engine.block.getChildren(3);
-      console.log(pages.length)
-      // console.log(cesdkInstance?.current.engine.block.findByName("menu_placeholder"))
       for (let i = 0; i < pages.length; i++) {
         const pageChildren = cesdkInstance?.current.engine.block.getChildren(pages[i]);
         const placeholdersOnPage = pageChildren.filter((item: number) => menuPlaceholders.includes(item))
-        // let element = menuPlaceholders[i]
         for (let n = 0; n < placeholdersOnPage.length; n++) {
           const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[i]);
-          // console.log(element, block)
           cesdkInstance?.current.engine.block.appendChild(placeholdersOnPage[n], block[0])
           cesdkInstance?.current.engine.block.setPositionX(block[0], 0.05)
           cesdkInstance?.current.engine.block.setPositionY(block[0], 0)
           cesdkInstance?.current.engine.block.setFillEnabled(placeholdersOnPage[n], false)
           cesdkInstance?.current.engine.block.setStrokeEnabled(placeholdersOnPage[n], false)
         }
-        // console.log(cesdkInstance?.current.engine.block.findAll())
-        // cesdkInstance?.current.engine.block.appendChild(element, block2[0])
-        // cesdkInstance?.current.engine.block.setPositionX(block[0], cesdkInstance?.current.engine.block.getPositionX(element))
-        // cesdkInstance?.current.engine.block.setPositionY(block[0], cesdkInstance?.current.engine.block.getPositionY(element))
-        // debugger
-        // cesdkInstance?.current.engine.block.setPositionX(block2[0], cesdkInstance?.current.engine.block.getPositionX(element))
-        // cesdkInstance?.current.engine.block.setPositionY(block2[0], cesdkInstance?.current.engine.block.getPositionY(element))
-        // console.log(cesdkInstance?.current.engine.block.getPositionX(element), cesdkInstance?.current.engine.block.getPositionY(element))
       }
-      // debugger
-      // const childrenList =
-      //   await cesdkInstance?.current.engine.block.getChildren(block[0]);
-      // childrenList.forEach((element: any) => {
-      //   const getName = cesdkInstance?.current.engine.block.getName(element);
-      //   if (getName === "title") {
-      //     cesdkInstance?.current.engine.block.replaceText(element, dish?.title);
-      //   } else if (getName === "price") {
-      //     cesdkInstance?.current.engine.block.replaceText(element, dish?.price);
-      //   } else {
-      //     cesdkInstance?.current.engine.block.replaceText(
-      //       element,
-      //       dish?.description
-      //     );
-      //   }
-      // });
-      // console.log(childrenList)
-      // cesdkInstance?.current.engine.block.setName(
-      //   block[0],
-      //   `dish_${dish?.id?.toString()}`
-      // );
-      // await cesdkInstance?.current.engine.block.appendChild(
-      //   firstPage,
-      //   block[0]
-      // );
-      // setinput(input + 1);
-      // return block[0];
     } catch (error) {
       setMenuInjected(false)
       console.log("error", error);
