@@ -20,7 +20,7 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={layout} user={user} />
+      <Editor template={layout} layout={data} user={user} preview />
     </>
   );
 };
