@@ -26,7 +26,7 @@ const Menu = ({
 
   return (
     <>
-      <Editor template={data} restaurantList={restaurantList} user={user} />
+      <Editor template={data} restaurantList={restaurantList} user={user} allowExport={true} />
     </>
   );
 };

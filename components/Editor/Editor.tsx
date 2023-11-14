@@ -294,9 +294,10 @@ const Editor = ({
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
           if (template?.printPreview) {
-            saveMenuToLibrary()
+            // if a there is a printPreview id set for this row, open the print preview
             window.open(`/menu/printpreview/${template.id}/${template.printPreview}`)
           } else {
+            // otherwise, download as usual
             setUserData((user: any) => {
               if (isAbleToExport) {
                 isAbleToExport = false;
@@ -372,12 +373,13 @@ const Editor = ({
         },
         onSave: (scene: any) => {
           let isAbleToUpdate = true;
-          saveMenuToLibrary()
           setUserData((user: any) => {
             if (isAbleToUpdate) {
               isAbleToUpdate = false;
               if (user) {
                 saveTemplate(scene);
+                if (template?.printPreview)
+                  saveMenuToLibrary()
               } else {
                 openAuthDialog();
               }
@@ -1100,6 +1102,10 @@ const Editor = ({
     }
   };
 
+  /**
+   * This function saves each page of a menu as a string and stores them as an array of pages.
+   * Currently, it is primarily used for the menu preview feature.
+   */
   const saveMenuToLibrary = async () => {
     // input is a page id, output is a group id of all the components within the page
     async function groupComponents(page: string) {
@@ -1107,7 +1113,7 @@ const Editor = ({
       if (cesdkInstance?.current.engine?.block?.isGroupable(childrenOfPage)) {
         const group = cesdkInstance?.current?.engine.block.group(childrenOfPage);
         const savedBlock = await cesdkInstance?.current.engine.block.saveToString([group]);
-        console.log(savedBlock)
+        // console.log(savedBlock)
         return (savedBlock)
       }
 
@@ -1122,13 +1128,22 @@ const Editor = ({
       } else {
         openAuthDialog();
       }
-      toast.success("Component has been saved! test");
+      // toast.success("Component has been saved! test");
     } catch (error) {
       console.log("error", error);
     } finally {
       setlibraryLoading(false);
     }
   };
+
+  /** 
+   * This function is used for the print preview feature. It has a few steps:
+   * 1. It gets all the components in the canvas that are named menu_placeholder
+   * 2. It adds the proper number of pages to the document
+   * 3. It appends the proper menu page to the menu_placeholder component
+   * 4. It hides the menu_placeholder components
+  */
+
   const injectMenuIntoCanvas = async () => {
     try {
       const menuPlaceholders = await cesdkInstance?.current?.engine?.block.findByName("menu_placeholder")
@@ -1208,6 +1223,8 @@ const Editor = ({
     setMenuInjected(false)
     return () => clearInterval(intervalId);
   }, []);
+
+  // this useEffect handles the page preview injection on page load
   useEffect(() => {
     if (!menuInjected) {
       injectMenuIntoCanvas();

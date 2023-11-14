@@ -14,7 +14,7 @@ import { useForm } from "@mantine/form";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { getUser, templateArchive, useUser } from "../hooks";
-import { ITemplate } from "../interfaces";
+import { ITemplate, ITemplateDetails } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
 import { IconPhotoPlus } from "@tabler/icons";
@@ -25,7 +25,7 @@ import { removeSpecialCharacters } from "../helpers/CommonFunctions";
 interface IUpsertTemplateDialogProps {
   opened: boolean;
   onClose: () => void;
-  template?: ITemplate | null;
+  template?: ITemplateDetails | null;
   content: any;
   previewContent?: Promise<string>[];
   restaurantsOptions: any;
@@ -105,10 +105,13 @@ const UpsertTemplateDialog = ({
           })
           .eq("id", template?.id);
 
-        await supabase
-          .from('menu_preview')
-          .upsert({ content: previewContent, menu_id: template?.id }, { onConflict: 'menu_id' })
-          .select()
+        // only if there is a printPreview id assigned, you should add a row to keep track of the menu components
+        if (template?.printPreview) {
+          await supabase
+            .from('menu_preview')
+            .upsert({ content: previewContent, menu_id: template?.id }, { onConflict: 'menu_id' })
+            .select()
+        }
 
         if (error) {
           return;

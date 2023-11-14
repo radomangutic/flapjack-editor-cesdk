@@ -5,6 +5,11 @@ import Editor from "../../../components/Editor/Editor";
 import PrivatePage from "../../../components/PrivatePage/PrivatePage";
 import { getLogedInUser } from "../../../tests/helpers/database.helper";
 
+/**
+ * This route is used as a "print preview" that allows the user to see what their menu will look before downloading it.
+ * It is used primarily for laying out several menus onto a single page.
+ */
+
 const Menu = ({
   data,
   layout,
