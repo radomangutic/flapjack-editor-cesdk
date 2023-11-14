@@ -48,12 +48,14 @@ const Editor = ({
   preview,
   restaurantList,
   user,
+  allowExport
 }: {
   template: ITemplateDetails | null;
   layout?: ITemplateDetails | null;
   preview?: boolean;
   restaurantList?: any;
   user: IUserDetails;
+  allowExport?: boolean;
 }) => {
   const cesdkContainer = useRef<any>(null);
   const cesdkInstance = useRef<any>(null);
@@ -231,7 +233,7 @@ const Editor = ({
           navigation: {
             action: {
               export: {
-                show: preview ? false : true,
+                show: allowExport ? true : false,
                 format: ["application/pdf"],
                 onclick: () => alert("Download"),
               },

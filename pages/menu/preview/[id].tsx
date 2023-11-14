@@ -18,7 +18,7 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={data} preview user={user} />
+      <Editor template={data} preview user={user} allowExport={false} />
     </>
   );
 };
