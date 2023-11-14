@@ -48,7 +48,7 @@ const Editor = ({
   preview,
   restaurantList,
   user,
-  allowExport
+  allowExport,
   loader,
   setloader
 }: {

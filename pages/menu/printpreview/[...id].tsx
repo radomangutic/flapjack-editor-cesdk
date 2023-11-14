@@ -4,6 +4,7 @@ import { ITemplateDetails, IUserDetails } from "../../../interfaces";
 import Editor from "../../../components/Editor/Editor";
 import PrivatePage from "../../../components/PrivatePage/PrivatePage";
 import { getLogedInUser } from "../../../tests/helpers/database.helper";
+import { useState } from 'react'
 
 /**
  * This route is used as a "print preview" that allows the user to see what their menu will look before downloading it.
@@ -20,12 +21,13 @@ const Menu = ({
   user: IUserDetails;
   layout: any;
 }) => {
+  const [loader, setloader] = useState(false);
   if (!data) {
     return <PrivatePage text="The dog ate this menu!" />;
   }
   return (
     <>
-      <Editor template={layout} layout={data} user={user} allowExport={true} preview />
+      <Editor template={layout} layout={data} user={user} allowExport={true} preview loader={loader} setloader={setloader} />
     </>
   );
 };
