@@ -5,18 +5,23 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/templates',
+        source: "/",
+        destination: "/templates",
         permanent: true,
       },
-    ]
+    ];
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'oobtxuazqbzntvhmvjtj.supabase.co',
-        port: ''
+        protocol: "https",
+        hostname: "oobtxuazqbzntvhmvjtj.supabase.co",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "wmdpmyvxnuwqtdivtjij.supabase.co",
+        port: "",
       },
     ],
   },
@@ -25,19 +30,18 @@ const nextConfig = {
     PRODUCT_PRICE_ID: process.env.PRODUCT_PRICE_ID,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     REACT_APP_LICENSE: process.env.REACT_APP_LICENSE,
-    TWILLO_PHONE:process.env.TWILLO_PHONE,
-    SENTRY_DSN_KEY:process.env.SENTRY_DSN_KEY,
-    SITE_DOMAIN:process.env.SITE_DOMAIN,
-    TWILIO_ACCOUNT_SID:process.env.TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN:process.env.TWILIO_AUTH_TOKEN,
+    TWILLO_PHONE: process.env.TWILLO_PHONE,
+    SENTRY_DSN_KEY: process.env.SENTRY_DSN_KEY,
+    SITE_DOMAIN: process.env.SITE_DOMAIN,
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
   },
   compiler: {
     removeConsole: false,
-  }
-}
+  },
+};
 
-module.exports = nextConfig
-
+module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 

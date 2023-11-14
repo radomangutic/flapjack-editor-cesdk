@@ -34,7 +34,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
     return <PrivatePage />;
   }
 
- 
+
   const onRemove = async () => {
     if (!selectedUser || !supabase) return;
     setisLoading(true);
@@ -61,7 +61,7 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
     setmodalType("empty");
     setselectedUser(null);
   };
-  
+
   return (
     <Paper bg={"white"} mih={"100vh"}>
       <Container size="xl" pt={10}>
@@ -153,11 +153,12 @@ export default Dashboard;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
-  // Fetch user profiles from Supabase where id matches
+  // Fetch user profiles from Supabase sorted by creation date, filter out users not assigned to a restaurant
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .neq("restaurant_id", null);
 
   return {
     props: {

@@ -1,12 +1,20 @@
 import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { IconChevronDown, IconLogout, IconMail, IconSettings } from "@tabler/icons";
-import { useDialog, useSetUser, useUser, } from "../hooks";
+import {
+  IconChevronDown,
+  IconLogout,
+  IconMail,
+  IconSettings,
+} from "@tabler/icons";
+import { useDialog, useSetUser, useUser } from "../hooks";
 import AuthDialog from "./AuthDialog";
 import Link from "next/link";
 import { useRouter } from "next/router";
-
-const AppHeader = () => {
+import { toast } from "react-toastify";
+interface Props {
+  loader?: boolean;
+}
+const AppHeader = ({ loader }: Props) => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useUser();
   const setUser = useSetUser();
@@ -22,7 +30,15 @@ const AppHeader = () => {
       >
         <Box
           sx={{ cursor: "pointer" }}
-          onClick={() => router.push("/templates")}
+          onClick={(e) => {
+            e.preventDefault();
+            if (loader) {
+              toast.warn("Please wait until this menu finishes saving. We will notify you when it is safe to leave the page.",
+                { hideProgressBar: true, autoClose: 5000 });
+            } else {
+              router.push("/templates");
+            }
+          }}
         >
           <Flex align="center" style={{ cursor: "pointer" }}>
             <svg
