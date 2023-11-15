@@ -6,13 +6,20 @@ import PrivatePage from "../../../components/PrivatePage/PrivatePage";
 import { getLogedInUser } from "../../../tests/helpers/database.helper";
 import { useState } from 'react'
 
+/**
+ * This route is used as a "print preview" that allows the user to see what their menu will look before downloading it.
+ * It is used primarily for laying out several menus onto a single page.
+ */
+
 const Menu = ({
   data,
+  layout,
   user,
 }: {
   data: ITemplateDetails;
   images: string[];
   user: IUserDetails;
+  layout: any;
 }) => {
   const [loader, setloader] = useState(false);
   if (!data) {
@@ -20,22 +27,29 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={data} preview user={user} loader={loader} setloader={setloader} allowExport={false}/>
+      <Editor template={layout} layout={data} user={user} allowExport={true} preview loader={loader} setloader={setloader} />
     </>
   );
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createServerSupabaseClient(context);
   const logedInUser = await getLogedInUser(context);
+  // console.log(context.params)
+  const { data, error } = await supabase
+    .from("menu_preview")
+    .select("*"
+    )
+    .eq("menu_id", context?.params?.id?.[0]);
 
-  const { data } = await supabase
+  // console.log(data, "this is an error")
+  const { data: layout } = await supabase
     .from("templates")
     .select(
       "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
-    .eq("id", context?.params?.id);
+    .eq("id", context?.params?.id?.[1]);
 
-  const { data: images, error } = await supabase.storage
+  const { data: images } = await supabase.storage
     .from("renderings")
     .list(`${context?.params?.id}`, {
       limit: 6,
@@ -56,6 +70,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       data: data ? data[0] : null,
+      layout: layout ? layout[0] : null,
       images: imageUrls,
       user: logedInUser,
     }, // will be passed to the page component as props
