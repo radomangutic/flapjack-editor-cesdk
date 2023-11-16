@@ -32,7 +32,7 @@ const Menu = ({
   return (
     <>
       <AppHeader loader={loader} />
-      <Editor template={data} loader={loader} setloader={setloader} restaurantList={restaurantList} user={user} />
+      <Editor template={data} loader={loader} setloader={setloader} restaurantList={restaurantList} user={user} allowExport={true}/>
     </>
   );
 };

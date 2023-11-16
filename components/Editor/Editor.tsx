@@ -44,16 +44,20 @@ const customComponent = {
 };
 const Editor = ({
   template,
+  layout,
   preview,
   restaurantList,
   user,
+  allowExport,
   loader,
   setloader
 }: {
   template: ITemplateDetails | null;
+  layout?: ITemplateDetails | null;
   preview?: boolean;
   restaurantList?: any;
   user: IUserDetails;
+  allowExport?: boolean;
   loader: boolean;
   setloader: (value: boolean) => void;
 }) => {
@@ -63,6 +67,7 @@ const Editor = ({
   const supabase = useSupabaseClient();
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
+  const [previewContent, setPreviewContent] = useState<Promise<string>[]>([]);
   const [userData, setUserData] = useState<any>(getUser());
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
@@ -78,6 +83,7 @@ const Editor = ({
   const [libraryLoading, setlibraryLoading] = useState(false);
   const [libraryElements, setlibraryElements] = useState<any>();
   const [usedComponenets, setusedComponenets] = useState<any>([]);
+  const [menuInjected, setMenuInjected] = useState<boolean>(false);
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -231,7 +237,7 @@ const Editor = ({
           navigation: {
             action: {
               export: {
-                show: preview ? false : true,
+                show: allowExport ? true : false,
                 format: ["application/pdf"],
                 onclick: () => alert("Download"),
               },
@@ -281,7 +287,7 @@ const Editor = ({
                       icon: ({ theme, iconSize }: any) => {
                         return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
                       },
-                    } : {},
+                    } : {}
                 ];
               },
             },
@@ -291,25 +297,31 @@ const Editor = ({
       callbacks: {
         onExport: async (blobs: any) => {
           let isAbleToExport = true;
-          setUserData((user: any) => {
-            if (isAbleToExport) {
-              isAbleToExport = false;
-              if (user) {
-                console.log("template", template);
+          if (template?.printPreview) {
+            // if a there is a printPreview id set for this row, open the print preview
+            window.open(`/menu/printpreview/${template.id}/${template.printPreview}`)
+          } else {
+            // otherwise, download as usual
+            setUserData((user: any) => {
+              if (isAbleToExport) {
+                isAbleToExport = false;
+                if (user) {
+                  console.log("template", template);
 
-                downloadBlobFile(
-                  blobs?.[0],
-                  removeSpecialCharacters(template?.name) || ""
-                );
-              } else {
-                openAuthDialog();
+                  downloadBlobFile(
+                    blobs?.[0],
+                    removeSpecialCharacters(template?.name) || ""
+                  );
+                } else {
+                  openAuthDialog();
+                }
+                setTimeout(() => {
+                  isAbleToExport = true;
+                }, 1000);
               }
-              setTimeout(() => {
-                isAbleToExport = true;
-              }, 1000);
-            }
-            return user;
-          });
+              return user;
+            });
+          }
         },
         onUpload: async (file: any) => {
           try {
@@ -370,6 +382,8 @@ const Editor = ({
               isAbleToUpdate = false;
               if (user) {
                 saveTemplate(scene);
+                if (template?.printPreview)
+                  saveMenuToLibrary()
               } else {
                 openAuthDialog();
               }
@@ -426,6 +440,22 @@ const Editor = ({
             user,
             template?.id
           );
+
+          // If there is a scene and layout, we will duplicate the first page, one for each element in layout
+          const scene = await cesdkInstance.current.engine.scene.get()
+          if (scene && layout && router.pathname.includes("printpreview/")) {
+            const editor = cesdkInstance.current.engine.block;
+            const existingPages = editor.findByType("page")
+            const pageWidth = editor.getWidth(existingPages[0])
+            const pageHeight = editor.getHeight(existingPages[0])
+            const numPages = layout?.content.length
+            for (let i = 0; i < numPages - 1; i++) {
+              const page = cesdkInstance.current.engine.block.duplicate(existingPages[0]);
+              editor.setWidth(page, pageWidth)
+              editor.setHeight(page, pageHeight)
+              editor.appendChild(3, page); // this should be REFACTORED, it is hard coded because there is oddly a scene inside of a scene. I don't think this is implemented properly
+            }
+          }
           if (user?.role === "flapjack") {
             setlibraryElements(configData?.libraryElements);
             configData?.ElementsSectionList?.forEach(async (element: any) => {
@@ -542,6 +572,7 @@ const Editor = ({
       );
     }
   };
+
   useEffect(() => {
     const getOptions = async () => {
       const options: any = await fetchResturants();
@@ -758,7 +789,6 @@ const Editor = ({
         addElement.appendChild(newLi);
       }
     };
-
     setTimeout(() => {
       removeDelayedItems();
     }, 150);
@@ -766,6 +796,84 @@ const Editor = ({
       removeElement();
     }, 20);
   }, [input, libraryLoading]);
+
+  const design = {
+    value:
+      "UBQ1ewoiZm9ybWF0IjogIi8vbHkuaW1nLmNlc2RrL2VsZW1lbnRzIiwKInZlcnNpb24iOiAiMS4wLjAiLAoiZGVzaWduRWxlbWVudHMiOiB7CiJkZXNpZ25FbGVtZW50cyI6IFsKewoiZW50aXR5IjogNDA0NzUwMzczLAoidXVpZCI6ICJmYTgwZTIxNS04MjNhLTRhNTMtYjZiZC00MDVkOWE4N2NlYjgiLAoiaWQiOiAiLy9seS5pbWcudWJxL2ZpbGwvY29sb3IiLAoiYmFzZV9wcm9wc192ZXJzaW9uIjogMjgsCiJibG9ja19yZW5kZXJfY29ubmVjdGlvbnMiOiBbCjU2NDEzMzkwMQpdLAoiYmxvY2tfY3JlYXRvcl9yb2xlIjogMCwKImJsb2NrX2NvbW1vbiI6IHsKInZlcnNpb24iOiAxLAoibmFtZSI6ICIiLAoiZXhwb3J0YWJsZSI6IHRydWUsCiJhbHdheXNPblRvcCI6IGZhbHNlCn0sCiJkZXNjcmlwdGlvbiI6IHsKInZlcnNpb24iOiAxLAoidmFsdWUiOiAiIgp9LAoibWV0YWRhdGEiOiBbXSwKImhhc19ibG9ja19wbGF5YmFja190aW1lIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxheWJhY2tfY29udHJvbCI6IGZhbHNlLAoiaGFzX2Jsb2NrX2R1cmF0aW9uIjogZmFsc2UsCiJoYXNfYmxvY2tfdGltZV9vZmZzZXQiOiBmYWxzZSwKImhhc19ibG9ja190cmltIjogZmFsc2UsCiJibG9ja19zb2xvX3BsYXliYWNrIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxhY2Vob2xkZXJfY29udHJvbHMiOiBmYWxzZSwKInZlcnNpb24iOiAxLAoidmFsdWUiOiB7CiJ2ZXJzaW9uIjogNCwKImNvbG9yU3BhY2UiOiAwLAoiY29tcG9uZW50cyI6IHsKInZlcnNpb24iOiAxLAoieCI6IDAuOTIwODMzMzQ5MjI3OTA1MywKInkiOiAwLjkyMDgzMzM0OTIyNzkwNTMsCiJ6IjogMC45MjA4MzMzNDkyMjc5MDUzLAoidyI6IDEuMAp9Cn0KfSwKewoiZW50aXR5IjogNTY0MTMzOTAxLAoidXVpZCI6ICI3ZThjYjQyMS1kNTk3LTQwN2UtODMyMy1kMDdlZWQ0NmNlNzMiLAoiaWQiOiAiLy9seS5pbWcudWJxL3NoYXBlcy9yZWN0IiwKImJhc2VfcHJvcHNfdmVyc2lvbiI6IDI4LAoiaGFzX2Jsb2NrX3pfaW5kZXhfdmFsdWUiOiBmYWxzZSwKImJsb2NrX3Bvc2l0aW9uIjogewoidmVyc2lvbiI6IDIsCiJsZWZ0IjogewoidmVyc2lvbiI6IDEsCiJ1bml0IjogMSwKInZhbHVlIjogMC4wCn0sCiJ0b3AiOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAxLAoidmFsdWUiOiAwLjAKfSwKInJpZ2h0IjogewoidmVyc2lvbiI6IDEsCiJ1bml0IjogMCwKInZhbHVlIjogMC4wCn0sCiJib3R0b20iOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAwLAoidmFsdWUiOiAwLjAKfSwKInR5cGUiOiAwCn0sCiJibG9ja19zaXplIjogewoidmVyc2lvbiI6IDEsCiJ3aWR0aCI6IHsKInZlcnNpb24iOiAxLAoidW5pdCI6IDEsCiJ2YWx1ZSI6IDUuNTAwMDAyMzg0MTg1NzkxCn0sCiJoZWlnaHQiOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAxLAoidmFsdWUiOiA4LjQ5OTg5MDMyNzQ1MzYxNAp9Cn0sCiJoYXNfYmxvY2tfbWFyZ2luX3ZhbHVlIjogZmFsc2UsCiJoYXNfYmxvY2tfZGVwdGhfdmFsdWUiOiBmYWxzZSwKImJsb2NrX3JvdGF0aW9uIjogewoidmVyc2lvbiI6IDEsCiJ4IjogMC4wLAoieSI6IDAuMCwKInoiOiAwLjAKfSwKImJsb2NrX3NjYWxlIjogewoidmVyc2lvbiI6IDEsCiJ4IjogMS4wLAoieSI6IDEuMCwKInoiOiAxLjAKfSwKImJsb2NrX2JsZW5kX21vZGUiOiAxLAoiYmxvY2tfc29ydGluZ19vcmRlciI6IDAsCiJoYXNfYmxvY2tfZmlsbF92YWx1ZSI6IHRydWUsCiJibG9ja19maWxsIjogewoidmVyc2lvbiI6IDEsCiJlbmFibGVkIjogdHJ1ZSwKInZhbHVlIjogNDA0NzUwMzczCn0sCiJoYXNfYmxvY2tfZWZmZWN0c192YWx1ZSI6IHRydWUsCiJibG9ja19lZmZlY3RzIjogewoidmVyc2lvbiI6IDEsCiJlZmZlY3RzIjogW10KfSwKImhhc19ibG9ja19ibHVyX3ZhbHVlIjogdHJ1ZSwKImJsb2NrX2JsdXIiOiB7CiJ2ZXJzaW9uIjogMSwKImVuYWJsZWQiOiB0cnVlLAoidmFsdWUiOiA0Mjk0OTY3Mjk1Cn0sCiJibG9ja19jb250ZW50X2ZpbGxfbW9kZSI6IDEsCiJoYXNfYmxvY2tfY3JvcCI6IGZhbHNlLAoiYmxvY2tfc2NvcGVzIjogewoidmVyc2lvbiI6IDEsCiJzY29wZXMiOiB7CiJ2YWx1ZTAiOiB7CiJ2ZXJzaW9uIjogMiwKImRlc2lnbi9zdHlsZSI6IHRydWUsCiJkZXNpZ24vYXJyYW5nZSI6IHRydWUsCiJkZXNpZ24vYXJyYW5nZS9tb3ZlIjogdHJ1ZSwKImRlc2lnbi9hcnJhbmdlL3Jlc2l6ZSI6IHRydWUsCiJkZXNpZ24vYXJyYW5nZS9yb3RhdGUiOiB0cnVlLAoiZGVzaWduL2FycmFuZ2UvZmxpcCI6IHRydWUsCiJjb250ZW50L3JlcGxhY2UiOiB0cnVlLAoibGlmZWN5Y2xlL2Rlc3Ryb3kiOiB0cnVlLAoibGlmZWN5Y2xlL2R1cGxpY2F0ZSI6IHRydWUsCiJlZGl0b3IvaW5zcGVjdCI6IHRydWUsCiJlZGl0b3IvcHJlc2VudCI6IHRydWUsCiJlZGl0b3IvbWFuYWdlUGFnZXMiOiB0cnVlLAoiZWRpdG9yL3NlbGVjdCI6IHRydWUsCiJlZGl0b3Ivem9vbSI6IHRydWUKfSwKInZhbHVlMSI6IHsKInZlcnNpb24iOiAyLAoiZGVzaWduL3N0eWxlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvbW92ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvcmVzaXplIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9yb3RhdGUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL2ZsaXAiOiBmYWxzZSwKImNvbnRlbnQvcmVwbGFjZSI6IGZhbHNlLAoibGlmZWN5Y2xlL2Rlc3Ryb3kiOiBmYWxzZSwKImxpZmVjeWNsZS9kdXBsaWNhdGUiOiBmYWxzZSwKImVkaXRvci9pbnNwZWN0IjogZmFsc2UsCiJlZGl0b3IvcHJlc2VudCI6IGZhbHNlLAoiZWRpdG9yL21hbmFnZVBhZ2VzIjogZmFsc2UsCiJlZGl0b3Ivc2VsZWN0IjogZmFsc2UsCiJlZGl0b3Ivem9vbSI6IGZhbHNlCn0sCiJ2YWx1ZTIiOiB7CiJ2ZXJzaW9uIjogMiwKImRlc2lnbi9zdHlsZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL21vdmUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL3Jlc2l6ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2Uvcm90YXRlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9mbGlwIjogZmFsc2UsCiJjb250ZW50L3JlcGxhY2UiOiBmYWxzZSwKImxpZmVjeWNsZS9kZXN0cm95IjogZmFsc2UsCiJsaWZlY3ljbGUvZHVwbGljYXRlIjogZmFsc2UsCiJlZGl0b3IvaW5zcGVjdCI6IGZhbHNlLAoiZWRpdG9yL3ByZXNlbnQiOiBmYWxzZSwKImVkaXRvci9tYW5hZ2VQYWdlcyI6IGZhbHNlLAoiZWRpdG9yL3NlbGVjdCI6IGZhbHNlLAoiZWRpdG9yL3pvb20iOiBmYWxzZQp9LAoidmFsdWUzIjogewoidmVyc2lvbiI6IDIsCiJkZXNpZ24vc3R5bGUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9tb3ZlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9yZXNpemUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL3JvdGF0ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvZmxpcCI6IGZhbHNlLAoiY29udGVudC9yZXBsYWNlIjogZmFsc2UsCiJsaWZlY3ljbGUvZGVzdHJveSI6IGZhbHNlLAoibGlmZWN5Y2xlL2R1cGxpY2F0ZSI6IGZhbHNlLAoiZWRpdG9yL2luc3BlY3QiOiBmYWxzZSwKImVkaXRvci9wcmVzZW50IjogZmFsc2UsCiJlZGl0b3IvbWFuYWdlUGFnZXMiOiBmYWxzZSwKImVkaXRvci9zZWxlY3QiOiBmYWxzZSwKImVkaXRvci96b29tIjogZmFsc2UKfQp9Cn0sCiJoYXNfZHJvcF9zaGFkb3ciOiB0cnVlLAoiZHJvcF9zaGFkb3ciOiB7CiJ2ZXJzaW9uIjogMSwKImVuYWJsZWQiOiBmYWxzZSwKImNvbG9yIjogewoidmVyc2lvbiI6IDQsCiJjb2xvclNwYWNlIjogMCwKImNvbXBvbmVudHMiOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiAwLjAsCiJ5IjogMC4wLAoieiI6IDAuMCwKInciOiAwLjI1Cn0KfSwKInhPZmZzZXQiOiAxLjc2Nzc2Njk1MjUxNDY0ODUsCiJ5T2Zmc2V0IjogMS43Njc3NjY5NTI1MTQ2NDg1LAoieEJsdXJSYWRpdXMiOiAxLjAsCiJ5Qmx1clJhZGl1cyI6IDEuMCwKImNsaXAiOiBmYWxzZQp9LAoiaGlkZGVuIjogZmFsc2UsCiJjbGlwcGVkIjogZmFsc2UsCiJkaXNhYmxlX3NlbGVjdGlvbiI6IGZhbHNlLAoiaXNfcGxhY2Vob2xkZXIiOiBmYWxzZSwKImlzX3BsYWNlaG9sZGVyX2NvbnRlbnQiOiBmYWxzZSwKImJsb2NrX2NyZWF0b3Jfcm9sZSI6IDAsCiJibG9ja19jb21tb24iOiB7CiJ2ZXJzaW9uIjogMSwKIm5hbWUiOiAiZGlzaF91bmRlZmluZWQiLAoiZXhwb3J0YWJsZSI6IHRydWUsCiJhbHdheXNPblRvcCI6IGZhbHNlCn0sCiJkZXNjcmlwdGlvbiI6IHsKInZlcnNpb24iOiAxLAoidmFsdWUiOiAiIgp9LAoibWV0YWRhdGEiOiBbXSwKImhhc19ibG9ja19wbGF5YmFja190aW1lIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxheWJhY2tfY29udHJvbCI6IGZhbHNlLAoiaGFzX2Jsb2NrX2R1cmF0aW9uIjogZmFsc2UsCiJoYXNfYmxvY2tfdGltZV9vZmZzZXQiOiBmYWxzZSwKImhhc19ibG9ja190cmltIjogZmFsc2UsCiJibG9ja19zb2xvX3BsYXliYWNrIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxhY2Vob2xkZXJfY29udHJvbHMiOiB0cnVlLAoiYmxvY2tfcGxhY2Vob2xkZXJfY29udHJvbHMiOiB7CiJ2ZXJzaW9uIjogMSwKInNob3dPdmVybGF5IjogZmFsc2UsCiJzaG93QnV0dG9uIjogZmFsc2UKfSwKInZlcnNpb24iOiA4LAoib3BhY2l0eSI6IDEuMCwKInN0cm9rZSI6IHsKInZlcnNpb24iOiAxLAoiY29sb3IiOiB7CiJ2ZXJzaW9uIjogNCwKImNvbG9yU3BhY2UiOiAwLAoiY29tcG9uZW50cyI6IHsKInZlcnNpb24iOiAxLAoieCI6IDAuMCwKInkiOiAwLjAsCiJ6IjogMC4wLAoidyI6IDEuMAp9Cn0sCiJ3aWR0aCI6IDAuMDUxMTgxMTUyNDYyOTU5MjksCiJzdHlsZSI6IDAsCiJwb3NpdGlvbiI6IDEsCiJjb3JuZXJHZW9tZXRyeSI6IDEsCiJlbmFibGVkIjogdHJ1ZQp9LAoiZmlsbCI6IHsKInZlcnNpb24iOiAxLAoidmFsdWUiOiB7CiJ2ZXJzaW9uIjogMSwKInR5cGUiOiAwLAoiZGF0YSI6IHsKImluZGV4IjogMCwKImRhdGEiOiB7CiJ2ZXJzaW9uIjogNCwKImNvbG9yU3BhY2UiOiAwLAoiY29tcG9uZW50cyI6IHsKInZlcnNpb24iOiAxLAoieCI6IDAuMCwKInkiOiAwLjAsCiJ6IjogMC4wLAoidyI6IDEuMAp9Cn0KfQp9LAoiZW5hYmxlZCI6IHRydWUKfSwKIm91dGxpbmVDb2xvciI6IHsKInZlcnNpb24iOiA0LAoiY29sb3JTcGFjZSI6IDAsCiJjb21wb25lbnRzIjogewoidmVyc2lvbiI6IDEsCiJ4IjogMC4wLAoieSI6IDAuMCwKInoiOiAwLjAsCiJ3IjogMS4wCn0KfSwKIm91dGxpbmVXaWR0aCI6IDAuMDUxMTgxMTUyNDYyOTU5MjksCiJvdXRsaW5lRW5hYmxlZCI6IHRydWUsCiJjb2xvciI6IHsKInZlcnNpb24iOiA0LAoiY29sb3JTcGFjZSI6IDAsCiJjb21wb25lbnRzIjogewoidmVyc2lvbiI6IDEsCiJ4IjogMC4wLAoieSI6IDAuMCwKInoiOiAwLjAsCiJ3IjogMS4wCn0KfSwKImNvbG9yRW5hYmxlZCI6IHRydWUKfQpdLAoiaGllcmFyY2hpZXMiOiBbCnsKInJvb3QiOiA1NjQxMzM5MDEsCiJjaGlsZHJlbiI6IFtdCn0KXSwKInBhcmVudHMiOiBbCjQKXQp9Cn0=",
+    title:
+      "UBQ1ewoiZm9ybWF0IjogIi8vbHkuaW1nLmNlc2RrL2VsZW1lbnRzIiwKInZlcnNpb24iOiAiMS4wLjAiLAoiZGVzaWduRWxlbWVudHMiOiB7CiJkZXNpZ25FbGVtZW50cyI6IFsKewoiZW50aXR5IjogNzQsCiJ1dWlkIjogImM0OTY0MWY0LTEwNWEtNDdhZS1hZTFhLWNhNjUyNTQyNTRiNyIsCiJpZCI6ICIvL2x5LmltZy51YnEvZmlsbC9jb2xvciIsCiJiYXNlX3Byb3BzX3ZlcnNpb24iOiAyOCwKImJsb2NrX3JlbmRlcl9jb25uZWN0aW9ucyI6IFsKMTY3NzcyMjcKXSwKImJsb2NrX2NyZWF0b3Jfcm9sZSI6IDAsCiJibG9ja19jb21tb24iOiB7CiJ2ZXJzaW9uIjogMSwKIm5hbWUiOiAiIiwKImV4cG9ydGFibGUiOiB0cnVlLAoiYWx3YXlzT25Ub3AiOiBmYWxzZQp9LAoiZGVzY3JpcHRpb24iOiB7CiJ2ZXJzaW9uIjogMSwKInZhbHVlIjogIiIKfSwKIm1ldGFkYXRhIjogW10sCiJoYXNfYmxvY2tfcGxheWJhY2tfdGltZSI6IGZhbHNlLAoiaGFzX2Jsb2NrX3BsYXliYWNrX2NvbnRyb2wiOiBmYWxzZSwKImhhc19ibG9ja19kdXJhdGlvbiI6IGZhbHNlLAoiaGFzX2Jsb2NrX3RpbWVfb2Zmc2V0IjogZmFsc2UsCiJoYXNfYmxvY2tfdHJpbSI6IGZhbHNlLAoiYmxvY2tfc29sb19wbGF5YmFjayI6IGZhbHNlLAoiaGFzX2Jsb2NrX3BsYWNlaG9sZGVyX2NvbnRyb2xzIjogZmFsc2UsCiJ2ZXJzaW9uIjogMSwKInZhbHVlIjogewoidmVyc2lvbiI6IDQsCiJjb2xvclNwYWNlIjogMCwKImNvbXBvbmVudHMiOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiAwLjAsCiJ5IjogMC4wLAoieiI6IDAuMCwKInciOiAxLjAKfQp9Cn0sCnsKImVudGl0eSI6IDE2Nzc3MjI3LAoidXVpZCI6ICIzYjEzMzIwOS1lODdmLTQ0YWYtOGNkMy03YzAxMmVkZWQzYzkiLAoiaWQiOiAiLy9seS5pbWcudWJxL3RleHQiLAoiYmFzZV9wcm9wc192ZXJzaW9uIjogMjgsCiJoYXNfYmxvY2tfel9pbmRleF92YWx1ZSI6IGZhbHNlLAoiYmxvY2tfcG9zaXRpb24iOiB7CiJ2ZXJzaW9uIjogMiwKImxlZnQiOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAxLAoidmFsdWUiOiAwLjE1MjkxMzI3MjM4MDgyODg3Cn0sCiJ0b3AiOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAxLAoidmFsdWUiOiAwLjI0NjgxODM5MzQ2ODg1NjgKfSwKInJpZ2h0IjogewoidmVyc2lvbiI6IDEsCiJ1bml0IjogMCwKInZhbHVlIjogMC4wCn0sCiJib3R0b20iOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAwLAoidmFsdWUiOiAwLjAKfSwKInR5cGUiOiAwCn0sCiJibG9ja19zaXplIjogewoidmVyc2lvbiI6IDEsCiJ3aWR0aCI6IHsKInZlcnNpb24iOiAxLAoidW5pdCI6IDEsCiJ2YWx1ZSI6IDguMDkwMjE0NzI5MzA5MDgyCn0sCiJoZWlnaHQiOiB7CiJ2ZXJzaW9uIjogMSwKInVuaXQiOiAzLAoidmFsdWUiOiAwLjAKfQp9LAoiaGFzX2Jsb2NrX21hcmdpbl92YWx1ZSI6IGZhbHNlLAoiaGFzX2Jsb2NrX2RlcHRoX3ZhbHVlIjogZmFsc2UsCiJibG9ja19yb3RhdGlvbiI6IHsKInZlcnNpb24iOiAxLAoieCI6IDAuMCwKInkiOiAwLjAsCiJ6IjogMC4wCn0sCiJibG9ja19zY2FsZSI6IHsKInZlcnNpb24iOiAxLAoieCI6IDEuMCwKInkiOiAxLjAsCiJ6IjogMS4wCn0sCiJibG9ja19ibGVuZF9tb2RlIjogMSwKImJsb2NrX3NvcnRpbmdfb3JkZXIiOiAwLAoiaGFzX2Jsb2NrX2ZpbGxfdmFsdWUiOiB0cnVlLAoiYmxvY2tfZmlsbCI6IHsKInZlcnNpb24iOiAxLAoiZW5hYmxlZCI6IHRydWUsCiJ2YWx1ZSI6IDc0Cn0sCiJoYXNfYmxvY2tfZWZmZWN0c192YWx1ZSI6IGZhbHNlLAoiaGFzX2Jsb2NrX2JsdXJfdmFsdWUiOiBmYWxzZSwKImJsb2NrX2NvbnRlbnRfZmlsbF9tb2RlIjogMSwKImhhc19ibG9ja19jcm9wIjogZmFsc2UsCiJibG9ja19zY29wZXMiOiB7CiJ2ZXJzaW9uIjogMSwKInNjb3BlcyI6IHsKInZhbHVlMCI6IHsKInZlcnNpb24iOiAyLAoiZGVzaWduL3N0eWxlIjogdHJ1ZSwKImRlc2lnbi9hcnJhbmdlIjogdHJ1ZSwKImRlc2lnbi9hcnJhbmdlL21vdmUiOiB0cnVlLAoiZGVzaWduL2FycmFuZ2UvcmVzaXplIjogdHJ1ZSwKImRlc2lnbi9hcnJhbmdlL3JvdGF0ZSI6IHRydWUsCiJkZXNpZ24vYXJyYW5nZS9mbGlwIjogdHJ1ZSwKImNvbnRlbnQvcmVwbGFjZSI6IHRydWUsCiJsaWZlY3ljbGUvZGVzdHJveSI6IHRydWUsCiJsaWZlY3ljbGUvZHVwbGljYXRlIjogdHJ1ZSwKImVkaXRvci9pbnNwZWN0IjogdHJ1ZSwKImVkaXRvci9wcmVzZW50IjogdHJ1ZSwKImVkaXRvci9tYW5hZ2VQYWdlcyI6IHRydWUsCiJlZGl0b3Ivc2VsZWN0IjogdHJ1ZSwKImVkaXRvci96b29tIjogdHJ1ZQp9LAoidmFsdWUxIjogewoidmVyc2lvbiI6IDIsCiJkZXNpZ24vc3R5bGUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9tb3ZlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9yZXNpemUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL3JvdGF0ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvZmxpcCI6IGZhbHNlLAoiY29udGVudC9yZXBsYWNlIjogZmFsc2UsCiJsaWZlY3ljbGUvZGVzdHJveSI6IGZhbHNlLAoibGlmZWN5Y2xlL2R1cGxpY2F0ZSI6IGZhbHNlLAoiZWRpdG9yL2luc3BlY3QiOiBmYWxzZSwKImVkaXRvci9wcmVzZW50IjogZmFsc2UsCiJlZGl0b3IvbWFuYWdlUGFnZXMiOiBmYWxzZSwKImVkaXRvci9zZWxlY3QiOiBmYWxzZSwKImVkaXRvci96b29tIjogZmFsc2UKfSwKInZhbHVlMiI6IHsKInZlcnNpb24iOiAyLAoiZGVzaWduL3N0eWxlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvbW92ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UvcmVzaXplIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9yb3RhdGUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL2ZsaXAiOiBmYWxzZSwKImNvbnRlbnQvcmVwbGFjZSI6IGZhbHNlLAoibGlmZWN5Y2xlL2Rlc3Ryb3kiOiBmYWxzZSwKImxpZmVjeWNsZS9kdXBsaWNhdGUiOiBmYWxzZSwKImVkaXRvci9pbnNwZWN0IjogZmFsc2UsCiJlZGl0b3IvcHJlc2VudCI6IGZhbHNlLAoiZWRpdG9yL21hbmFnZVBhZ2VzIjogZmFsc2UsCiJlZGl0b3Ivc2VsZWN0IjogZmFsc2UsCiJlZGl0b3Ivem9vbSI6IGZhbHNlCn0sCiJ2YWx1ZTMiOiB7CiJ2ZXJzaW9uIjogMiwKImRlc2lnbi9zdHlsZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2UiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL21vdmUiOiBmYWxzZSwKImRlc2lnbi9hcnJhbmdlL3Jlc2l6ZSI6IGZhbHNlLAoiZGVzaWduL2FycmFuZ2Uvcm90YXRlIjogZmFsc2UsCiJkZXNpZ24vYXJyYW5nZS9mbGlwIjogZmFsc2UsCiJjb250ZW50L3JlcGxhY2UiOiBmYWxzZSwKImxpZmVjeWNsZS9kZXN0cm95IjogZmFsc2UsCiJsaWZlY3ljbGUvZHVwbGljYXRlIjogZmFsc2UsCiJlZGl0b3IvaW5zcGVjdCI6IGZhbHNlLAoiZWRpdG9yL3ByZXNlbnQiOiBmYWxzZSwKImVkaXRvci9tYW5hZ2VQYWdlcyI6IGZhbHNlLAoiZWRpdG9yL3NlbGVjdCI6IGZhbHNlLAoiZWRpdG9yL3pvb20iOiBmYWxzZQp9Cn0KfSwKImhhc19kcm9wX3NoYWRvdyI6IHRydWUsCiJkcm9wX3NoYWRvdyI6IHsKInZlcnNpb24iOiAxLAoiZW5hYmxlZCI6IGZhbHNlLAoiY29sb3IiOiB7CiJ2ZXJzaW9uIjogNCwKImNvbG9yU3BhY2UiOiAwLAoiY29tcG9uZW50cyI6IHsKInZlcnNpb24iOiAxLAoieCI6IDAuMCwKInkiOiAwLjAsCiJ6IjogMC4wLAoidyI6IDAuMjUKfQp9LAoieE9mZnNldCI6IDEuNzY3NzY2OTUyNTE0NjQ4NSwKInlPZmZzZXQiOiAxLjc2Nzc2Njk1MjUxNDY0ODUsCiJ4Qmx1clJhZGl1cyI6IDEuMCwKInlCbHVyUmFkaXVzIjogMS4wLAoiY2xpcCI6IGZhbHNlCn0sCiJoaWRkZW4iOiBmYWxzZSwKImNsaXBwZWQiOiBmYWxzZSwKImRpc2FibGVfc2VsZWN0aW9uIjogZmFsc2UsCiJpc19wbGFjZWhvbGRlciI6IGZhbHNlLAoiaXNfcGxhY2Vob2xkZXJfY29udGVudCI6IGZhbHNlLAoiYmxvY2tfY3JlYXRvcl9yb2xlIjogMCwKImJsb2NrX2NvbW1vbiI6IHsKInZlcnNpb24iOiAxLAoibmFtZSI6ICJzZWNfdGl0bGUiLAoiZXhwb3J0YWJsZSI6IHRydWUsCiJhbHdheXNPblRvcCI6IGZhbHNlCn0sCiJkZXNjcmlwdGlvbiI6IHsKInZlcnNpb24iOiAxLAoidmFsdWUiOiAiIgp9LAoibWV0YWRhdGEiOiBbXSwKImhhc19ibG9ja19wbGF5YmFja190aW1lIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxheWJhY2tfY29udHJvbCI6IGZhbHNlLAoiaGFzX2Jsb2NrX2R1cmF0aW9uIjogZmFsc2UsCiJoYXNfYmxvY2tfdGltZV9vZmZzZXQiOiBmYWxzZSwKImhhc19ibG9ja190cmltIjogZmFsc2UsCiJibG9ja19zb2xvX3BsYXliYWNrIjogZmFsc2UsCiJoYXNfYmxvY2tfcGxhY2Vob2xkZXJfY29udHJvbHMiOiBmYWxzZSwKInZlcnNpb24iOiAxOSwKInRleHQiOiAiV2lsZCBNdXNocm9vbSBhbmQgVHJ1ZmZsZSBSaXNvdHRvIiwKImZvbnRGaWxlVXJpIjogIi9leHRlbnNpb25zL2x5LmltZy5jZXNkay5mb250cy9mb250cy9BcmNoaXZvL3N0YXRpYy9BcmNoaXZvL0FyY2hpdm8tQm9sZC50dGYiLAoiZXh0ZXJuYWxSZWZlcmVuY2UiOiAiLy9seS5pbWcuY2VzZGsuZm9udHMvYXJjaGl2b19ib2xkIiwKIm9wYWNpdHkiOiAxLjAsCiJmb250U2l6ZSI6IDM0LjMyOTUyNDk5Mzg5NjQ4NywKImNvbG9yIjogewoidmVyc2lvbiI6IDQsCiJjb2xvclNwYWNlIjogMCwKImNvbXBvbmVudHMiOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiAwLjAsCiJ5IjogMC4wLAoieiI6IDAuMCwKInciOiAxLjAKfQp9LAoiY29sb3JFbmFibGVkIjogdHJ1ZSwKImJhY2tncm91bmRDb2xvciI6IHsKInZlcnNpb24iOiA0LAoiY29sb3JTcGFjZSI6IDAsCiJjb21wb25lbnRzIjogewoidmVyc2lvbiI6IDEsCiJ4IjogMC42NjY3MDAwMDU1MzEzMTEsCiJ5IjogMC42NjY3MDAwMDU1MzEzMTEsCiJ6IjogMC42NjY3MDAwMDU1MzEzMTEsCiJ3IjogMS4wCn0KfSwKImJhY2tncm91bmRDb2xvckVuYWJsZWQiOiBmYWxzZSwKImFsaWdubWVudCI6IDAsCiJ2ZXJ0aWNhbEFsaWdubWVudCI6IDAsCiJsaW5lSGVpZ2h0IjogMS4wLAoibGV0dGVyU3BhY2luZyI6IDAuMCwKInBhcmFncmFwaFNwYWNpbmciOiAwLjAsCiJ0ZXh0UnVucyI6IFtdLAoiaGlkZUxpbmVzT3V0c2lkZU9mRnJhbWUiOiB0cnVlLAoiY2xpcExpbmVzT3V0c2lkZU9mRnJhbWUiOiB0cnVlLAoiYXV0b21hdGljRm9udFNpemVFbmFibGVkIjogZmFsc2UsCiJtaW5BdXRvbWF0aWNGb250U2l6ZSI6IC0xLjAsCiJtYXhBdXRvbWF0aWNGb250U2l6ZSI6IC0xLjAsCiJoYXNMYXlvdXRSZWZlcmVuY2VGcmFtZSI6IHRydWUsCiJsYXlvdXRSZWZlcmVuY2VPcmlnaW4iOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiAwLjE1MjkxMzI3MjM4MDgyODg3LAoieSI6IDAuMjQ2ODE4MzkzNDY4ODU2OCwKInoiOiAwLjAKfSwKImxheW91dFJlZmVyZW5jZURpbWVuc2lvbnMiOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiA4LjA5MDIxNDcyOTMwOTA4MiwKInkiOiAwLjUxODc1NzI4MzY4NzU5MTYsCiJ6IjogMC4wCn0sCiJzdHJva2UiOiB7CiJ2ZXJzaW9uIjogMSwKImNvbG9yIjogewoidmVyc2lvbiI6IDQsCiJjb2xvclNwYWNlIjogMCwKImNvbXBvbmVudHMiOiB7CiJ2ZXJzaW9uIjogMSwKIngiOiAwLjY3MDAwMDAxNjY4OTMwMDUsCiJ5IjogMC42NzAwMDAwMTY2ODkzMDA1LAoieiI6IDAuNjcwMDAwMDE2Njg5MzAwNSwKInciOiAxLjAKfQp9LAoid2lkdGgiOiAwLjAxODM5MDk1OTEyODczNzQ1LAoic3R5bGUiOiA1LAoicG9zaXRpb24iOiAwLAoiY29ybmVyR2VvbWV0cnkiOiAxLAoiZW5hYmxlZCI6IGZhbHNlCn0KfQpdLAoiaGllcmFyY2hpZXMiOiBbCnsKInJvb3QiOiAxNjc3NzIyNywKImNoaWxkcmVuIjogW10KfQpdLAoicGFyZW50cyI6IFsKNApdCn0KfQ==",
+  };
+  const InsertDishInCanvas = async (dish: any) => {
+    try {
+      const firstPage = await getCurrentSelectedPage(cesdkInstance?.current);
+      console.log(cesdkInstance?.current.engine.block.findAll())
+      const block = await cesdkInstance?.current.engine.block.loadFromString(
+        design?.value
+      );
+      const childrenList =
+        await cesdkInstance?.current.engine.block.getChildren(block[0]);
+      childrenList.forEach((element: any) => {
+        const getName = cesdkInstance?.current.engine.block.getName(element);
+        if (getName === "title") {
+          cesdkInstance?.current.engine.block.replaceText(element, dish?.title);
+        } else if (getName === "price") {
+          cesdkInstance?.current.engine.block.replaceText(element, dish?.price);
+        } else {
+          cesdkInstance?.current.engine.block.replaceText(
+            element,
+            dish?.description
+          );
+        }
+      });
+      cesdkInstance?.current.engine.block.setName(
+        block[0],
+        `dish_${dish?.id?.toString()}`
+      );
+      await cesdkInstance?.current.engine.block.appendChild(
+        firstPage,
+        block[0]
+      );
+      setinput(input + 1);
+      return block[0];
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const addDishSideSection = () => {
+    var elementWithShadowRoot = document.querySelector(
+      "#cesdkContainer #root-shadow"
+    );
+    var shadowRoot = elementWithShadowRoot?.shadowRoot;
+    const leftPanel =
+      "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY";
+
+    var listChildren = shadowRoot?.querySelector(`${leftPanel}`)?.children[0]
+      ?.children[1] as any;
+    const textContent = listChildren?.lastElementChild?.textContent?.trim();
+    if (textContent !== "Dishes") {
+      var newElement = document.createElement("div");
+      newElement.innerHTML = `
+        <button type="button" name="librarydock-Custom component" class="UBQ_Button__block--C5ITk UBQ_Button__ubq-variant_Plain--tlabL UBQ_Dock__button--sx24I" aria-pressed="false" data-cy="librarydock-Custom component" data-loading="false" data-active="false"><span><div class="UBQ_Dock__buttonLabel--hClD8"><div class="UBQ_AssetLibraryDockIcon__customIconWrapper--NCFjB UBQ_AssetLibraryDockIcon__customIconWrapperLarge--Elsb0" style="background-image: url('https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/templates/menu.svg?t=2023-09-26T15%3A00%3A28.187Z'); background-size: contain;"></div><span>Menu Placeholder</span></div></span></button>
+      `;
+      newElement.addEventListener("click", (e) => {
+        e.stopPropagation();
+        // if (!isDrawerOpen) {
+        //   setclickSection(Math.random());
+        //   setIsDrawerOpen(true);
+        // }
+        InsertDishInCanvas({ title: "dish", price: "$34", description: "this is a dish description" })
+        // alert("section component was added!")
+      });
+
+      // Append newElement to the end of listChildren
+      listChildren?.appendChild(newElement);
+    }
+  };
+  useEffect(() => {
+    addDishSideSection();
+  }, [cesdkInstance?.current]);
+
+
   function translateToAssetResult(image: any) {
     return {
       id: image.id.toString(),
@@ -777,6 +885,7 @@ const Editor = ({
       },
     };
   }
+
   function getFonts(fontsData: any) {
     let fonts: any = {};
     fontsData.map((item: any) => {
@@ -996,6 +1105,72 @@ const Editor = ({
       setlibraryLoading(false);
     }
   };
+
+  /**
+   * This function saves each page of a menu as a string and stores them as an array of pages.
+   * Currently, it is primarily used for the menu preview feature.
+   */
+  const saveMenuToLibrary = async () => {
+    // input is a page id, output is a group id of all the components within the page
+    async function groupComponents(page: string) {
+      const childrenOfPage = cesdkInstance?.current.engine?.block?.getChildren(page)
+      if (cesdkInstance?.current.engine?.block?.isGroupable(childrenOfPage)) {
+        const group = cesdkInstance?.current?.engine.block.group(childrenOfPage);
+        const savedBlock = await cesdkInstance?.current.engine.block.saveToString([group]);
+        // console.log(savedBlock)
+        return (savedBlock)
+      }
+
+    }
+    try {
+      const pageBlocks = cesdkInstance?.current?.engine.scene.getPages()
+      const pageGroups = Promise.all(pageBlocks.map(async (page: string) => await groupComponents(page)))
+      setPreviewContent(await pageGroups)
+      const value = await cesdkInstance?.current.save();
+      if (user) {
+        saveTemplate(value);
+      } else {
+        openAuthDialog();
+      }
+      // toast.success("Component has been saved! test");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setlibraryLoading(false);
+    }
+  };
+
+  /** 
+   * This function is used for the print preview feature. It has a few steps:
+   * 1. It gets all the components in the canvas that are named menu_placeholder
+   * 2. It adds the proper number of pages to the document
+   * 3. It appends the proper menu page to the menu_placeholder component
+   * 4. It hides the menu_placeholder components
+  */
+
+  const injectMenuIntoCanvas = async () => {
+    try {
+      const menuPlaceholders = await cesdkInstance?.current?.engine?.block.findByName("menu_placeholder")
+      // console.log("menu placeholders, ", menuPlaceholders)
+      const pages = cesdkInstance?.current.engine.block.getChildren(3);
+      for (let i = 0; i < pages.length; i++) {
+        const pageChildren = cesdkInstance?.current.engine.block.getChildren(pages[i]);
+        const placeholdersOnPage = pageChildren.filter((item: number) => menuPlaceholders.includes(item))
+        for (let n = 0; n < placeholdersOnPage.length; n++) {
+          const block = await cesdkInstance?.current.engine.block.loadFromString(layout?.content[i]);
+          cesdkInstance?.current.engine.block.appendChild(placeholdersOnPage[n], block[0])
+          cesdkInstance?.current.engine.block.setPositionX(block[0], 0.05)
+          cesdkInstance?.current.engine.block.setPositionY(block[0], 0)
+          cesdkInstance?.current.engine.block.setFillEnabled(placeholdersOnPage[n], false)
+          cesdkInstance?.current.engine.block.setStrokeEnabled(placeholdersOnPage[n], false)
+        }
+      }
+      // debugger
+    } catch (error) {
+      setMenuInjected(false)
+      console.log("error", error);
+    }
+  };
   const changeCustomComponentTitle = () => {
     var elementWithShadowRoot = document.querySelector(
       "#cesdkContainer #root-shadow "
@@ -1045,6 +1220,21 @@ const Editor = ({
 
     return () => clearInterval(intervalId);
   }, []);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      changeCustomComponentTitle();
+    }, 100);
+    setMenuInjected(false)
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // this useEffect handles the page preview injection on page load
+  useEffect(() => {
+    if (!menuInjected) {
+      injectMenuIntoCanvas();
+      setMenuInjected(true)
+    }
+  }, [cesdkInstance?.current]);
   return (
     <div onClick={() => setinput(input + 1)}>
       <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
@@ -1128,6 +1318,7 @@ const Editor = ({
         template={template}
         onClose={() => settemplateModal(false)}
         content={content}
+        previewContent={previewContent}
         restaurantsOptions={restaurantsOptions}
         loader={loader}
         setloader={setloader}
@@ -1152,7 +1343,6 @@ const Editor = ({
     </div>
   );
 };
-
 export default Editor;
 
 const cesdkStyle: object = {
