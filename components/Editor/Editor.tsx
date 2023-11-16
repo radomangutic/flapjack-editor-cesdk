@@ -312,7 +312,7 @@ const Editor = ({
 
                   downloadBlobFile(
                     blobs?.[0],
-                    removeSpecialCharacters(menuContent?.name) || ""
+                    removeSpecialCharacters(menuContent?.name ?? template?.name) || ""
                   );
                 } else {
                   openAuthDialog();
