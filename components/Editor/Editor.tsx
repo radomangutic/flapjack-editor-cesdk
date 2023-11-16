@@ -53,7 +53,7 @@ const Editor = ({
   loader,
   setloader
 }: {
-  menuContent: ITemplateDetails | null;
+  menuContent?: ITemplateDetails | null;
   template: ITemplateDetails | null;
   layout?: ITemplateDetails | null;
   preview?: boolean;
