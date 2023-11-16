@@ -43,6 +43,7 @@ const customComponent = {
   recent: "Recent",
 };
 const Editor = ({
+  menuContent,
   template,
   layout,
   preview,
@@ -52,6 +53,7 @@ const Editor = ({
   loader,
   setloader
 }: {
+  menuContent?: ITemplateDetails | null;
   template: ITemplateDetails | null;
   layout?: ITemplateDetails | null;
   preview?: boolean;
@@ -310,7 +312,7 @@ const Editor = ({
 
                   downloadBlobFile(
                     blobs?.[0],
-                    removeSpecialCharacters(template?.name) || ""
+                    removeSpecialCharacters(menuContent?.name) || ""
                   );
                 } else {
                   openAuthDialog();

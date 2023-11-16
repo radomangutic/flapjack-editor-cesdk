@@ -15,11 +15,13 @@ const Menu = ({
   data,
   layout,
   user,
+  menuContent
 }: {
   data: ITemplateDetails;
   images: string[];
   user: IUserDetails;
   layout: any;
+  menuContent: ITemplateDetails;
 }) => {
   const [loader, setloader] = useState(false);
   if (!data) {
@@ -27,7 +29,16 @@ const Menu = ({
   }
   return (
     <>
-      <Editor template={layout} layout={data} user={user} allowExport={true} preview loader={loader} setloader={setloader} />
+      <Editor
+        menuContent={menuContent}
+        template={layout}
+        layout={data}
+        user={user}
+        allowExport={true}
+        preview
+        loader={loader}
+        setloader={setloader}
+      />
     </>
   );
 };
@@ -48,7 +59,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       "id, createdBy, name, description, content, tags, isGlobal, menuSize, restaurant_id"
     )
     .eq("id", context?.params?.id?.[1]);
-
+  // Get data from the actual menu that is being previewed
+  const { data: menuContent } = await supabase
+    .from("templates")
+    .select(
+      "name"
+    )
+    .eq("id", context?.params?.id?.[0]);
   const { data: images } = await supabase.storage
     .from("renderings")
     .list(`${context?.params?.id}`, {
@@ -73,6 +90,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       layout: layout ? layout[0] : null,
       images: imageUrls,
       user: logedInUser,
+      menuContent: menuContent ? menuContent[0] : null
     }, // will be passed to the page component as props
   };
 }
