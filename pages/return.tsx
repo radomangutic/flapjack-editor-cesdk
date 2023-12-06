@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 export default function Return() {
   const router = useRouter();
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<any>(null);
   const [customerEmail, setCustomerEmail] = useState("");
 
   useEffect(() => {
@@ -19,9 +19,12 @@ export default function Return() {
         console.log("🚀 ~ file: return.tsx:19 ~ .then ~ data:", data);
         setStatus(data.session.status);
         setCustomerEmail(data.session.customer_email);
+      })
+      .catch((err) => {
+        console.log("🚀 ~ file: return.tsx:19 ~ .then ~ err:", err);
+        setStatus("failed");
       });
   }, []);
-  console.log("status", status);
   if (status === "open") {
     return router.push("/");
   }
@@ -29,10 +32,32 @@ export default function Return() {
   if (status === "complete") {
     return (
       <section id="success">
-        <p>success</p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <h4>Success Message</h4>
+        </div>
+      </section>
+    );
+  } else if (status === "failed") {
+    return (
+      <section id="failed">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <h1>Failed Message</h1>
+        </div>
       </section>
     );
   }
-
-  return null;
 }
