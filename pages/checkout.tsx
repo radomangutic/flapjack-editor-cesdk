@@ -5,6 +5,7 @@ import {
   EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
 import { useRouter } from "next/router";
+import axios from "axios";
 // import { getUser } from "../hooks";
 const stripePromise = loadStripe(
   "pk_test_51OJt1kKffdXhvHhpIYwYMvHugVgVplAgSygj1taCHFYcFfjxpF70r368ha2m9usZ1rGYwlEamfadi8m1KsxK04Nm00QZNIgthu"
@@ -21,14 +22,9 @@ export default function App() {
     try {
       // const userEmail = user?.email;
 
-      const response = await fetch("/api/checkout_sessions", {
-        method: "POST",
-        // body: JSON.stringify({
-        //   userEmail: userEmail,
-        // }),
-      });
+      const response = await axios.post("/api/checkout_sessions");
 
-      const data = await response.json();
+      const data = response.data;
       if (typeof data === "string") setError(data);
       setClientSecret(data.clientSecret);
     } catch (error) {
