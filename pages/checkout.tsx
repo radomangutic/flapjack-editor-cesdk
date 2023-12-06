@@ -22,7 +22,9 @@ export default function App() {
     try {
       // const userEmail = user?.email;
 
-      const response = await axios.post("/api/checkout_sessions");
+      const response = await axios.post("/api/checkout_sessions", {
+        userEmail: "",
+      });
 
       const data = response.data;
       if (typeof data === "string") setError(data);
