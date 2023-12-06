@@ -6,11 +6,9 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
   switch (req.method) {
     case "POST":
       try {   
-        const data = JSON.parse(req.body);
-        if(!data?.userEmail) throw new Error('No user email found');
-        const customer = await stripe.customers.create({
-          email: data.userEmail,
-        });
+        // const data = JSON.parse(req.body);
+        // if(!data?.userEmail) throw new Error('No user email found');
+        const customer = await stripe.customers.create();
         const session = await stripe.checkout.sessions.create({
           ui_mode: 'embedded',
           customer: customer.id,

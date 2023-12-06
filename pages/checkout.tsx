@@ -5,13 +5,13 @@ import {
   EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
 import { useRouter } from "next/router";
-import { getUser } from "../hooks";
+// import { getUser } from "../hooks";
 const stripePromise = loadStripe(
   "pk_test_51OJt1kKffdXhvHhpIYwYMvHugVgVplAgSygj1taCHFYcFfjxpF70r368ha2m9usZ1rGYwlEamfadi8m1KsxK04Nm00QZNIgthu"
 );
 
 export default function App() {
-  const user = getUser();
+  // const user = getUser();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,13 +19,13 @@ export default function App() {
     setLoading(true);
 
     try {
-      const userEmail = user?.email;
+      // const userEmail = user?.email;
 
       const response = await fetch("/api/checkout_sessions", {
         method: "POST",
-        body: JSON.stringify({
-          userEmail: userEmail,
-        }),
+        // body: JSON.stringify({
+        //   userEmail: userEmail,
+        // }),
       });
 
       const data = await response.json();
@@ -39,7 +39,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (user && user?.email) {
+    if (true) {
       loadEmbeddedCheckout();
     } else router.replace("/");
   }, []);
