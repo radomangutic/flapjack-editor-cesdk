@@ -7,9 +7,9 @@ import {
 import { useRouter } from "next/router";
 import axios from "axios";
 // import { getUser } from "../hooks";
-const stripePromise = loadStripe(
-  "pk_test_51OJt1kKffdXhvHhpIYwYMvHugVgVplAgSygj1taCHFYcFfjxpF70r368ha2m9usZ1rGYwlEamfadi8m1KsxK04Nm00QZNIgthu"
-);
+
+const pub_key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+const stripePromise = loadStripe(pub_key);
 
 export default function App() {
   // const user = getUser();

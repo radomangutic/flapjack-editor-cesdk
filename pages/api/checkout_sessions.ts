@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-const stripe = require('stripe')('sk_test_51OJt1kKffdXhvHhptwd8JEDaMijwrwI5yFNgoJF8yX6EqLdx9NtKwDjKc0RO7IxqpBs9BeaE2yB5j3NpksBZlkx500GwQLf8Uk');
+const sec_key = process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY || ""
+const stripe = require('stripe')(sec_key);
 
 export default async function handler(req:NextApiRequest, res:NextApiResponse) {
   switch (req.method) {
@@ -43,6 +44,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
       } catch (err:any) {
         res.status(err.statusCode || 500).json(err.message);
       }
+      break;
     case "GET":
       try {
         const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
@@ -54,8 +56,10 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
       } catch (err:any) {
         res.status(err.statusCode || 500).json(err.message);
       }
+      break;
     default:
-      res.setHeader('Allow', req.method || []);
-      res.status(405).end('Method Not Allowed');
+      console.log('default')
+      // res.setHeader('Allow', req.method || []);
+      // res.status(405).end('Method Not Allowed');
   }
 }
