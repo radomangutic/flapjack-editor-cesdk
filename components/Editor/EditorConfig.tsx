@@ -304,6 +304,26 @@ const EditorConfig = ({
             height: 11,
             unit: "Inch",
           },
+          Legal: {
+            width: 8.5,
+            height: 14,
+            unit: "Inch",
+          },
+          Tabloid: {
+            width: 11,
+            height: 17,
+            unit: "Inch",
+          },
+          "Half Letter": {
+            width: 5.5,
+            height: 8.5,
+            unit: "Inch",
+          },
+          "Quarter Letter": {
+            width: 4.25,
+            height: 5.5,
+            unit: "Inch",
+          },
         },
       },
       callbacks: {
@@ -411,36 +431,6 @@ const EditorConfig = ({
         },
       },
       presets: {
-        pageFormats: {
-          Letter: {
-            width: 8.5,
-            height: 11,
-            unit: "in",
-            meta: {
-              default: true,
-            },
-          },
-          Legal: {
-            width: 8.5,
-            height: 14,
-            unit: "in",
-          },
-          Tabloid: {
-            width: 11,
-            height: 17,
-            unit: "in",
-          },
-          "Half Letter": {
-            width: 5.5,
-            height: 8.5,
-            unit: "in",
-          },
-          "Quarter Letter": {
-            width: 4.25,
-            height: 5.5,
-            unit: "in",
-          },
-        },
         typefaces: getFonts(templateFonts),
       },
     };
