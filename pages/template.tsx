@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { IFont, ITemplate, ITemplateDetails, IUserDetails } from "../interfaces";
+import {
+  IFont,
+  ITemplate,
+  ITemplateDetails,
+  IUserDetails,
+} from "../interfaces";
 import { canCreateTemplate, getUser, useDialog, useUser } from "../hooks";
 import {
   useSupabaseClient,
@@ -38,7 +43,13 @@ const Template = ({
 
     return (
       <>
-        <Editor template={data} loader={loader} setloader={setloader} restaurantList={restaurantList} user={user} />
+        <Editor
+          template={data}
+          loader={loader}
+          setloader={setloader}
+          restaurantList={restaurantList}
+          user={user}
+        />
       </>
     );
   }
