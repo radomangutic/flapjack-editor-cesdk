@@ -120,6 +120,7 @@ export default function App() {
                   }}
                   href="https://flapjack.co"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   flapjack.co
                 </a>
