@@ -6,13 +6,14 @@ import {
 } from "@stripe/react-stripe-js";
 import { useRouter } from "next/router";
 import axios from "axios";
-// import { getUser } from "../hooks";
+import PrivatePage from "../components/PrivatePage/PrivatePage";
+import { getUser } from "../hooks";
 
 const pub_key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const stripePromise = loadStripe(pub_key);
 
 export default function App() {
-  // const user = getUser();
+  const user = getUser();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,11 +38,12 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (true) {
-      loadEmbeddedCheckout();
-    } else router.replace("/");
+    loadEmbeddedCheckout();
   }, []);
   const router = useRouter();
+  if (!user) {
+    return <PrivatePage login={!user} />;
+  }
   if (loading)
     return (
       <div
@@ -77,7 +79,7 @@ export default function App() {
                   marginBottom: 2,
                 }}
               >
-                $0 Upfront - Custom Menu Design, Optimization, and Management
+                $0 Upfront, Custom Menu Design, Optimization, and Management
               </p>
               <h1
                 className="fj-stripe-text"
@@ -88,7 +90,7 @@ export default function App() {
                   color: "black",
                 }}
               >
-                14 days trial
+                2 week trial
               </h1>
               <p
                 className="fj-stripe-text"
@@ -105,9 +107,23 @@ export default function App() {
                   fontSize: 13,
                 }}
               >
-                Fully custom, eye-catching menu design, expertly crafted for
-                your restaurant. Includes unlimited menu revisions and an easy
-                to use online menu editor on Flapjack.co. Cancel anytime.
+                <span>
+                  Fully custom, eye-catching menu design, expertly crafted for
+                  your restaurant. Includes unlimited menu designs, unlimited
+                  menu revisions, unlimited menu optimizations, and an easy to
+                  use online menu editor on
+                </span>{" "}
+                <a
+                  style={{
+                    color: "#0070f3",
+                    textDecoration: "underline",
+                  }}
+                  href="https://flapjack.co"
+                  target="_blank"
+                >
+                  flapjack.co
+                </a>
+                . <span>Cancellable anytime.</span>
               </p>
             </div>
           </div>
