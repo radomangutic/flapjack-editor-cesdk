@@ -41,9 +41,6 @@ export default function App() {
     loadEmbeddedCheckout();
   }, []);
   const router = useRouter();
-  if (!user) {
-    return <PrivatePage login={!user} />;
-  }
   if (loading)
     return (
       <div

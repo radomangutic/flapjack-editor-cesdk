@@ -11,15 +11,25 @@ import AuthDialog from "./AuthDialog";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 interface Props {
   loader?: boolean;
 }
 const AppHeader = ({ loader }: Props) => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const session = useUser();
+  const [isCheckoutPage, setIsCheckoutPage] = useState(false);
   const setUser = useSetUser();
   const supabase = useSupabaseClient();
   const router = useRouter();
+  useEffect(() => {
+    if (router.pathname === "/checkout") {
+      setIsCheckoutPage(true);
+    } else {
+      setIsCheckoutPage(false);
+    }
+  }, [router.pathname]);
+
   return (
     <Header height={64}>
       <Flex
@@ -33,8 +43,10 @@ const AppHeader = ({ loader }: Props) => {
           onClick={(e) => {
             e.preventDefault();
             if (loader) {
-              toast.warn("Please wait until this menu finishes saving. We will notify you when it is safe to leave the page.",
-                { hideProgressBar: true, autoClose: 5000 });
+              toast.warn(
+                "Please wait until this menu finishes saving. We will notify you when it is safe to leave the page.",
+                { hideProgressBar: true, autoClose: 5000 }
+              );
             } else {
               router.push("/templates");
             }
@@ -100,56 +112,62 @@ const AppHeader = ({ loader }: Props) => {
             </Text>
           </Flex>
         </Box>
-        {session ? (
-          <Menu shadow="md" width={200}>
-            <Menu.Target>
-              <Flex align="center" sx={{ cursor: "pointer" }}>
-                <Avatar radius="xl" />
-                <IconChevronDown size={16} />
-              </Flex>
-            </Menu.Target>
+        {!isCheckoutPage ? (
+          session ? (
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Flex align="center" sx={{ cursor: "pointer" }}>
+                  <Avatar radius="xl" />
+                  <IconChevronDown size={16} />
+                </Flex>
+              </Menu.Target>
 
-            <Menu.Dropdown>
-              <Menu.Label>Application</Menu.Label>
-              {session?.role === "owner" && (
-                <Link
-                  href={`/restaurant/${session?.restaurant_id}`}
+              <Menu.Dropdown>
+                <Menu.Label>Application</Menu.Label>
+                {session?.role === "owner" && (
+                  <Link
+                    href={`/restaurant/${session?.restaurant_id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Menu.Item icon={<IconSettings size={14} />}>
+                      Settings
+                    </Menu.Item>
+                  </Link>
+                )}
+                {session?.role === "flapjack" && (
+                  <Link href={`/dashboard`} target="_blank" rel="noreferrer">
+                    <Menu.Item icon={<IconSettings size={14} />}>
+                      Dashboard
+                    </Menu.Item>
+                  </Link>
+                )}
+                <a
+                  href="mailto:Howdy@Flapjack.co"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Menu.Item icon={<IconSettings size={14} />}>
-                    Settings
+                  <Menu.Item icon={<IconMail size={14} />}>
+                    Contact Us
                   </Menu.Item>
-                </Link>
-              )}
-              {session?.role === "flapjack" && (
-                <Link href={`/dashboard`} target="_blank" rel="noreferrer">
-                  <Menu.Item icon={<IconSettings size={14} />}>
-                    Dashboard
-                  </Menu.Item>
-                </Link>
-              )}
-              <a
-                href="mailto:Howdy@Flapjack.co"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Menu.Item icon={<IconMail size={14} />}>Contact Us</Menu.Item>
-              </a>
-              <Menu.Item
-                icon={<IconLogout size={14} />}
-                onClick={() => {
-                  localStorage.clear();
-                  supabase.auth.signOut();
-                  setUser?.(null);
-                }}
-              >
-                Logout
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+                </a>
+                <Menu.Item
+                  icon={<IconLogout size={14} />}
+                  onClick={() => {
+                    localStorage.clear();
+                    supabase.auth.signOut();
+                    setUser?.(null);
+                  }}
+                >
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          ) : (
+            <Button onClick={openAuthDialog}>Sign In</Button>
+          )
         ) : (
-          <Button onClick={openAuthDialog}>Sign In</Button>
+          ""
         )}
         {authDialog && !session && (
           <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
