@@ -13,8 +13,8 @@ import { hotjar } from "react-hotjar";
 import { GoogleAnalytics } from "nextjs-google-analytics";
 import UserContextProvider from "../context/UserContext";
 import { IntercomProvider } from "react-use-intercom";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function App({
   Component,
   pageProps,
@@ -50,11 +50,27 @@ export default function App({
                 <AppShell
                   padding={0}
                   header={
-                    !router.pathname.includes("preview") && !router.pathname.includes("tv/") ? <Header /> : <></>
+                    !router.pathname.includes("preview") &&
+                    !router.pathname.includes("tv/") ? (
+                      <Header />
+                    ) : (
+                      <></>
+                    )
                   }
                   styles={(theme) => ({
                     main: {
-                      backgroundColor: !router.pathname.includes("templates") ? "#e7ebee" : 'inherit'
+                      backgroundColor: router.pathname.includes("checkout")
+                        ? "#fff"
+                        : !router.pathname.includes("templates")
+                        ? "#e7ebee"
+                        : "inherit",
+
+                      minHeight: router.pathname.includes("checkout")
+                        ? "auto"
+                        : "100vh",
+                      height: router.pathname.includes("checkout")
+                        ? "auto"
+                        : "100vh",
                     },
                   })}
                 >
