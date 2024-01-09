@@ -95,7 +95,7 @@ const TemplateHeader = ({
   }, [template]);
 
   const isActiveTab = () => {
-    return user?.role === 'flapjack' || navMenu === "myMenu";
+    return user?.role === "flapjack" || navMenu === "myMenu";
   };
 
   return (
@@ -172,10 +172,18 @@ const TemplateHeader = ({
             {user && user?.role !== "flapjack" && (
               <Text
                 // navMenu "cursor-pointer"
-                className={`myMenu ${navMenu === "myMenu" ? "active" : ""
-                  } cursor-pointer`}
+                style={{
+                  ...(!user?.restaurant_id && {
+                    color: "gray",
+                    cursor: "default",
+                  }),
+                }}
+                className={`myMenu ${
+                  navMenu === "myMenu" ? "active" : ""
+                } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
+                  if (!user?.restaurant_id) return;
                   activeClassFun("myMenu");
                 }}
               >
@@ -204,12 +212,14 @@ const TemplateHeader = ({
               </Text>
             )}
             {(user?.role == "user" && user?.subscriptionActive) ||
-              (user?.role === "owner" || (user?.role === "user" && !!user?.restaurant_id) ? (
+              (user?.role === "owner" ||
+              (user?.role === "user" && !!user?.restaurant_id) ? (
                 <></>
               ) : (
                 <Text
-                  className={`templates ${navMenu === "templates" ? "active" : ""
-                    } cursor-pointer`}
+                  className={`templates ${
+                    navMenu === "templates" ? "active" : ""
+                  } cursor-pointer`}
                   fz="sm"
                   ml="sm"
                   onClick={() => {
@@ -322,8 +332,8 @@ const TemplateHeader = ({
                   ? "Update"
                   : "Save Menu"
                 : user
-                  ? "Save"
-                  : "Save Menu"}
+                ? "Save"
+                : "Save Menu"}
             </Button>
           )}
           {user ? (
