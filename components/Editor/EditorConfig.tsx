@@ -194,13 +194,6 @@ const EditorConfig = ({
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
-      ...(template?.content && {
-        initialSceneURL:
-          process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${
-            template?.content
-          }?t=${new Date().toISOString()}`,
-      }),
       //   baseURL: "https://cdn.img.ly/packages/imgly/cesdk-js/1.18.1/assets",
       // core: {
       //   baseURL: 'core/'
@@ -448,6 +441,14 @@ const EditorConfig = ({
             user,
             template?.id
           );
+          if (template?.content) {
+            await cesdkInstance.current.engine.scene.loadFromURL(
+              process.env.NEXT_PUBLIC_SUPABASE_URL +
+                `/storage/v1/object/public/templates/${
+                  template?.content
+                }?t=${new Date().toISOString()}`
+            );
+          }
           // setloadinEditor(false);
           // If there is a scene and layout, we will duplicate the first page, one for each element in layout
           const scene = await cesdkInstance.current.engine.scene.get();
