@@ -34,6 +34,7 @@ import { IconUpload } from "@tabler/icons";
 import { getCurrentSelectedPage } from "./helping";
 import { removeSpecialCharacters } from "../../helpers/CommonFunctions";
 import { getElementsWithRestaurant } from "../../tests/helpers/menu.helper";
+import useWindow from "../../helpers/useWindow";
 interface fontsErrorsType {
   title?: string;
   file?: string;
@@ -86,6 +87,7 @@ const EditorConfig = ({
   const [libraryElements, setlibraryElements] = useState<any>();
   const [usedComponenets, setusedComponenets] = useState<any>([]);
   const [menuInjected, setMenuInjected] = useState<boolean>(false);
+  const { width } = useWindow();
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -192,13 +194,6 @@ const EditorConfig = ({
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
-      ...(template?.content && {
-        initialSceneURL:
-          process.env.NEXT_PUBLIC_SUPABASE_URL +
-          `/storage/v1/object/public/templates/${
-            template?.content
-          }?t=${new Date().toISOString()}`,
-      }),
       //   baseURL: "https://cdn.img.ly/packages/imgly/cesdk-js/1.18.1/assets",
       // core: {
       //   baseURL: 'core/'
@@ -446,6 +441,14 @@ const EditorConfig = ({
             user,
             template?.id
           );
+          if (template?.content) {
+            await cesdkInstance.current.engine.scene.loadFromURL(
+              process.env.NEXT_PUBLIC_SUPABASE_URL +
+                `/storage/v1/object/public/templates/${
+                  template?.content
+                }?t=${new Date().toISOString()}`
+            );
+          }
           // setloadinEditor(false);
           // If there is a scene and layout, we will duplicate the first page, one for each element in layout
           const scene = await cesdkInstance.current.engine.scene.get();
@@ -625,15 +628,40 @@ const EditorConfig = ({
       setcontent(string);
     }, 100);
   };
-
+  const removePreview = () => {
+    var elementWithShadowRoot = document.querySelector(
+      "#cesdkContainer #root-shadow "
+    );
+    var shadowRoot = elementWithShadowRoot?.shadowRoot;
+    var preview = shadowRoot?.querySelector(
+      ".UBQ_Topbar-module__controlsContainerRight--iYM3h"
+    );
+    console.log(
+      "🚀 ~ file: EditorConfig.tsx:638 ~ removeElement ~ preview:",
+      preview
+    );
+    if (preview) {
+      if (preview?.childNodes.length > 2) {
+        preview.children[1].remove();
+      }
+    }
+  };
+  useEffect(() => {
+    if (window) {
+      removePreview();
+    }
+  }, [width]);
   useEffect(() => {
     const removeElement = () => {
+      removePreview();
+
       var elementWithShadowRoot = document.querySelector(
         "#cesdkContainer #root-shadow "
       );
       const leftPanel =
         "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY #ubq-portal-container_panelRight ";
       var shadowRoot = elementWithShadowRoot?.shadowRoot;
+
       var count = shadowRoot?.querySelector(
         `${leftPanel} div div `
       )?.childElementCount;
@@ -656,7 +684,9 @@ const EditorConfig = ({
           }
         }
       }
+      let ele = shadowRoot?.querySelector('[data-cy="canvas-actions"]');
 
+      let eleChild = ele?.children;
       if (count === 2) {
         var element = shadowRoot?.querySelector(
           `${leftPanel} div div section `
@@ -723,30 +753,31 @@ const EditorConfig = ({
       var placeholderRemoveChild = shadowRoot?.querySelector(
         "div .UBQ_Theme__block--nxqW8 div .UBQ_Editor__body--C8OfY .UBQ_Editor__canvasContainer--NgGRw .UBQ_Canvas__block--h2FAP div:last-child div div div div"
       )?.children;
-      if (placeholderRemoveChild) {
-        for (var i = 0; i < placeholderRemoveChild.length; i++) {
-          var placeholderChild = placeholderRemoveChild[i];
+      if (eleChild) {
+        for (var i = 0; i < eleChild.length; i++) {
+          var placeholderChild = eleChild[i];
+
           if (
             placeholderChild?.textContent?.includes("Placeholder") ||
             placeholderChild?.textContent?.includes("Save to Library") ||
             placeholderChild?.textContent?.includes("Loading...")
           ) {
+            console.log(
+              'placeholderChild?.textContent?.includes("Placeholder")',
+              placeholderChild?.textContent,
+              placeholderChild
+            );
             // Create the new element with the provided HTML structure
             var newElement = document.createElement("div");
             newElement.innerHTML = `
-              <div class="UBQ_CanvasAction__block--gWWG6" style="border-right: 1px solid hsla(210, 30%, 10%, 0.12);">
-             <button type="button" name="placeholdersettings-create_placeholder" class="UBQ_Button__block--C5ITk UBQ_Button__ubq-variant_Plain--tlabL" aria-pressed="false" data-cy="placeholdersettings-create_placeholder" data-loading="false" data-active="false">
-                  <span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
-                      <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
-                    </svg>
-                    <span>${
-                      libraryLoading ? "Loading..." : "Save to Library"
-                    }</span>
-                  </span>
-                </button>
-              </div>
+            <div class="UBQ_CanvasAction-module__block--sLsKB"><button type="button" class="UBQ_Button-module__block--gA2BW UBQ_Button-module__ubq-variant_plain--miq2d"  aria-pressed="false"  data-ubq-action="canvas-action" data-loading="false" data-active="false">
+            <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9.03854 7.42787C8.83939 7.16163 8.58532 6.94133 8.29354 6.78193C8.00177 6.62252 7.67912 6.52772 7.34749 6.50397C7.01586 6.48022 6.683 6.52807 6.37149 6.64427C6.05998 6.76048 5.7771 6.94231 5.54205 7.17746L4.15087 8.56863C3.72851 9.00593 3.4948 9.59163 3.50009 10.1996C3.50537 10.8075 3.74922 11.389 4.17911 11.8189C4.609 12.2488 5.19055 12.4927 5.79848 12.498C6.40642 12.5032 6.99211 12.2695 7.42941 11.8472L8.22238 11.0542" stroke="currentColor" stroke-opacity="0.9"></path>
+              <path d="M6.96146 8.57018C7.16061 8.83642 7.41468 9.05671 7.70646 9.21612C7.99823 9.37553 8.32088 9.47033 8.65251 9.49408C8.98414 9.51783 9.317 9.46998 9.62851 9.35377C9.94002 9.23757 10.2229 9.05573 10.458 8.82059L11.8491 7.42941C12.2715 6.99211 12.5052 6.40642 12.4999 5.79848C12.4946 5.19055 12.2508 4.609 11.8209 4.17911C11.391 3.74922 10.8095 3.50537 10.2015 3.50009C9.59358 3.4948 9.00789 3.72851 8.57059 4.15087L7.77762 4.94384" stroke="currentColor" stroke-opacity="0.9"></path>
+            </svg>
+            <span>${libraryLoading ? "Loading..." : "Save to Library"}</span>
+          </span></button></div>
             `;
             newElement.addEventListener("click", saveToLibrary);
             const blockType = cesdkInstance?.current?.engine?.block?.getType(
