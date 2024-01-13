@@ -82,7 +82,8 @@ export const fetchAssets = async (): Promise<any[]> => {
       const { data: globalTemplates, error: globalTemplatesError } =
         await dbClient
           .from("assets")
-          .select("id, createdBy, content ,restaurant_id, height, width").order("created_at", { ascending: false });
+          .select("id, createdBy, content ,restaurant_id, height, width")
+          .order("created_at", { ascending: false });
 
       if (globalTemplatesError) {
         throw globalTemplatesError;
@@ -264,6 +265,7 @@ export const canCreateTemplate = (user: IUserDetails | null) => {
 
 export const templateArchive = async (template: ITemplateDetails) => {
   try {
+    if (!template?.id) return;
     const { data: archiveTemplate } = await dbClient
       .from("archive_templates")
       .select("*")

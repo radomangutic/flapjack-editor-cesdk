@@ -49,11 +49,11 @@ const UpsertTemplateDialog = ({
   const userData = getUser();
   const userLocation = userData?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-      return {
-        label: item,
-        value: item,
-      };
-    })
+        return {
+          label: item,
+          value: item,
+        };
+      })
     : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
@@ -64,9 +64,11 @@ const UpsertTemplateDialog = ({
   const [location, setLocation] = useState(template?.location || "");
   const [isModalOpen, { open, close }] = useDisclosure(false);
   const [values, setValues] = useState();
-  const filUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL
-    }/storage/v1/object/public/renderings/${router.query.id
-    }/coverImage?${Date.now()}`;
+  const filUrl = `${
+    process.env.NEXT_PUBLIC_SUPABASE_URL
+  }/storage/v1/object/public/renderings/${
+    router.query.id
+  }/coverImage?${Date.now()}`;
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     if (loader) {
@@ -102,7 +104,10 @@ const UpsertTemplateDialog = ({
       const file = new Blob([content], { type: "text/plain" });
       setTimeout(() => {
         onClose();
-        toast.info("Menu is saving", { hideProgressBar: true, autoClose: 3000 });
+        toast.info("Menu is saving", {
+          hideProgressBar: true,
+          autoClose: 3000,
+        });
       }, 500);
       let contentUpload = "";
       const userCanUpdate =
@@ -122,16 +127,18 @@ const UpsertTemplateDialog = ({
             description: removeSpecialCharacters(values?.description),
             updatedAt: new Date(),
             location,
-
           })
           .eq("id", template?.id);
 
         // only if there is a printPreview id assigned, you should add a row to keep track of the menu components
         if (template?.printPreview) {
           await supabase
-            .from('menu_preview')
-            .upsert({ content: previewContent, menu_id: template?.id }, { onConflict: 'menu_id' })
-            .select()
+            .from("menu_preview")
+            .upsert(
+              { content: previewContent, menu_id: template?.id },
+              { onConflict: "menu_id" }
+            )
+            .select();
         }
 
         if (error) {
@@ -188,7 +195,10 @@ const UpsertTemplateDialog = ({
 
       if (window.location.href.includes("/menu/")) {
         setTimeout(() => {
-          toast.success("Save completed", { hideProgressBar: true, autoClose: 2000 });
+          toast.success("Save completed", {
+            hideProgressBar: true,
+            autoClose: 2000,
+          });
         }, 500);
       }
     } catch (err: any) {
@@ -239,7 +249,9 @@ const UpsertTemplateDialog = ({
     >
       <form
         onSubmit={form.onSubmit(
-          user?.role === 'flapjack' && template?.isGlobal ? handleModal : onSubmit
+          user?.role === "flapjack" && template?.isGlobal
+            ? handleModal
+            : onSubmit
         )}
       >
         <Input
@@ -272,8 +284,8 @@ const UpsertTemplateDialog = ({
                   isFileEsist
                     ? filUrl
                     : form?.values?.coverImage
-                      ? URL.createObjectURL(form?.values?.coverImage)
-                      : ""
+                    ? URL.createObjectURL(form?.values?.coverImage)
+                    : ""
                 }
                 alt="Selected"
                 style={{

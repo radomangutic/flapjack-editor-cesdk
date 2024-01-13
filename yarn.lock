@@ -143,10 +143,10 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
-"@cesdk/cesdk-js@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmjs.org/@cesdk/cesdk-js/-/cesdk-js-1.12.1.tgz"
-  integrity sha512-9dsZFstfC+CFls91yEh6i4NkIb1HAQJSrPSXcaMbAnb4qsrtADmCXTBPU8AIai5EKE5578rn4JqVaf/1iz4n4w==
+"@cesdk/cesdk-js@^1.18.1":
+  version "1.18.1"
+  resolved "https://registry.yarnpkg.com/@cesdk/cesdk-js/-/cesdk-js-1.18.1.tgz#86367fac882e9b6fae46cc00eb969f30d3c074d7"
+  integrity sha512-MdKgbtMpCmPhwZrpvCGaGOnYZ8JanrcLQ5J0In5VGOtCtzmNbI28OlW9yyMDtHISZgWG3lMWMi1PFoCIea2IXQ==
 
 "@emotion/babel-plugin@^11.11.0":
   version "11.11.0"
