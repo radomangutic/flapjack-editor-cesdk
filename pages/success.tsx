@@ -57,7 +57,7 @@ const Success = () => {
       (success !== undefined || canceled !== undefined) &&
       currentUser &&
       profiles
-    ) {      
+    ) {
       if (
         profiles.some((element: IProfiles) => element.id === currentUser?.id)
       ) {
@@ -87,7 +87,7 @@ const Success = () => {
         transform: "translate(-50%, -50%)",
       }}
     >
-      <Title order={2}>Thank you for subscribing</Title>
+      <Title order={2}>Thank you! We have received your submission.</Title>
       <Title order={3}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
