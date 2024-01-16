@@ -87,7 +87,7 @@ const Success = () => {
         transform: "translate(-50%, -50%)",
       }}
     >
-      <Title order={2}>Thank you! We have recieved your submission.</Title>
+      <Title order={2}>Thank you! We have received your submission.</Title>
       <Title order={3}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
