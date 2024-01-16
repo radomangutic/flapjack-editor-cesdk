@@ -16,11 +16,11 @@ export default async function handler(
         const session = await stripe.checkout.sessions.create({
           ui_mode: "embedded",
           customer: customer.id,
-          // custom_text: {
-          //   submit: {
-          //     message: `If you decide to cancel your trial, you will not be charged. If you choose to keep your plan after the trial, the 2-week period will be considered part of your first month's service.`,
-          //   },
-          // },
+          custom_text: {
+            submit: {
+              message: `If you decide to cancel your trial, you will not be charged. If you choose to keep your plan after the trial, the 2-week period will be considered part of your first month's service.`,
+            }
+          },
           payment_method_options: {
             us_bank_account: {
               verification_method: "instant",
@@ -30,7 +30,7 @@ export default async function handler(
             },
           },
           consent_collection: {
-            terms_of_service: "required",
+            terms_of_service: "required"
           },
 
           payment_method_types: ["card"],
