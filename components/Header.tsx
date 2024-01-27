@@ -157,6 +157,10 @@ const AppHeader = ({ loader }: Props) => {
                     localStorage.clear();
                     supabase.auth.signOut();
                     setUser?.(null);
+                    router.push("/templates#");
+                    setTimeout(() => {
+                      openAuthDialog();
+                    }, 1000);
                   }}
                 >
                   Logout

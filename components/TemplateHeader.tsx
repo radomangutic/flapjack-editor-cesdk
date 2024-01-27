@@ -96,6 +96,7 @@ const TemplateHeader = ({
 
   const isActiveTab = () => {
     return user?.role === "flapjack" || navMenu === "myMenu";
+    return user?.role === "flapjack" || navMenu === "myMenu";
   };
 
   return (
@@ -380,6 +381,10 @@ const TemplateHeader = ({
                     localStorage.clear();
                     supabase.auth.signOut();
                     setUser?.(null);
+                    router.push("/templates#");
+                    setTimeout(() => {
+                      openAuthDialog();
+                    }, 1000);
                   }}
                 >
                   Logout
