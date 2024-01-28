@@ -15,6 +15,7 @@ export default async function handler(
         const customer = await stripe.customers.create();
         const session = await stripe.checkout.sessions.create({
           ui_mode: "embedded",
+          billing_address_collection: "required",
           customer: customer.id,
           custom_text: {
             submit: {
@@ -32,7 +33,6 @@ export default async function handler(
           consent_collection: {
             terms_of_service: "required"
           },
-
           payment_method_types: ["card"],
           mode: "setup",
           return_url: `${req.headers.origin}/status?session_id={CHECKOUT_SESSION_ID}`,
