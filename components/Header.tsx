@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { removeAllCookies } from "../helpers/EditorData";
+import { dbClient } from "../tests/helpers/database.helper";
 interface Props {
   loader?: boolean;
 }
@@ -30,7 +31,16 @@ const AppHeader = ({ loader }: Props) => {
       setIsCheckoutPage(false);
     }
   }, [router.pathname]);
-
+  const logout = async () => {
+    const logout = await supabase.auth.signOut();
+    console.log("logout", logout);
+    removeAllCookies();
+    setUser?.(null);
+    // router.push("/templates#");
+    setTimeout(() => {
+      openAuthDialog();
+    }, 1000);
+  };
   return (
     <Header height={64}>
       <Flex
@@ -152,20 +162,7 @@ const AppHeader = ({ loader }: Props) => {
                     Contact Us
                   </Menu.Item>
                 </a>
-                <Menu.Item
-                  icon={<IconLogout size={14} />}
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    removeAllCookies();
-                    setUser?.(null);
-                    router.push("/templates#");
-                    setTimeout(() => {
-                      openAuthDialog();
-                    }, 1000);
-                  }}
-                >
+                <Menu.Item icon={<IconLogout size={14} />} onClick={logout}>
                   Logout
                 </Menu.Item>
               </Menu.Dropdown>
