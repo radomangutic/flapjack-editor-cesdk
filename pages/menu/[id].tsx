@@ -16,7 +16,6 @@ const Menu = ({
   restaurantList: any;
   user: IUserDetails;
 }) => {
-  console.log("user", user);
   const [loader, setloader] = useState(false);
   if (!user) {
     return <PrivatePage login={!user} />;

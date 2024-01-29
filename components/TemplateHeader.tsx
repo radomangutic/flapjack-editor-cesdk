@@ -103,7 +103,6 @@ const TemplateHeader = ({
 
   const logout = async () => {
     const logout = await supabase.auth.signOut();
-    console.log("logout", logout);
     removeAllCookies();
     setUser?.(null);
     router.push("/templates#");
