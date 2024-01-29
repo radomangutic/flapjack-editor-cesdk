@@ -13,7 +13,6 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { removeAllCookies } from "../helpers/EditorData";
-import { dbClient } from "../tests/helpers/database.helper";
 interface Props {
   loader?: boolean;
 }
@@ -36,7 +35,7 @@ const AppHeader = ({ loader }: Props) => {
     console.log("logout", logout);
     removeAllCookies();
     setUser?.(null);
-    // router.push("/templates#");
+    router.push("/templates#");
     setTimeout(() => {
       openAuthDialog();
     }, 1000);
