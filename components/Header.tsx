@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
+import { removeAllCookies } from "../helpers/EditorData";
 interface Props {
   loader?: boolean;
 }
@@ -156,6 +157,7 @@ const AppHeader = ({ loader }: Props) => {
                   onClick={() => {
                     localStorage.clear();
                     supabase.auth.signOut();
+                    removeAllCookies();
                     setUser?.(null);
                     router.push("/templates#");
                     setTimeout(() => {

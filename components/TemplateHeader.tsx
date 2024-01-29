@@ -23,6 +23,7 @@ import { ITemplate } from "../interfaces";
 import _ from "lodash";
 import { userCanEditFontAndColor } from "../helpers/userCanEditFontAndColor";
 import Link from "next/link";
+import { removeAllCookies } from "../helpers/EditorData";
 interface ITemplateHeaderProps {
   onTemplateDownload?: () => void;
   onTemplateSaveUpdate?: () => void;
@@ -381,6 +382,7 @@ const TemplateHeader = ({
                     localStorage.clear();
                     supabase.auth.signOut();
                     setUser?.(null);
+                    removeAllCookies();
                     router.push("/templates#");
                     setTimeout(() => {
                       openAuthDialog();
