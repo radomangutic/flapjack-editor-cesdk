@@ -154,9 +154,10 @@ const AppHeader = ({ loader }: Props) => {
                 </a>
                 <Menu.Item
                   icon={<IconLogout size={14} />}
-                  onClick={() => {
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    sessionStorage.clear();
                     localStorage.clear();
-                    supabase.auth.signOut();
                     removeAllCookies();
                     setUser?.(null);
                     router.push("/templates#");

@@ -380,7 +380,9 @@ const TemplateHeader = ({
                   icon={<IconLogout size={14} />}
                   onClick={() => {
                     localStorage.clear();
+                    sessionStorage.clear();
                     supabase.auth.signOut();
+
                     setUser?.(null);
                     removeAllCookies();
                     router.push("/templates#");
