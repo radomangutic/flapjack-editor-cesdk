@@ -23,6 +23,8 @@ import { ITemplate } from "../interfaces";
 import _ from "lodash";
 import { userCanEditFontAndColor } from "../helpers/userCanEditFontAndColor";
 import Link from "next/link";
+import { removeAllCookies } from "../helpers/EditorData";
+import { dbClient } from "../tests/helpers/database.helper";
 interface ITemplateHeaderProps {
   onTemplateDownload?: () => void;
   onTemplateSaveUpdate?: () => void;
@@ -96,6 +98,14 @@ const TemplateHeader = ({
 
   const isActiveTab = () => {
     return user?.role === "flapjack" || navMenu === "myMenu";
+    return user?.role === "flapjack" || navMenu === "myMenu";
+  };
+
+  const logout = async () => {
+    const logout = await supabase.auth.signOut();
+    removeAllCookies();
+    setUser?.(null);
+    router.push("/templates");
   };
 
   return (
@@ -374,14 +384,7 @@ const TemplateHeader = ({
                     Contact Us
                   </Menu.Item>
                 </a>
-                <Menu.Item
-                  icon={<IconLogout size={14} />}
-                  onClick={() => {
-                    localStorage.clear();
-                    supabase.auth.signOut();
-                    setUser?.(null);
-                  }}
-                >
+                <Menu.Item icon={<IconLogout size={14} />} onClick={logout}>
                   Logout
                 </Menu.Item>
               </Menu.Dropdown>

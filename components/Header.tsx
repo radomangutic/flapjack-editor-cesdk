@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
+import { removeAllCookies } from "../helpers/EditorData";
 interface Props {
   loader?: boolean;
 }
@@ -29,7 +30,12 @@ const AppHeader = ({ loader }: Props) => {
       setIsCheckoutPage(false);
     }
   }, [router.pathname]);
-
+  const logout = async () => {
+    const logout = await supabase.auth.signOut();
+    removeAllCookies();
+    setUser?.(null);
+    router.push("/templates");
+  };
   return (
     <Header height={64}>
       <Flex
@@ -151,14 +157,7 @@ const AppHeader = ({ loader }: Props) => {
                     Contact Us
                   </Menu.Item>
                 </a>
-                <Menu.Item
-                  icon={<IconLogout size={14} />}
-                  onClick={() => {
-                    localStorage.clear();
-                    supabase.auth.signOut();
-                    setUser?.(null);
-                  }}
-                >
+                <Menu.Item icon={<IconLogout size={14} />} onClick={logout}>
                   Logout
                 </Menu.Item>
               </Menu.Dropdown>
