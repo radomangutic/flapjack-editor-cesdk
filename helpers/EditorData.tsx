@@ -27,3 +27,12 @@ export async function getEditorData(context: GetServerSidePropsContext) {
     throw error;
   }
 }
+
+export const removeAllCookies = () => {
+  document.cookie.split(";").forEach(function (cookie) {
+    const eqPos = cookie.indexOf("=");
+    const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+    document.cookie =
+      name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  });
+};

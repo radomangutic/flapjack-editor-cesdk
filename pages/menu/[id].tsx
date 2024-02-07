@@ -16,9 +16,10 @@ const Menu = ({
   restaurantList: any;
   user: IUserDetails;
 }) => {
-
   const [loader, setloader] = useState(false);
-
+  if (!user) {
+    return <PrivatePage login={!user} />;
+  }
   if (user?.role !== "flapjack") {
     if (!data?.isGlobal && user?.restaurant_id !== data?.restaurant_id) {
       return <PrivatePage login={!user} />;
@@ -32,7 +33,14 @@ const Menu = ({
   return (
     <>
       <AppHeader loader={loader} />
-      <Editor template={data} loader={loader} setloader={setloader} restaurantList={restaurantList} user={user} allowExport={true}/>
+      <Editor
+        template={data}
+        loader={loader}
+        setloader={setloader}
+        restaurantList={restaurantList}
+        user={user}
+        allowExport={true}
+      />
     </>
   );
 };
