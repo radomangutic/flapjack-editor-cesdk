@@ -34,10 +34,7 @@ const AppHeader = ({ loader }: Props) => {
     const logout = await supabase.auth.signOut();
     removeAllCookies();
     setUser?.(null);
-    router.push("/templates#");
-    setTimeout(() => {
-      openAuthDialog();
-    }, 1000);
+    router.push("/templates");
   };
   return (
     <Header height={64}>
