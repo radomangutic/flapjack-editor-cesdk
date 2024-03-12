@@ -22,7 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
   // console.log(user);
-  console.log({ resturantsOptions })
+  // console.log({ resturantsOptions })
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
