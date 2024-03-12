@@ -22,7 +22,7 @@ import _ from "lodash";
 import { userCanEditFontAndColor } from "../helpers/userCanEditFontAndColor";
 import Link from "next/link";
 import { removeAllCookies } from "../helpers/EditorData";
-import { dbClient } from "../tests/helpers/database.helper";
+import { useUserContext } from "../context/UserContext";
 interface ITemplateHeaderProps {
   onTemplateDownload?: () => void;
   onTemplateSaveUpdate?: () => void;
@@ -47,6 +47,7 @@ const TemplateHeader = ({
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
+  const { setSupabaeUser } = useUserContext()
 
   if (typeof document !== "undefined") {
     const panelWrapper = document.querySelector<HTMLElement>(".gjs-pn-panels");
@@ -100,6 +101,8 @@ const TemplateHeader = ({
 
   const logout = async () => {
     const logout = await supabase.auth.signOut();
+    localStorage.setItem("supabaseUser", "")
+    setSupabaeUser(null)
     removeAllCookies();
     router.push("/templates");
   };

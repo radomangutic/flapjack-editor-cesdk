@@ -21,7 +21,7 @@ const AppHeader = ({ loader }: Props) => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
-  const { isAuthenticated, user } = useUserContext()
+  const { isAuthenticated, user, setSupabaeUser } = useUserContext()
   const supabase = useSupabaseClient();
   const router = useRouter();
   useEffect(() => {
@@ -32,7 +32,9 @@ const AppHeader = ({ loader }: Props) => {
     }
   }, [router.pathname]);
   const logout = async () => {
-    const logout = await supabase.auth.signOut();
+    await supabase.auth.signOut();
+    localStorage.setItem("supabaseUser", "")
+    setSupabaeUser(null)
     removeAllCookies();
     router.push("/templates");
   };

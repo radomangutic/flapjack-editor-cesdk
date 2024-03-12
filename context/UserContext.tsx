@@ -1,18 +1,23 @@
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState, createContext, Dispatch, useContext, SetStateAction } from "react";
 import {
   useUser,
   useSessionContext,
+  User,
 } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../interfaces";
 
 interface UserContextType {
   user: IUserDetails | null;
+  supabaseUser: User | null
+  setSupabaeUser: Dispatch<SetStateAction<User | null>>
   isAuthenticated: boolean
 }
 
 export const UserContext = createContext<UserContextType>({
   user: null,
-  isAuthenticated: false
+  isAuthenticated: false,
+  supabaseUser: null,
+  setSupabaeUser: () => { }
 });
 
 export const useUserContext = () => useContext(UserContext)
@@ -22,9 +27,24 @@ export interface Props {
 }
 
 export const UserContextProvider = ({ children }: Props) => {
-  const { isLoading, supabaseClient: supabase } = useSessionContext();
+  const { isLoading, supabaseClient: supabase, session } = useSessionContext();
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const supabaseUser = useUser();
+  const [supabaseUser, setSupabaeUser] = useState<User | null>(null)
+
+  const supaUser = useUser()
+
+  useEffect(() => {
+    if (supaUser) {
+      localStorage.setItem("supabaseUser", JSON.stringify(supaUser))
+      setSupabaeUser(supaUser)
+    } else {
+      const supaUser = localStorage.getItem("supabaseUser")
+      if (supaUser) {
+        setSupabaeUser(JSON.parse(supaUser))
+      }
+    }
+  }, [supaUser])
+
   const [userDetails, setUserDetails] = useState<IUserDetails | null>(null);
 
   useEffect(() => {
@@ -59,5 +79,5 @@ export const UserContextProvider = ({ children }: Props) => {
     }
   }, [isLoading, supabase, supabaseUser]);
 
-  return <UserContext.Provider value={{ user: userDetails, isAuthenticated }}>{children}</UserContext.Provider>;
+  return <UserContext.Provider value={{ user: userDetails, isAuthenticated, supabaseUser, setSupabaeUser }}>{children}</UserContext.Provider>;
 };

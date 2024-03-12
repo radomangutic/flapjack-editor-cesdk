@@ -17,6 +17,7 @@ import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
 import { useRouter } from "next/router";
 import { decryptData } from "../helpers/enryption";
+import { useUserContext } from "../context/UserContext";
 
 interface IAuthDialogProps {
   opened: boolean;
@@ -111,6 +112,8 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
   const [urlAuthLoading, seturlAuthLoading] = useState(false);
   const inventoryTimerRef = useRef<number | null>(null);
+
+  const { setSupabaeUser } = useUserContext()
 
   const handleTimerStart = () => {
     setInventoryTimer(inventoryTime);
@@ -221,11 +224,12 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         type: "sms",
       });
       if (data?.session) {
-        console.log('set-session');
-        
+        const supaUser = data.session.user
+        setSupabaeUser(supaUser)
+        localStorage.setItem("supabaseUser", JSON.stringify(supaUser))
         const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
-        document.cookie = `my-access-token=${data?.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-        document.cookie = `my-refresh-token=${data?.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        document.cookie = `sb-access-token=${data?.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        document.cookie = `sb-refresh-token=${data?.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
       }
 
       if (error) {
@@ -242,7 +246,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         router.push("/templates");
       }
 
-      // window.location.reload();
       onClose();
     } catch (error: any) {
       throw error;
