@@ -93,7 +93,7 @@ const EditorConfig = ({
     if (user) {
       closeAuthDialog();
     }
-  }, [user]);
+  }, [closeAuthDialog, user]);
   function getConfigOfRecentComponent(eleList: any, id: string) {
     // most recent custom library component
     const recentcustomSource = {
@@ -190,7 +190,7 @@ const EditorConfig = ({
     const templateFonts = await fetchFonts();
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
@@ -272,20 +272,20 @@ const EditorConfig = ({
                   // Custom Components
                   user?.role === "flapjack"
                     ? {
-                        id: "Elements",
-                        sourceIds: [
-                          customComponent?.recent,
-                          "Elements",
-                          ...restaurantList?.map((item: any) => item?.name),
-                        ],
-                        previewLength: 2,
-                        gridColumns: 2,
-                        previewBackgroundType: "contain",
-                        gridBackgroundType: "contain",
-                        icon: ({ theme, iconSize }: any) => {
-                          return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                        },
-                      }
+                      id: "Elements",
+                      sourceIds: [
+                        customComponent?.recent,
+                        "Elements",
+                        ...restaurantList?.map((item: any) => item?.name),
+                      ],
+                      previewLength: 2,
+                      gridColumns: 2,
+                      previewBackgroundType: "contain",
+                      gridBackgroundType: "contain",
+                      icon: ({ theme, iconSize }: any) => {
+                        return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
+                      },
+                    }
                     : {},
                 ];
               },
@@ -370,8 +370,7 @@ const EditorConfig = ({
                     if (error) {
                       throw error;
                     }
-                    const userData = localStorage.getItem("userData");
-                    const user = userData && JSON.parse(userData);
+
                     const { height, width } = await getImageDimensions(file);
                     await dbClient.from("assets").insert({
                       content,
@@ -444,9 +443,8 @@ const EditorConfig = ({
           if (template?.content) {
             await cesdkInstance.current.engine.scene.loadFromURL(
               process.env.NEXT_PUBLIC_SUPABASE_URL +
-                `/storage/v1/object/public/templates/${
-                  template?.content
-                }?t=${new Date().toISOString()}`
+              `/storage/v1/object/public/templates/${template?.content
+              }?t=${new Date().toISOString()}`
             );
           }
           // setloadinEditor(false);
@@ -1031,11 +1029,9 @@ const EditorConfig = ({
           })
           .select()
           .single();
-        const imagePath = `${
-          process.env.NEXT_PUBLIC_SUPABASE_URL
-        }/storage/v1/object/public/elementsThumbnail/${
-          response?.data?.path
-        }?${Date.now()}`;
+        const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+          }/storage/v1/object/public/elementsThumbnail/${response?.data?.path
+          }?${Date.now()}`;
         const newItem = {
           id: data?.id?.toString(),
           createdBy: user?.id || null,

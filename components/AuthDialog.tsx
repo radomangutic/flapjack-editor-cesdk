@@ -15,7 +15,6 @@ import { dbClient } from "../tests/helpers/database.helper";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
-import { useSetUser, useUser } from "../hooks";
 import { useRouter } from "next/router";
 import { decryptData } from "../helpers/enryption";
 
@@ -100,7 +99,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const restaurantId = decryptedData?.restaurantId;
   const userPhoneByUrl = decryptedData?.phone;
   // console.log(userPhoneByUrl);
-  const setUser = useSetUser();
   const [value, setValue] = useState(
     userPhoneByUrl ? `+${userPhoneByUrl}` : ""
   );
@@ -244,7 +242,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         router.push("/templates");
       }
 
-      setUser?.(data?.user);
       // window.location.reload();
       onClose();
     } catch (error: any) {

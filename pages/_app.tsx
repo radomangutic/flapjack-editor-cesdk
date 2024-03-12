@@ -11,7 +11,7 @@ import "../styles/globals.css";
 import { NotificationsProvider } from "@mantine/notifications";
 import { hotjar } from "react-hotjar";
 import { GoogleAnalytics } from "nextjs-google-analytics";
-import UserContextProvider from "../context/UserContext";
+import { UserContextProvider } from "../context/UserContext";
 import { IntercomProvider } from "react-use-intercom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
