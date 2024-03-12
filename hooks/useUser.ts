@@ -66,8 +66,7 @@ export const fetchTemplates = async (
   }
   return templateData ?? [];
 };
-export const fetchAssets = async (): Promise<any[]> => {
-  const user = getUser();
+export const fetchAssets = async (user: IUserDetails): Promise<any[]> => {
   let templateData;
   if (user) {
     const { restaurant_id, role, id } = user;
@@ -112,16 +111,7 @@ export const fetchAssets = async (): Promise<any[]> => {
   return templateData ?? [];
 };
 
-export const getUser = () => {
-  const user = localStorage.getItem("userData");
-  if (user) {
-    const userData = JSON.parse(user);
-    return userData;
-  }
-  return null;
-};
-export const fetchResturants = async (): Promise<any[]> => {
-  const user = getUser();
+export const fetchResturants = async (user: IUserDetails): Promise<any[]> => {
   let restaurants;
   if (user) {
     const { role } = user;
@@ -185,12 +175,12 @@ export const transferTemplate = async (
 };
 
 export const uploadCustomFont = async (
+  user: IUserDetails,
   file: any,
   templateId: number | undefined,
   titleFont: string
 ) => {
   const content = uuidv4();
-  const user = getUser();
   const { data, error }: { data: any; error: any } = await dbClient.storage
     .from("fonts")
     .upload(content, file);
@@ -206,8 +196,7 @@ export const uploadCustomFont = async (
     name: titleFont,
   });
 };
-export const fetchFonts = async (): Promise<any[]> => {
-  const user = getUser();
+export const fetchFonts = async (user: IUserDetails): Promise<any[]> => {
   let templateFonts;
   if (user) {
     const { restaurant_id, role, id } = user;

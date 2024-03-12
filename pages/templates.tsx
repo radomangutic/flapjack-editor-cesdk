@@ -22,6 +22,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
   // console.log(user);
+  console.log({ resturantsOptions })
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -60,11 +61,13 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       setTemplates(templatesList);
       setloading(false);
     };
-    const getOptions = async () => {
-      const options: any = await fetchResturants();
-      setResturantsOptions(options);
-    };
-    getOptions();
+    if (user) {
+      const getOptions = async () => {
+        const options: any = await fetchResturants(user);
+        setResturantsOptions(options);
+      };
+      getOptions();
+    }
     fetchData();
   }, [user, user?.id]);
   const templateData = templates?.filter((template) => {

@@ -5,7 +5,6 @@ import {
   fetchFonts,
   fetchResturants,
   getImageDimensions,
-  getUser,
   uploadCustomFont,
   useUser,
 } from "../../hooks/useUser";
@@ -71,7 +70,7 @@ const EditorConfig = ({
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
   const [previewContent, setPreviewContent] = useState<Promise<string>[]>([]);
-  const [userData, setUserData] = useState<any>(getUser());
+  const [userData, setUserData] = useState<any>();
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
@@ -187,7 +186,7 @@ const EditorConfig = ({
     return recentcustomSource;
   }
   const setup = async () => {
-    const templateFonts = await fetchFonts();
+    const templateFonts = await fetchFonts(user);
     setFonts(templateFonts);
     const config: object = {
       logger: () => { },
@@ -563,7 +562,7 @@ const EditorConfig = ({
           setinput(input + 1);
           setloadinEditor(false);
           if (user?.role !== "flapjack") {
-            fetchAssets().then(
+            fetchAssets(user).then(
               async (assetsData) => await getAssetSources(assetsData)
             );
             const getAssetSources = async (assetsData: any[]) => {
@@ -587,7 +586,7 @@ const EditorConfig = ({
 
   useEffect(() => {
     const getOptions = async () => {
-      const options: any = await fetchResturants();
+      const options: any = await fetchResturants(user);
       setRestaurantsOptions(options);
     };
     getOptions();
@@ -933,7 +932,6 @@ const EditorConfig = ({
     let fonts: any = {};
     fontsData.map((item: any) => {
       if (item?.name) {
-        const user = getUser();
         let key =
           user?.role === "flapjack"
             ? `${item?.name}  ( ${item?.id} )`
@@ -975,7 +973,7 @@ const EditorConfig = ({
         setFontsError({});
 
         setloading(true);
-        await uploadCustomFont(font, template?.id, titleFontSize);
+        await uploadCustomFont(user, font, template?.id, titleFontSize);
       } else {
         openAuthDialog();
       }

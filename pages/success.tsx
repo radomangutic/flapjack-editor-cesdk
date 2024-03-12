@@ -1,6 +1,6 @@
 import { Box, Title } from "@mantine/core";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ICurrentUser } from "../interfaces/ICurrentUser";
 import { IProfiles } from "../interfaces/IProfiles";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -16,13 +16,26 @@ const Success = () => {
   const { success, canceled, session_id } = router.query;
 
   // GET_CURRENT_PROFILE
-  const getUser = async () => {
+  // GET_PROFILE
+  const getprofiles = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("email, id, subscriptionActive");
+      setProfiles(data);
+      if (error) throw error;
+    } catch (err) {
+      console.error(err);
+    }
+  }, [supabase]);
+
+  const getUser = useCallback(async () => {
     const user: any = await supabase.auth.getUser();
     setCurrentUser(user.data.user);
     getprofiles();
-  };
+  }, [getprofiles, supabase.auth]);
   // ACTIVE_SUBSCRIBER
-  const ActiveSubscription = async (userId: string) => {
+  const ActiveSubscription = useCallback(async (userId: string) => {
     try {
       const { error } = await supabase
         .from("profiles")
@@ -37,20 +50,7 @@ const Success = () => {
     } catch (err) {
       console.error(err);
     }
-  };
-
-  // GET_PROFILE
-  const getprofiles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("email, id, subscriptionActive");
-      setProfiles(data);
-      if (error) throw error;
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  }, [supabase]);
 
   useEffect(() => {
     if (
@@ -69,13 +69,13 @@ const Success = () => {
         );
       }
     }
-  }, [success, canceled, currentUser, profiles]);
+  }, [success, canceled, currentUser, profiles, ActiveSubscription]);
 
   useEffect(() => {
     if (!currentUser) {
       getUser();
     }
-  }, [currentUser]);
+  }, [currentUser, getUser]);
 
   return (
     <Box

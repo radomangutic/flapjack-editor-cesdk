@@ -14,7 +14,6 @@ import {
   useDialog,
   useUser,
   useUpsell,
-  getUser,
   canCreateTemplate,
 } from "../hooks";
 import { useEffect, useState } from "react";
@@ -83,12 +82,12 @@ const TemplateHeader = ({
   };
 
   useEffect(() => {
-    if (!getUser() && !user) {
+    if (!user) {
       openAuthDialog();
     } else {
       closeAuthDialog();
     }
-  }, [user]);
+  }, [closeAuthDialog, openAuthDialog, user]);
 
   useEffect(() => {
     setSizeValue(template?.content.assets[0]);

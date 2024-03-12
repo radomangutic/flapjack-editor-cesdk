@@ -7,13 +7,11 @@ import {
 import { useRouter } from "next/router";
 import axios from "axios";
 import PrivatePage from "../components/PrivatePage/PrivatePage";
-import { getUser } from "../hooks";
 
 const pub_key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const stripePromise = loadStripe(pub_key);
 
 export default function App() {
-  const user = getUser();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

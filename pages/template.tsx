@@ -5,7 +5,7 @@ import {
   ITemplateDetails,
   IUserDetails,
 } from "../interfaces";
-import { canCreateTemplate, getUser, useDialog, useUser } from "../hooks";
+import { canCreateTemplate, useDialog, useUser } from "../hooks";
 import {
   useSupabaseClient,
   useUser as useSupaUser,
