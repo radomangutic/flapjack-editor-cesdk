@@ -47,7 +47,6 @@ const TemplateHeader = ({
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
-  const { setSupabaeUser } = useUserContext()
 
   if (typeof document !== "undefined") {
     const panelWrapper = document.querySelector<HTMLElement>(".gjs-pn-panels");
@@ -101,8 +100,6 @@ const TemplateHeader = ({
 
   const logout = async () => {
     const logout = await supabase.auth.signOut();
-    localStorage.setItem("supabaseUser", "")
-    setSupabaeUser(null)
     removeAllCookies();
     router.push("/templates");
   };

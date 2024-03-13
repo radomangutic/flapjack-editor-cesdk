@@ -51,7 +51,7 @@ export default function App({
                   padding={0}
                   header={
                     !router.pathname.includes("preview") &&
-                    !router.pathname.includes("tv/") ? (
+                      !router.pathname.includes("tv/") ? (
                       <Header />
                     ) : (
                       <></>
@@ -62,8 +62,8 @@ export default function App({
                       backgroundColor: router.pathname.includes("checkout")
                         ? "#fff"
                         : !router.pathname.includes("templates")
-                        ? "#e7ebee"
-                        : "inherit",
+                          ? "#e7ebee"
+                          : "inherit",
 
                       minHeight: router.pathname.includes("checkout")
                         ? "auto"
