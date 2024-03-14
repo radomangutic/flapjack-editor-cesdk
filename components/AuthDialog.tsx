@@ -112,6 +112,13 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const inventoryTimerRef = useRef<number | null>(null);
   const { supabaseClient } = useSessionContext()
 
+  useEffect(() => {
+    if (!opened) {
+      setOtpScreen(false)
+      setOtp("")
+    }
+  }, [opened])
+
   const handleTimerStart = () => {
     setInventoryTimer(inventoryTime);
     inventoryTimerRef.current = setInterval(() => {
