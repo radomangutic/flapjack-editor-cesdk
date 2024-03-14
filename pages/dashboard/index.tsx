@@ -23,12 +23,14 @@ const Dashboard = ({ profiles }: { profiles: [] }) => {
   const [isLoading, setisLoading] = useState(false);
   const [resturantsOptions, setResturantsOptions] = useState([]);
   useEffect(() => {
-    const getOptions = async () => {
-      const options: any = await fetchResturants();
-      setResturantsOptions(options);
-    };
-    getOptions();
-  }, []);
+    if (user) {
+      const getOptions = async () => {
+        const options: any = await fetchResturants(user);
+        setResturantsOptions(options);
+      };
+      getOptions();
+    }
+  }, [user]);
 
   if (user?.role !== "flapjack") {
     return <PrivatePage />;

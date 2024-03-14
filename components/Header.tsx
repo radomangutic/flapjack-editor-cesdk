@@ -1,26 +1,28 @@
 import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useSessionContext } from "@supabase/auth-helpers-react";
 import {
   IconChevronDown,
   IconLogout,
   IconMail,
   IconSettings,
 } from "@tabler/icons";
-import { useDialog, useSetUser, useUser } from "../hooks";
+import { useDialog } from "../hooks";
 import AuthDialog from "./AuthDialog";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { removeAllCookies } from "../helpers/EditorData";
+import { useUserContext } from "../context/UserContext";
 interface Props {
   loader?: boolean;
 }
 const AppHeader = ({ loader }: Props) => {
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
-  const session = useUser();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
-  const setUser = useSetUser();
+
+  const { isAuthenticated, user } = useUserContext()
+  const { session, isLoading } = useSessionContext();
   const supabase = useSupabaseClient();
   const router = useRouter();
   useEffect(() => {
@@ -31,9 +33,8 @@ const AppHeader = ({ loader }: Props) => {
     }
   }, [router.pathname]);
   const logout = async () => {
-    const logout = await supabase.auth.signOut();
+    await supabase.auth.signOut();
     removeAllCookies();
-    setUser?.(null);
     router.push("/templates");
   };
   return (
@@ -119,7 +120,7 @@ const AppHeader = ({ loader }: Props) => {
           </Flex>
         </Box>
         {!isCheckoutPage ? (
-          session ? (
+          isAuthenticated ? (
             <Menu shadow="md" width={200}>
               <Menu.Target>
                 <Flex align="center" sx={{ cursor: "pointer" }}>
@@ -130,9 +131,9 @@ const AppHeader = ({ loader }: Props) => {
 
               <Menu.Dropdown>
                 <Menu.Label>Application</Menu.Label>
-                {session?.role === "owner" && (
+                {user?.role === "owner" && (
                   <Link
-                    href={`/restaurant/${session?.restaurant_id}`}
+                    href={`/restaurant/${user?.restaurant_id}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -141,7 +142,7 @@ const AppHeader = ({ loader }: Props) => {
                     </Menu.Item>
                   </Link>
                 )}
-                {session?.role === "flapjack" && (
+                {user?.role === "flapjack" && (
                   <Link href={`/dashboard`} target="_blank" rel="noreferrer">
                     <Menu.Item icon={<IconSettings size={14} />}>
                       Dashboard
@@ -168,9 +169,7 @@ const AppHeader = ({ loader }: Props) => {
         ) : (
           ""
         )}
-        {authDialog && !session && (
-          <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
-        )}
+        {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
       </Flex>
     </Header>
   );

@@ -11,7 +11,7 @@ import "../styles/globals.css";
 import { NotificationsProvider } from "@mantine/notifications";
 import { hotjar } from "react-hotjar";
 import { GoogleAnalytics } from "nextjs-google-analytics";
-import UserContextProvider from "../context/UserContext";
+import { UserContextProvider } from "../context/UserContext";
 import { IntercomProvider } from "react-use-intercom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,7 +51,7 @@ export default function App({
                   padding={0}
                   header={
                     !router.pathname.includes("preview") &&
-                    !router.pathname.includes("tv/") ? (
+                      !router.pathname.includes("tv/") ? (
                       <Header />
                     ) : (
                       <></>
@@ -62,8 +62,8 @@ export default function App({
                       backgroundColor: router.pathname.includes("checkout")
                         ? "#fff"
                         : !router.pathname.includes("templates")
-                        ? "#e7ebee"
-                        : "inherit",
+                          ? "#e7ebee"
+                          : "inherit",
 
                       minHeight: router.pathname.includes("checkout")
                         ? "auto"

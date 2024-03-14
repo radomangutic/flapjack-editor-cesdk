@@ -1,65 +1,49 @@
-import { useEffect, useState, createContext } from "react";
+import { useEffect, useState, createContext, Dispatch, useContext, SetStateAction } from "react";
 import {
-  useUser as useSupaUser,
+  useUser,
   useSessionContext,
+  User,
+  useSession,
+
 } from "@supabase/auth-helpers-react";
 import { IUserDetails } from "../interfaces";
-import { getUser } from "../hooks";
 
 interface UserContextType {
   user: IUserDetails | null;
-  setUser?: (IUserDetails: IUserDetails | null) => any;
+  supabaseUser: User | null
+  isAuthenticated: boolean
 }
 
-export const UserContext = createContext<UserContextType | undefined>({
+export const UserContext = createContext<UserContextType>({
   user: null,
-  setUser: (userDetails: any) => null,
+  isAuthenticated: false,
+  supabaseUser: null,
 });
 
+export const useUserContext = () => useContext(UserContext)
+
 export interface Props {
-  [propName: string]: any;
+  children: React.ReactNode
 }
 
-const UserContextProvider = (props: Props) => {
+export const UserContextProvider = ({ children }: Props) => {
   const { isLoading, supabaseClient: supabase } = useSessionContext();
-  const supabaseUser = useSupaUser();  
-  const [user, setuser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userDetails, setUserDetails] = useState<IUserDetails | null>(null);
-  const setUser = (userDetails: any) => {
-    if (userDetails) {
-      setuser(userDetails);
-    } else {
-      setUserDetails(null);
-      localStorage.clear();
-    }
-  };
+
+  const supabaseUser = useUser()
+
   useEffect(() => {
-    let data = getUser();
-    if (data) {
-      setuser(data);
-    }
-  }, []);
-  useEffect(() => {
-    if (supabaseUser) {
-      setuser(supabaseUser);
-    }
-  }, [supabaseUser]);
-  useEffect(() => {
-    if (user) {
+    if (supabaseUser?.id) {
+      setIsAuthenticated(true)
       supabase
         .from("profiles")
         .select("*")
-        .eq("id", user?.id)
+        .eq("id", supabaseUser?.id)
         .single()
         .then(async ({ data, error }) => {
           if (error) {
-            setUserDetails({
-              ...user,
-              subscriptionActive: false,
-              subscriptionExpiry: "",
-              role: "user",
-              restaurant_id: "",
-            });
+            setUserDetails(null);
             return;
           }
           if (data?.restaurant_id) {
@@ -69,30 +53,17 @@ const UserContextProvider = (props: Props) => {
               .eq("id", data?.restaurant_id)
               .single();
             data.restaurant = restaurantData;
-          } else if (data?.restaurant) {
-            delete user.restaurant;
           }
           setUserDetails({
-            ...user,
             ...data,
           });
-          localStorage.setItem(
-            "userData",
-            JSON.stringify({ ...user, ...data })
-          );
+
         });
-    } else if (!user && !isLoading) {
+    } else if (!supabaseUser && !isLoading) {
+      setIsAuthenticated(false)
       setUserDetails(null);
-      localStorage.clear();
     }
-  }, [user, isLoading, supabase]);
+  }, [isLoading, supabase, supabaseUser]);
 
-  const value = {
-    user: userDetails,
-    setUser,
-  };
-
-  return <UserContext.Provider value={value} {...props} />;
+  return <UserContext.Provider value={{ user: userDetails, isAuthenticated, supabaseUser }}>{children}</UserContext.Provider>;
 };
-
-export default UserContextProvider;

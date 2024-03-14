@@ -6,23 +6,22 @@ import { Container, SimpleGrid, Skeleton, Text } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { ITemplateDetails } from "../interfaces/ITemplate";
 import {
-  useUser,
   useTemplateActions,
   fetchTemplates,
   fetchResturants,
-  getUser,
 } from "../hooks";
 import { useRouter } from "next/router";
+import { useUserContext } from "../context/UserContext";
 
 const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
   const loadingArray = new Array(10).fill(0);
   const router = useRouter();
-  const user = getUser();
+  const { user } = useUserContext()
   const [templates, setTemplates] = useState<ITemplateDetails[]>([]);
   const [navMenu, setNavMenu] = useState("templates");
   const [loading, setloading] = useState(true);
   const [resturantsOptions, setResturantsOptions] = useState([]);
-  // console.log(user);
+  // console.log({ resturantsOptions })
 
   const { deleteTemplate, renameTemplate, duplicateTemplate, globalTemplate } =
     useTemplateActions(templates, setTemplates, setNavMenu);
@@ -48,7 +47,7 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
         );
       }
     }
-  }, [user]);
+  }, [router.isReady, user]);
   useEffect(() => {
     const fetchData = async () => {
       const templatesList = await fetchTemplates(user);
@@ -61,13 +60,15 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
       setTemplates(templatesList);
       setloading(false);
     };
-    const getOptions = async () => {
-      const options: any = await fetchResturants();
-      setResturantsOptions(options);
-    };
-    getOptions();
+    if (user) {
+      const getOptions = async () => {
+        const options: any = await fetchResturants(user);
+        setResturantsOptions(options);
+      };
+      getOptions();
+    }
     fetchData();
-  }, [user?.id]);
+  }, [user, user?.id]);
   const templateData = templates?.filter((template) => {
     // show all menus in the user's restaurant
     if (template?.restaurant_id === user?.restaurant_id) return true;
@@ -155,11 +156,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                     <TemplateCard
                       key={i}
                       template={template}
-                      thumbnail={`${
-                        process.env.NEXT_PUBLIC_SUPABASE_URL
-                      }/storage/v1/object/public/renderings/${
-                        template.id
-                      }/coverImage?${i}${Date.now()}`}
+                      thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                        }/storage/v1/object/public/renderings/${template.id
+                        }/coverImage?${i}${Date.now()}`}
                       onRemove={deleteTemplate}
                       onRename={renameTemplate}
                       onDuplicate={duplicateTemplate}
@@ -212,10 +211,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 const menus = item?.location?.length
                   ? groupMenusByLocation(restaurantTemplate, item?.location)
                   : [
-                      {
-                        menus: restaurantTemplate,
-                      },
-                    ];
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
                 return (
                   <div key={i}>
                     <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -241,11 +240,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                               <TemplateCard
                                 key={i}
                                 template={template}
-                                thumbnail={`${
-                                  process.env.NEXT_PUBLIC_SUPABASE_URL
-                                }/storage/v1/object/public/renderings/${
-                                  template.id
-                                }/coverImage?${i}${Date.now()}`}
+                                thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                                  }/storage/v1/object/public/renderings/${template.id
+                                  }/coverImage?${i}${Date.now()}`}
                                 onRemove={deleteTemplate}
                                 onRename={renameTemplate}
                                 onDuplicate={duplicateTemplate}
@@ -279,10 +276,10 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                 const menus = item?.location?.length
                   ? groupMenusByLocation(restaurantTemplate, item?.location)
                   : [
-                      {
-                        menus: restaurantTemplate,
-                      },
-                    ];
+                    {
+                      menus: restaurantTemplate,
+                    },
+                  ];
                 return (
                   <div key={i}>
                     <Text style={{ fontSize: "26px" }} fw={"inherit"}>
@@ -308,11 +305,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                               <TemplateCard
                                 key={i}
                                 template={template}
-                                thumbnail={`${
-                                  process.env.NEXT_PUBLIC_SUPABASE_URL
-                                }/storage/v1/object/public/renderings/${
-                                  template.id
-                                }/coverImage?${i}${Date.now()}`}
+                                thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                                  }/storage/v1/object/public/renderings/${template.id
+                                  }/coverImage?${i}${Date.now()}`}
                                 onRemove={deleteTemplate}
                                 onRename={renameTemplate}
                                 onDuplicate={duplicateTemplate}
@@ -374,11 +369,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                         <TemplateCard
                           key={i}
                           template={template}
-                          thumbnail={`${
-                            process.env.NEXT_PUBLIC_SUPABASE_URL
-                          }/storage/v1/object/public/renderings/${
-                            template.id
-                          }/coverImage?${i}${Date.now()}`}
+                          thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                            }/storage/v1/object/public/renderings/${template.id
+                            }/coverImage?${i}${Date.now()}`}
                           onRemove={deleteTemplate}
                           onRename={renameTemplate}
                           onDuplicate={duplicateTemplate}
@@ -414,11 +407,9 @@ const Templates = ({ thumbnails }: { thumbnails: string[] }) => {
                   <TemplateCard
                     key={i}
                     template={template}
-                    thumbnail={`${
-                      process.env.NEXT_PUBLIC_SUPABASE_URL
-                    }/storage/v1/object/public/renderings/${
-                      template.id
-                    }/coverImage?${i}${Date.now()}`}
+                    thumbnail={`${process.env.NEXT_PUBLIC_SUPABASE_URL
+                      }/storage/v1/object/public/renderings/${template.id
+                      }/coverImage?${i}${Date.now()}`}
                     onRemove={deleteTemplate}
                     onRename={renameTemplate}
                     onDuplicate={duplicateTemplate}

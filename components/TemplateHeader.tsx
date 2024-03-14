@@ -8,15 +8,13 @@ import {
   IconSettings,
 } from "@tabler/icons";
 
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
 import {
   useDialog,
   useUser,
   useUpsell,
-  getUser,
   canCreateTemplate,
-  useSetUser,
 } from "../hooks";
 import { useEffect, useState } from "react";
 import { ITemplate } from "../interfaces";
@@ -24,7 +22,7 @@ import _ from "lodash";
 import { userCanEditFontAndColor } from "../helpers/userCanEditFontAndColor";
 import Link from "next/link";
 import { removeAllCookies } from "../helpers/EditorData";
-import { dbClient } from "../tests/helpers/database.helper";
+import { useUserContext } from "../context/UserContext";
 interface ITemplateHeaderProps {
   onTemplateDownload?: () => void;
   onTemplateSaveUpdate?: () => void;
@@ -45,8 +43,7 @@ const TemplateHeader = ({
   const router = useRouter();
   const user = useUser();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
-  const session = useSession();
-  const setUser = useSetUser();
+  const { session, isLoading } = useSessionContext();
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
@@ -85,14 +82,6 @@ const TemplateHeader = ({
   };
 
   useEffect(() => {
-    if (!getUser() && !user) {
-      openAuthDialog();
-    } else {
-      closeAuthDialog();
-    }
-  }, [user]);
-
-  useEffect(() => {
     setSizeValue(template?.content.assets[0]);
   }, [template]);
 
@@ -104,7 +93,6 @@ const TemplateHeader = ({
   const logout = async () => {
     const logout = await supabase.auth.signOut();
     removeAllCookies();
-    setUser?.(null);
     router.push("/templates");
   };
 
@@ -188,9 +176,8 @@ const TemplateHeader = ({
                     cursor: "default",
                   }),
                 }}
-                className={`myMenu ${
-                  navMenu === "myMenu" ? "active" : ""
-                } cursor-pointer`}
+                className={`myMenu ${navMenu === "myMenu" ? "active" : ""
+                  } cursor-pointer`}
                 fz="sm"
                 onClick={() => {
                   if (!user?.restaurant_id) return;
@@ -223,13 +210,12 @@ const TemplateHeader = ({
             )}
             {(user?.role == "user" && user?.subscriptionActive) ||
               (user?.role === "owner" ||
-              (user?.role === "user" && !!user?.restaurant_id) ? (
+                (user?.role === "user" && !!user?.restaurant_id) ? (
                 <></>
               ) : (
                 <Text
-                  className={`templates ${
-                    navMenu === "templates" ? "active" : ""
-                  } cursor-pointer`}
+                  className={`templates ${navMenu === "templates" ? "active" : ""
+                    } cursor-pointer`}
                   fz="sm"
                   ml="sm"
                   onClick={() => {
@@ -262,9 +248,8 @@ const TemplateHeader = ({
             {user?.role === "flapjack" && (
               <Text
                 // navMenu "cursor-pointer"
-                className={`myMenu ${
-                  navMenu === "customerMenus" ? "active" : ""
-                } cursor-pointer`}
+                className={`myMenu ${navMenu === "customerMenus" ? "active" : ""
+                  } cursor-pointer`}
                 ml="sm"
                 fz="sm"
                 onClick={() => {
@@ -342,8 +327,8 @@ const TemplateHeader = ({
                   ? "Update"
                   : "Save Menu"
                 : user
-                ? "Save"
-                : "Save Menu"}
+                  ? "Save"
+                  : "Save Menu"}
             </Button>
           )}
           {user ? (
@@ -398,9 +383,6 @@ const TemplateHeader = ({
             >
               Sign Up
             </Button>
-          )}
-          {authDialog && (
-            <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
           )}
         </Flex>
       </Flex>
