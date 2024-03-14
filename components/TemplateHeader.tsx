@@ -8,7 +8,7 @@ import {
   IconSettings,
 } from "@tabler/icons";
 
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-react";
 import AuthDialog from "./AuthDialog";
 import {
   useDialog,
@@ -43,7 +43,7 @@ const TemplateHeader = ({
   const router = useRouter();
   const user = useUser();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
-  const session = useSession();
+  const { session, isLoading } = useSessionContext();
   const supabase = useSupabaseClient();
   const [sizeValue, setSizeValue] = useState<string>();
   const { triggerUpsellOr } = useUpsell(user?.subscriptionActive, user?.id);
@@ -80,14 +80,6 @@ const TemplateHeader = ({
     navMenu && setNavMenu(value);
     localStorage.setItem("activeTab", value);
   };
-
-  useEffect(() => {
-    if (!user) {
-      openAuthDialog();
-    } else {
-      closeAuthDialog();
-    }
-  }, [closeAuthDialog, openAuthDialog, user]);
 
   useEffect(() => {
     setSizeValue(template?.content.assets[0]);
@@ -392,9 +384,7 @@ const TemplateHeader = ({
               Sign Up
             </Button>
           )}
-          {authDialog && (
-            <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
-          )}
+          {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
         </Flex>
       </Flex>
     </Header>

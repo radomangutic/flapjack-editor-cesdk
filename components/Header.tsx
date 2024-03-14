@@ -1,5 +1,5 @@
 import { Header, Flex, Text, Button, Avatar, Menu, Box } from "@mantine/core";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useSessionContext } from "@supabase/auth-helpers-react";
 import {
   IconChevronDown,
   IconLogout,
@@ -22,6 +22,7 @@ const AppHeader = ({ loader }: Props) => {
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
   const { isAuthenticated, user } = useUserContext()
+  const { session, isLoading } = useSessionContext();
   const supabase = useSupabaseClient();
   const router = useRouter();
   useEffect(() => {
@@ -168,9 +169,7 @@ const AppHeader = ({ loader }: Props) => {
         ) : (
           ""
         )}
-        {authDialog && !isAuthenticated && (
-          <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
-        )}
+        {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
       </Flex>
     </Header>
   );

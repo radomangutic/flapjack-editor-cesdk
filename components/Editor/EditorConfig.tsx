@@ -16,7 +16,7 @@ import UpsertTemplateDialog from "../UpsertTemplateDialog";
 import { useDialog } from "../../hooks";
 import AuthDialog from "../AuthDialog";
 import { TailSpin } from "react-loader-spinner";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useSessionContext } from "@supabase/auth-helpers-react";
 import { toast } from "react-toastify";
 import {
   Box,
@@ -87,6 +87,8 @@ const EditorConfig = ({
   const [usedComponenets, setusedComponenets] = useState<any>([]);
   const [menuInjected, setMenuInjected] = useState<boolean>(false);
   const { width } = useWindow();
+
+  const { session, isLoading } = useSessionContext()
   useEffect(() => {
     setUserData(user);
     if (user) {
@@ -1308,7 +1310,7 @@ const EditorConfig = ({
   }, [cesdkInstance?.current]);
   return (
     <div onClick={() => setinput(input + 1)}>
-      <AuthDialog opened={authDialog} onClose={closeAuthDialog} />
+      {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
       {loadinEditor && (
         <Box
           style={{
