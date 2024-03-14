@@ -11,11 +11,10 @@ import {
 import Image from "next/image";
 import theme from "../config/theme";
 import { useEffect, useRef, useState } from "react";
-import { dbClient } from "../tests/helpers/database.helper";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import OtpInput from "react-otp-input";
-import { useSetUser, useUser } from "../hooks";
 import { useRouter } from "next/router";
 import { decryptData } from "../helpers/enryption";
 
@@ -99,8 +98,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const decryptedData = decryptData(secretKey);
   const restaurantId = decryptedData?.restaurantId;
   const userPhoneByUrl = decryptedData?.phone;
-  // console.log(userPhoneByUrl);
-  const setUser = useSetUser();
   const [value, setValue] = useState(
     userPhoneByUrl ? `+${userPhoneByUrl}` : ""
   );
@@ -113,6 +110,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const [inventoryTimer, setInventoryTimer] = useState<number>(0);
   const [urlAuthLoading, seturlAuthLoading] = useState(false);
   const inventoryTimerRef = useRef<number | null>(null);
+  const { supabaseClient } = useSessionContext()
 
   const handleTimerStart = () => {
     setInventoryTimer(inventoryTime);
@@ -146,7 +144,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
           return;
         }
         setError({});
-        const { data: whiteListUser, error: errorOnGetting } = await dbClient
+        const { data: whiteListUser, error: errorOnGetting } = await supabaseClient
           .from("whitelist_users")
           .select("*")
           .eq("email", value)
@@ -154,7 +152,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         if (whiteListUser && !errorOnGetting) {
           window.location.href = "https://app.flapjack.co";
         }
-        const { data, error } = await dbClient.auth.signInWithOtp({
+        const { data, error } = await supabaseClient.auth.signInWithOtp({
           email: value,
           options: {
             emailRedirectTo: window.location.origin,
@@ -179,7 +177,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         }
         setError({});
         const { data: whiteListUserPhone, error: errorOnGettingPhone } =
-          await dbClient
+          await supabaseClient
             .from("whitelist_users")
             .select("*")
             .eq("phone", value)
@@ -187,7 +185,7 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         if (whiteListUserPhone && !errorOnGettingPhone) {
           window.location.href = "https://app.flapjack.co";
         }
-        const { data, error } = await dbClient.auth.signInWithOtp({
+        const { data, error } = await supabaseClient.auth.signInWithOtp({
           phone: value,
         });
         if (error) {
@@ -217,25 +215,18 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
       if (otp.length > 6) {
         setError({ phone: "Invalid OTP" });
       }
-      const { data, error } = await dbClient.auth.verifyOtp({
+      const { data, error } = await supabaseClient.auth.verifyOtp({
         phone: value,
         token: otp,
         type: "sms",
       });
-      if (data?.session) {
-        console.log('set-session');
-        
-        const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
-        document.cookie = `my-access-token=${data?.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-        document.cookie = `my-refresh-token=${data?.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-      }
 
       if (error) {
         setError({ phone: "Invalid Otp" });
       }
 
       if (restaurantId) {
-        await dbClient
+        await supabaseClient
           .from("profiles")
           .update({
             restaurant_id: restaurantId,
@@ -244,8 +235,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
         router.push("/templates");
       }
 
-      setUser?.(data?.user);
-      // window.location.reload();
       onClose();
     } catch (error: any) {
       throw error;

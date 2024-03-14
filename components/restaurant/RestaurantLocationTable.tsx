@@ -16,15 +16,12 @@ import { useState } from "react";
 import CommanModal from "../CommonModal";
 import RemoveUser from "./RemoveUser";
 import { dbClient } from "../../tests/helpers/database.helper";
-import { getUser, useSetUser } from "../../hooks";
 
 interface UsersTableProps {
   data: RestaurantType;
 }
 type RestaurantModalType = "empty" | "removeLocation" | "addLocation";
 export function RestaurantLocationTable({ data }: UsersTableProps) {
-  const setUser = useSetUser();
-  const user = getUser();
 
   const [locations, setlocations] = useState<string[]>(data?.location);
   const [modalType, setmodalType] = useState<RestaurantModalType>("empty");
@@ -99,10 +96,6 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
     if (resonse) {
       setlocations(resonse?.location);
     }
-    setUser?.({
-      ...user,
-      restaurant: { ...user?.restaurant, location: filterLocaton },
-    });
     setisLoading(false);
     setselectedLocation("");
     setmodalType("empty");
@@ -139,10 +132,6 @@ export function RestaurantLocationTable({ data }: UsersTableProps) {
       if (resonse) {
         setlocations(resonse?.location);
       }
-      setUser?.({
-        ...user,
-        restaurant: { ...user?.restaurant, location: updatedLocation },
-      });
       setisLoading(false);
       setselectedLocation("");
       setmodalType("empty");

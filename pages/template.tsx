@@ -5,7 +5,7 @@ import {
   ITemplateDetails,
   IUserDetails,
 } from "../interfaces";
-import { canCreateTemplate, getUser, useDialog, useUser } from "../hooks";
+import { canCreateTemplate, useDialog, useUser } from "../hooks";
 import {
   useSupabaseClient,
   useUser as useSupaUser,
@@ -22,18 +22,18 @@ import {
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSidePropsContext } from "next";
 import { getEditorData } from "../helpers/EditorData";
+import { useUserContext } from "../context/UserContext";
 
 export const WRAPPER_PADDING = 10;
 
 const Template = ({
   data,
   restaurantList,
-  user,
 }: {
   data: ITemplateDetails;
   restaurantList: any;
-  user: IUserDetails;
 }) => {
+  const { user } = useUserContext()
   const [loader, setloader] = useState(false);
 
   if (typeof window !== "undefined") {
@@ -41,17 +41,19 @@ const Template = ({
       return <PrivatePage login={!user} />;
     }
 
-    return (
-      <>
-        <Editor
-          template={data}
-          loader={loader}
-          setloader={setloader}
-          restaurantList={restaurantList}
-          user={user}
-        />
-      </>
-    );
+    if (user) {
+      return (
+        <>
+          <Editor
+            template={data}
+            loader={loader}
+            setloader={setloader}
+            restaurantList={restaurantList}
+            user={user}
+          />
+        </>
+      );
+    }
   }
 
   return null;

@@ -5,7 +5,6 @@ import {
   fetchFonts,
   fetchResturants,
   getImageDimensions,
-  getUser,
   uploadCustomFont,
   useUser,
 } from "../../hooks/useUser";
@@ -71,7 +70,7 @@ const EditorConfig = ({
   const [templateModal, settemplateModal] = useState<boolean>(false);
   const [content, setcontent] = useState<string>("");
   const [previewContent, setPreviewContent] = useState<Promise<string>[]>([]);
-  const [userData, setUserData] = useState<any>(getUser());
+  const [userData, setUserData] = useState<any>();
   const [input, setinput] = useState<any>(1);
   const router = useRouter();
   const [authDialog, openAuthDialog, closeAuthDialog] = useDialog(false);
@@ -93,7 +92,7 @@ const EditorConfig = ({
     if (user) {
       closeAuthDialog();
     }
-  }, [user]);
+  }, [closeAuthDialog, user]);
   function getConfigOfRecentComponent(eleList: any, id: string) {
     // most recent custom library component
     const recentcustomSource = {
@@ -187,10 +186,10 @@ const EditorConfig = ({
     return recentcustomSource;
   }
   const setup = async () => {
-    const templateFonts = await fetchFonts();
+    const templateFonts = await fetchFonts(user);
     setFonts(templateFonts);
     const config: object = {
-      logger: () => {},
+      logger: () => { },
       role: "Creator",
       theme: "light",
       license: process.env.REACT_APP_LICENSE,
@@ -272,20 +271,20 @@ const EditorConfig = ({
                   // Custom Components
                   user?.role === "flapjack"
                     ? {
-                        id: "Elements",
-                        sourceIds: [
-                          customComponent?.recent,
-                          "Elements",
-                          ...restaurantList?.map((item: any) => item?.name),
-                        ],
-                        previewLength: 2,
-                        gridColumns: 2,
-                        previewBackgroundType: "contain",
-                        gridBackgroundType: "contain",
-                        icon: ({ theme, iconSize }: any) => {
-                          return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
-                        },
-                      }
+                      id: "Elements",
+                      sourceIds: [
+                        customComponent?.recent,
+                        "Elements",
+                        ...restaurantList?.map((item: any) => item?.name),
+                      ],
+                      previewLength: 2,
+                      gridColumns: 2,
+                      previewBackgroundType: "contain",
+                      gridBackgroundType: "contain",
+                      icon: ({ theme, iconSize }: any) => {
+                        return "https://wmdpmyvxnuwqtdivtjij.supabase.co/storage/v1/object/public/elementsThumbnail/icon.svg";
+                      },
+                    }
                     : {},
                 ];
               },
@@ -370,8 +369,7 @@ const EditorConfig = ({
                     if (error) {
                       throw error;
                     }
-                    const userData = localStorage.getItem("userData");
-                    const user = userData && JSON.parse(userData);
+
                     const { height, width } = await getImageDimensions(file);
                     await dbClient.from("assets").insert({
                       content,
@@ -444,9 +442,8 @@ const EditorConfig = ({
           if (template?.content) {
             await cesdkInstance.current.engine.scene.loadFromURL(
               process.env.NEXT_PUBLIC_SUPABASE_URL +
-                `/storage/v1/object/public/templates/${
-                  template?.content
-                }?t=${new Date().toISOString()}`
+              `/storage/v1/object/public/templates/${template?.content
+              }?t=${new Date().toISOString()}`
             );
           }
           // setloadinEditor(false);
@@ -565,7 +562,7 @@ const EditorConfig = ({
           setinput(input + 1);
           setloadinEditor(false);
           if (user?.role !== "flapjack") {
-            fetchAssets().then(
+            fetchAssets(user).then(
               async (assetsData) => await getAssetSources(assetsData)
             );
             const getAssetSources = async (assetsData: any[]) => {
@@ -589,7 +586,7 @@ const EditorConfig = ({
 
   useEffect(() => {
     const getOptions = async () => {
-      const options: any = await fetchResturants();
+      const options: any = await fetchResturants(user);
       setRestaurantsOptions(options);
     };
     getOptions();
@@ -935,7 +932,6 @@ const EditorConfig = ({
     let fonts: any = {};
     fontsData.map((item: any) => {
       if (item?.name) {
-        const user = getUser();
         let key =
           user?.role === "flapjack"
             ? `${item?.name}  ( ${item?.id} )`
@@ -977,7 +973,7 @@ const EditorConfig = ({
         setFontsError({});
 
         setloading(true);
-        await uploadCustomFont(font, template?.id, titleFontSize);
+        await uploadCustomFont(user, font, template?.id, titleFontSize);
       } else {
         openAuthDialog();
       }
@@ -1031,11 +1027,9 @@ const EditorConfig = ({
           })
           .select()
           .single();
-        const imagePath = `${
-          process.env.NEXT_PUBLIC_SUPABASE_URL
-        }/storage/v1/object/public/elementsThumbnail/${
-          response?.data?.path
-        }?${Date.now()}`;
+        const imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+          }/storage/v1/object/public/elementsThumbnail/${response?.data?.path
+          }?${Date.now()}`;
         const newItem = {
           id: data?.id?.toString(),
           createdBy: user?.id || null,

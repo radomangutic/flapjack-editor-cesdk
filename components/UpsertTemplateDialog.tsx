@@ -13,7 +13,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { getUser, templateArchive, useUser } from "../hooks";
+import { templateArchive, useUser } from "../hooks";
 import { ITemplate, ITemplateDetails } from "../interfaces";
 import { dbClient } from "../tests/helpers/database.helper";
 import { v4 as uuidv4 } from "uuid";
@@ -46,14 +46,13 @@ const UpsertTemplateDialog = ({
   const supabase = useSupabaseClient();
   const [isFileEsist, setisFileEsist] = useState(false);
   const user = useUser();
-  const userData = getUser();
-  const userLocation = userData?.restaurant?.location?.length
+  const userLocation = user?.restaurant?.location?.length
     ? user?.restaurant?.location?.map((item: string) => {
-        return {
-          label: item,
-          value: item,
-        };
-      })
+      return {
+        label: item,
+        value: item,
+      };
+    })
     : [];
   const router = useRouter();
   const imageRef = useRef<HTMLInputElement | null>(null);
@@ -64,11 +63,9 @@ const UpsertTemplateDialog = ({
   const [location, setLocation] = useState(template?.location || "");
   const [isModalOpen, { open, close }] = useDisclosure(false);
   const [values, setValues] = useState();
-  const filUrl = `${
-    process.env.NEXT_PUBLIC_SUPABASE_URL
-  }/storage/v1/object/public/renderings/${
-    router.query.id
-  }/coverImage?${Date.now()}`;
+  const filUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL
+    }/storage/v1/object/public/renderings/${router.query.id
+    }/coverImage?${Date.now()}`;
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     if (loader) {
@@ -284,8 +281,8 @@ const UpsertTemplateDialog = ({
                   isFileEsist
                     ? filUrl
                     : form?.values?.coverImage
-                    ? URL.createObjectURL(form?.values?.coverImage)
-                    : ""
+                      ? URL.createObjectURL(form?.values?.coverImage)
+                      : ""
                 }
                 alt="Selected"
                 style={{
