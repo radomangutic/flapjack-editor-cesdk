@@ -98,7 +98,6 @@ const AuthDialog = ({ opened, onClose }: IAuthDialogProps) => {
   const decryptedData = decryptData(secretKey);
   const restaurantId = decryptedData?.restaurantId;
   const userPhoneByUrl = decryptedData?.phone;
-  // console.log(userPhoneByUrl);
   const [value, setValue] = useState(
     userPhoneByUrl ? `+${userPhoneByUrl}` : ""
   );
