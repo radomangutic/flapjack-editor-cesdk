@@ -35,7 +35,6 @@ test("Login with email", async ({ page }) => {
 
 test("Create menu", async ({ page }) => {
   await page.goto("http://localhost:3000/template");
-  await page.getByRole("button", { name: "Login" }).click();
   await expect(page.locator(".loginWithEmailButton").first()).toBeVisible();
 });
 

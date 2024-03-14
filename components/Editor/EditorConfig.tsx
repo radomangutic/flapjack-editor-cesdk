@@ -1310,7 +1310,6 @@ const EditorConfig = ({
   }, [cesdkInstance?.current]);
   return (
     <div onClick={() => setinput(input + 1)}>
-      {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
       {loadinEditor && (
         <Box
           style={{

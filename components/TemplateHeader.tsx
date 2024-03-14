@@ -384,7 +384,6 @@ const TemplateHeader = ({
               Sign Up
             </Button>
           )}
-          {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
         </Flex>
       </Flex>
     </Header>
