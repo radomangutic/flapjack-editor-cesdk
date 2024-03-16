@@ -26,7 +26,7 @@ const AppHeader = ({ loader }: Props) => {
   const supabase = useSupabaseClient();
   const router = useRouter();
   useEffect(() => {
-    if (router.pathname === "/checkout") {
+    if (router.pathname === "/checkout" || router.pathname === "/checkoutCC") {
       setIsCheckoutPage(true);
     } else {
       setIsCheckoutPage(false);
@@ -169,7 +169,7 @@ const AppHeader = ({ loader }: Props) => {
         ) : (
           ""
         )}
-        {!isLoading && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
+        {!isLoading && !isCheckoutPage && <AuthDialog opened={!session} onClose={closeAuthDialog} />}
       </Flex>
     </Header>
   );
